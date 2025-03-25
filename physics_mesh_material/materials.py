@@ -8,20 +8,20 @@ def create_braid_mesh():
     return mesh
 
 
-def create_braid_material():
-    # Create a material for the braid
-    material_radius = 0.002
-    braidmaterial = fea.ChBeamSectionEulerSimple()
-    braidmaterial.SetAsCircularSection( material_radius )
-    braidmaterial.SetYoungModulus( 1.72e10 ) # Glass-reinforced polyester (GRP) - https://en.wikipedia.org/wiki/Young%27s_modulus
-    braidmaterial.SetDensity( 1200 )  # 1.2 g/cm^3 = 1200kg/m^3  
-    #material.SetShearModulus(0.01e9 * 0.3)
-    #material.SetRayleighDamping(0.000)
-    return braidmaterial
+def create_braid_material(material_radius = 0.002):
+    braid_material = fea.ChBeamSectionEulerSimple()
+    braid_material.SetAsCircularSection(material_radius)
+
+    braid_material.SetYoungModulus(1.72e10) # Glass-reinforced polyester (GRP) - https://en.wikipedia.org/wiki/Young%27s_modulus
+    braid_material.SetDensity(1200)  # 1.2 g/cm^3 = 1200kg/m^3  
+    
+    #braid_material.SetShearModulus(0.01e9 * 0.3)
+    braid_material.SetRayleighDamping(0.03)
+    
+    return braid_material
 
 
-def create_surface_material():
-    # create material for floor
-    surfacematerial = chrono.ChContactMaterialSMC()
-    return surfacematerial
+def create_floor_material():
+    floor_material = chrono.ChContactMaterialSMC()
+    return floor_material
 

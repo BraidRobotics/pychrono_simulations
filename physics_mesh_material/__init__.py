@@ -1,2 +1,2 @@
-from physics_mesh_material.materials import create_braid_mesh, create_braid_material, create_surface_material
+from physics_mesh_material.materials import create_braid_mesh, create_braid_material, create_floor_material
 from physics_mesh_material.system import setup_system

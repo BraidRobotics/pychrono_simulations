@@ -2,13 +2,13 @@ import pychrono as chrono
 import pychrono.pardisomkl as mkl
 import pychrono.fea as fea
 
-from physics_mesh_material import setup_system, create_braid_mesh, create_braid_material, create_surface_material
+from physics_mesh_material import setup_system, create_braid_mesh, create_braid_material, create_floor_material
 
 system = setup_system()
 
 braid_mesh = create_braid_mesh()
 braid_material = create_braid_material()
-surface_material = create_surface_material()
+floor_material = create_floor_material()
 
 from structures import create_floor, create_braid_structure
 
@@ -17,9 +17,9 @@ layers, top_nodes = create_braid_structure(braid_mesh, braid_material)
 
 # for node in top_nodes:
 #    print(node.GetPos())
-#    node.SetForce( chrono.ChVector3d( 0, 0.2, 0 ))
+#    node.SetForce(chrono.ChVector3d(0, 0.2, 0))
         
-floor = create_floor(system, surface_material)
+floor = create_floor(system, floor_material)
 
 # small box 
 # box = chrono.ChBodyEasyBox(0.2,0.2,0.2, 2700, True, True, surface_material)
@@ -49,7 +49,7 @@ index = 0
 while (not will_visualize and index < 600) or (will_visualize and visualization.Run()):
 
     system.DoStepDynamics(0.01)
-    
+
     if (will_visualize):
         visualization.BeginScene()
         visualization.Render()
