@@ -1,2 +1,2 @@
-from structures.braided_structure import create_braided_structure
+from structures.braided_structure import create_braid_structure
 from structures.floor import create_floor
