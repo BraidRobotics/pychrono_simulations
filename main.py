@@ -2,22 +2,22 @@ import pychrono as chrono
 import pychrono.pardisomkl as mkl
 import pychrono.fea as fea
 
-from physics_mesh_material import setup_system, create_braid_mesh, create_braid_material, create_floor_material
+from physics_model import create_braid_mesh, create_braid_material, create_floor_material
 
-system = setup_system()
+system = chrono.ChSystemSMC()
+system.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
 
 braid_mesh = create_braid_mesh()
-braid_material = create_braid_material()
+braid_material = create_braid_material(material_radius = 0.002)
 floor_material = create_floor_material()
 
 from structures import create_floor, create_braid_structure
 
-layers, top_nodes = create_braid_structure(braid_mesh, braid_material)
+layers, top_nodes, node_positions = create_braid_structure(braid_mesh, braid_material)
 
 
-# for node in top_nodes:
-#    print(node.GetPos())
-#    node.SetForce(chrono.ChVector3d(0, 0.2, 0))
+for node in top_nodes:
+   node.SetForce(chrono.ChVector3d(0, 0.2, 0))
         
 floor = create_floor(system, floor_material)
 
@@ -37,24 +37,23 @@ will_visualize = True
 visualization = None
 
 if (will_visualize):
-    visualization = create_visualization(system, floor, braid_mesh)
+    visualization = create_visualization(system, floor, braid_mesh, node_positions)
 
-# Change the solver form the default SOR to the MKL Pardiso, more precise for fea.
-msolver = mkl.ChSolverPardisoMKL()
-# msolver.LockSparsityPattern( True )
-system.SetSolver(msolver)
+# Changes the solver from the default SOR to the MKL Pardiso, more precise for fea.
+linear_solver = mkl.ChSolverPardisoMKL()
+linear_solver.LockSparsityPattern(True)
+system.SetSolver(linear_solver)
 
 # Simulation loop
-index = 0
-while (not will_visualize and index < 600) or (will_visualize and visualization.Run()):
+timestep = 0.01
 
-    system.DoStepDynamics(0.01)
+while not will_visualize or visualization.Run():
 
-    if (will_visualize):
-        visualization.BeginScene()
-        visualization.Render()
-        #vis.WriteImageToFile("braid" + f'{index:05d}' + ".jpg")
-        visualization.EndScene()    
-    
-    index = index + 1
+	system.DoStepDynamics(timestep)
+
+	if will_visualize:
+		visualization.BeginScene()
+		visualization.Render()
+		# visualization.WriteImageToFile("braid" + f'{int(system.GetChTime() / timestep):05d}' + ".jpg")
+		visualization.EndScene()
 

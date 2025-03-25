@@ -22,6 +22,7 @@ num_nodes_per_layer = num_strands
 
 def create_braid_structure(braid_mesh, braid_material):
     layers = []
+    node_positions = []
 
     for layer_no in range(num_layers):
         current_layer = []
@@ -46,6 +47,7 @@ def create_braid_structure(braid_mesh, braid_material):
             # --- Node creation ---
             current_node = fea.ChNodeFEAxyzrot(chrono.ChFramed(current_point))
             braid_mesh.AddNode(current_node)
+            node_positions.append(current_point)
 
             if layer_no == 0:
                 current_node.SetFixed(True)
@@ -86,4 +88,4 @@ def create_braid_structure(braid_mesh, braid_material):
 
         topnodes.append(buildercw.GetLastBeamNodes()[-1])
 
-    return layers, topnodes
+    return layers, topnodes, node_positions
