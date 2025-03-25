@@ -1,6 +1,5 @@
 import pychrono as chrono
 import pychrono.pardisomkl as mkl
-import pychrono.irrlicht as irr
 import pychrono.fea as fea
 
 from physics_mesh_material import setup_system, create_braid_mesh, create_braid_material, create_surface_material
@@ -99,32 +98,15 @@ floor = create_floor(system, surface_material)
 # Add the mesh to the system
 system.Add(braid_mesh)
 
-visualization = True
 
-if (visualization):
-    # create visualization for mesh
-    visualizemesh = chrono.ChVisualShapeFEA(braid_mesh)
-    visualizemesh.SetFEMdataType(chrono.ChVisualShapeFEA.DataType_ELEM_BEAM_TY)
-    visualizemesh.SetColorscaleMinMax(-0.5, 0.5)
-    visualizemesh.SetSmoothFaces(True)
-    visualizemesh.SetWireframe(False)
-    braid_mesh.AddVisualShapeFEA(visualizemesh)
+from visualization import create_visualization
 
-    visualizefloor = chrono.ChVisualShapeBox( chrono.ChVector3d( 5,0.1,5) )
-    visualizefloor.SetColor( chrono.ChColor( 0.2, 0.2, 0.2 ))
-    floor.AddVisualShape( visualizefloor )
 
-    # Create a visualization system
-    vis = irr.ChVisualSystemIrrlicht()
-    vis.AttachSystem(system)
-    vis.SetWindowSize(600, 1200)
-    vis.SetWindowTitle("Biaxial Braid Simulation")
-    vis.SetShadows( True )
-    vis.Initialize()
-    vis.AddSkyBox()
-    #vis.AddGrid( 0.1, 0.1, 2, 20 )
-    vis.AddCamera(chrono.ChVector3d(0.5, 1, 0.5), chrono.ChVector3d(0, 0.5, 0))
-    vis.AddTypicalLights()
+will_visualize = True
+visualization = None
+
+if (will_visualize):
+    visualization = create_visualization(system, floor, braid_mesh)
 
 # Change the solver form the default SOR to the MKL Pardiso, more precise for fea.
 msolver = mkl.ChSolverPardisoMKL()
@@ -133,14 +115,14 @@ system.SetSolver(msolver)
 
 # Simulation loop
 index = 0
-while (not visualization and index < 600) or (visualization and vis.Run()):
+while (not will_visualize and index < 600) or (will_visualize and visualization.Run()):
 
     system.DoStepDynamics(0.01)
-    if (visualization):
-        vis.BeginScene()
-        vis.Render()
+    if (will_visualize):
+        visualization.BeginScene()
+        visualization.Render()
         #vis.WriteImageToFile("braid" + f'{index:05d}' + ".jpg")
-        vis.EndScene()    
+        visualization.EndScene()    
     
     index = index + 1
 
