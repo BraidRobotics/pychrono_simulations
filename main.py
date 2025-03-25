@@ -1,7 +1,6 @@
 import pychrono as chrono
 import pychrono.pardisomkl as mkl
 import pychrono.irrlicht as irr
-import math
 import pychrono.fea as fea
 
 from physics_mesh_material import setup_system, create_braid_mesh, create_braid_material, create_surface_material
@@ -12,23 +11,28 @@ braid_mesh = create_braid_mesh()
 braid_material = create_braid_material()
 surface_material = create_surface_material()
 
-######################################################################################################
-######################################################################################################
-######################################################################################################
+from structures import create_floor, create_braided_structure
 
-# parameters for the braid
-num_rods = 12   #has to be an even number
+# layers, top_nodes = create_braided_structure(braid_mesh, braid_material)
+
+
+######################################################################################################
+#### parameters for the braid ########################################################################
+######################################################################################################
+######################################################################################################
+import math
+
+num_rods = 12   # has to be an even number
 radius = 0.15
 pitch = 1.13
 num_layers = 10
 
 # generate points
-num_intersections = int( num_rods/2 )   # two rods insect at each point
+num_intersections = int(num_rods / 2)   # two rods insect at each point
 
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
-
 
 layers= []
 for layer_no in range(num_layers):
@@ -37,7 +41,7 @@ for layer_no in range(num_layers):
         current_angle = layer_no*2*math.pi/(2*num_intersections) + point_no/num_intersections * 2 * math.pi
         current_point = chrono.ChVector3d(radius * math.cos(current_angle), layer_no * pitch / num_rods, radius * math.sin(current_angle))
         current_node = fea.ChNodeFEAxyzrot( chrono.ChFramed( current_point ) )       
-        mesh.AddNode( current_node )
+        braid_mesh.AddNode( current_node )
         if layer_no == 0:
             current_node.SetFixed( True )  
         current_layer.append( current_node )
@@ -52,43 +56,40 @@ for rods in range(int(num_rods/2)):
     # counter clock-wise
     builderccw = fea.ChBuilderBeamEuler()
     for layer_no in range(num_layers-1):
-        builderccw.BuildBeam( mesh,
-                              braidmaterial,
-                              10,
-                              layers[layer_no][rods],
-                              layers[layer_no+1][rods],
-                              chrono.ChVector3d( 0,1,0 ) )
+        builderccw.BuildBeam(braid_mesh,
+                            braid_material,
+                            10,
+                            layers[layer_no][rods],
+                            layers[layer_no+1][rods],
+                            chrono.ChVector3d( 0,1,0 ) )
     
         
     # clock-wise
     buildercw = fea.ChBuilderBeamEuler()
     if rods > 0:
         for layer_no in range(0,num_layers-1):
-            buildercw.BuildBeam( mesh,
-                                 braidmaterial,
-                                 10,
-                                 layers[layer_no][rods],
-                                 layers[layer_no+1][rods-1],
-                                 chrono.ChVector3d( 0,1,0 ) )
+            buildercw.BuildBeam(braid_mesh,
+                                braid_material,
+                                10,
+                                layers[layer_no][rods],
+                                layers[layer_no+1][rods-1],
+                                chrono.ChVector3d( 0,1,0 ) )
     else:
         for layer_no in range(0,num_layers-1):
-            buildercw.BuildBeam( mesh,
-                                 braidmaterial,
-                                 10,
-                                 layers[layer_no][rods],
-                                 layers[layer_no+1][int(num_rods/2)-1],
-                                 chrono.ChVector3d( 0,1,0 ) )
+            buildercw.BuildBeam(braid_mesh,
+                                braid_material,
+                                10,
+                                layers[layer_no][rods],
+                                layers[layer_no+1][int(num_rods/2)-1],
+                                chrono.ChVector3d( 0,1,0 ) )
     topnodes.append( buildercw.GetLastBeamNodes()[-1] )
 
-#for node in topnodes:
+
+#for node in top_nodes:
 #    print(node.GetPos())
 #    node.SetForce( chrono.ChVector3d( 0, 0.02, 0 ))
         
-# create floor
-floor = chrono.ChBodyEasyBox(5,0.1,5, 2700, True, True, surfacematerial)
-floor.SetFixed( True )
-floor.SetPos( chrono.ChVector3d( 0,-0.1,0))
-system.Add( floor )
+floor = create_floor(system, surface_material)
 
 # small box 
 #box = chrono.ChBodyEasyBox(0.2,0.2,0.2, 2700, True, True, surfacematerial)
@@ -96,18 +97,18 @@ system.Add( floor )
 #system.Add( box )
 
 # Add the mesh to the system
-system.Add(mesh)
+system.Add(braid_mesh)
 
 visualization = True
 
 if (visualization):
     # create visualization for mesh
-    visualizemesh = chrono.ChVisualShapeFEA(mesh)
+    visualizemesh = chrono.ChVisualShapeFEA(braid_mesh)
     visualizemesh.SetFEMdataType(chrono.ChVisualShapeFEA.DataType_ELEM_BEAM_TY)
     visualizemesh.SetColorscaleMinMax(-0.5, 0.5)
     visualizemesh.SetSmoothFaces(True)
     visualizemesh.SetWireframe(False)
-    mesh.AddVisualShapeFEA(visualizemesh)
+    braid_mesh.AddVisualShapeFEA(visualizemesh)
 
     visualizefloor = chrono.ChVisualShapeBox( chrono.ChVector3d( 5,0.1,5) )
     visualizefloor.SetColor( chrono.ChColor( 0.2, 0.2, 0.2 ))
