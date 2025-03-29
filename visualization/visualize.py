@@ -31,8 +31,6 @@ def create_visualization(system, floor, braided_mesh, node_positions):
     # camera_target = chrono.ChVector3d(center.x, center.y + 0.1 * size.y, center.z)
     # visualization.AddCamera(camera_pos, camera_target)
 
-
-
     return visualization
 
 

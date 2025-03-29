@@ -6,32 +6,29 @@ from physics_model import create_braid_mesh, create_braid_material, create_floor
 
 system = chrono.ChSystemSMC()
 system.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
+system.SetGravitationalAcceleration(chrono.ChVector3d(0, -9.81, 0))  # gravity
 
 braid_mesh = create_braid_mesh()
-braid_material = create_braid_material(material_radius = 0.002)
+braid_material = create_braid_material(material_radius = 0.008)
 floor_material = create_floor_material()
+
+system.Add(braid_mesh)
 
 from structures import create_floor, create_braid_structure
 
+floor = create_floor(system, floor_material)
 layers, top_nodes, node_positions = create_braid_structure(braid_mesh, braid_material)
 
 
-for node in top_nodes:
-   node.SetForce(chrono.ChVector3d(0, 0.2, 0))
-        
-floor = create_floor(system, floor_material)
+from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 
-# small box 
-# box = chrono.ChBodyEasyBox(0.2,0.2,0.2, 2700, True, True, surface_material)
-# box.SetPos( chrono.ChVector3d( 0,1,0))
-# system.Add( box )
+# apply_force_to_all_nodes(layers)
+# apply_force_to_top_nodes(top_nodes, force_in_y_direction=-90)
 
-# Add the mesh to the system
-system.Add(braid_mesh)
+place_box(top_nodes, system, floor_material)
 
 
 from visualization import create_visualization
-
 
 will_visualize = True
 visualization = None
@@ -48,7 +45,7 @@ system.SetSolver(linear_solver)
 timestep = 0.01
 
 while not will_visualize or visualization.Run():
-
+ 
 	system.DoStepDynamics(timestep)
 
 	if will_visualize:
