@@ -1,8 +1,9 @@
 import pychrono as chrono
 
-def apply_force_to_all_nodes(nodes, force_in_y_direction=-0.2):
-   for node in nodes:
-       node.SetForce(chrono.ChVector3d(0, force_in_y_direction, 0))
+def apply_force_to_all_nodes(layers, force_in_y_direction=-0.2):
+	for layer in layers:
+		for node in layer:
+			node.SetForce(chrono.ChVector3d(0, force_in_y_direction, 0))
 
 
 # The force is in SI units, so -0.2 = 0.2 N

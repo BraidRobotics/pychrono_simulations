@@ -35,7 +35,6 @@ from util import get_current_node_positions_from_beam_elements, compute_bounding
 # calculate_model_weight(beam_elements, braid_material)
 
 initial_bounds = compute_bounding_box(node_positions)
-print("Initial bounds:", initial_bounds)
 
 ##################################################
 # Applying Forces
@@ -44,8 +43,8 @@ print("Initial bounds:", initial_bounds)
 
 from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 
-# apply_force_to_all_nodes(layers)
-apply_force_to_top_nodes(top_nodes, force_in_y_direction=-190)
+# apply_force_to_all_nodes(layers, force_in_y_direction=-1)
+# apply_force_to_top_nodes(top_nodes, force_in_y_direction=-2)
 
 # place_box(top_nodes, system, floor_material)
 
@@ -59,7 +58,7 @@ will_visualize = True
 visualization = None
 
 if (will_visualize):
-    visualization = create_visualization(system, floor, braid_mesh, node_positions)
+    visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
 
 # Changes the solver from the default SOR to the MKL Pardiso, more precise for fea.
 linear_solver = mkl.ChSolverPardisoMKL()
