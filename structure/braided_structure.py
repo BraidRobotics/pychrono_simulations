@@ -58,7 +58,7 @@ def create_braid_structure(braid_mesh, braid_material):
         layers.append(current_layer)
 
 
-    topnodes = []
+    top_nodes = []
     num_beam_segments = 10
 
     for strand in range(num_strands):
@@ -88,7 +88,7 @@ def create_braid_structure(braid_mesh, braid_material):
                 chrono.ChVector3d(0, 1, 0)
             )
 
-        topnodes.append(buildercw.GetLastBeamNodes()[-1])
+        top_nodes.append(buildercw.GetLastBeamNodes()[-1])
         beam_elements.extend(buildercw.GetLastBeamElements())
 
-    return layers, topnodes, node_positions, beam_elements
+    return layers, top_nodes, node_positions, beam_elements

@@ -2,6 +2,10 @@ import pychrono as chrono
 import pychrono.pardisomkl as mkl
 import pychrono.fea as fea
 
+##################################################
+# Mesh / Material
+##################################################
+
 from physics_model import create_braid_mesh, create_braid_material, create_floor_material
 
 system = chrono.ChSystemSMC()
@@ -19,18 +23,35 @@ from structure import create_floor, create_braid_structure
 floor = create_floor(system, floor_material)
 layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material)
 
-from util import check_braid_failure, calculate_model_weight
+
+##################################################
+# Structural Integrity Checks / Weight Calculation
+##################################################
+
+
+from util import get_current_node_positions_from_beam_elements, compute_bounding_box, check_bounding_box_explosion, \
+			check_beam_strain_exceed, check_node_velocity_spike, calculate_model_weight
 
 # calculate_model_weight(beam_elements, braid_material)
+
+initial_bounds = compute_bounding_box(node_positions)
+print("Initial bounds:", initial_bounds)
+
+##################################################
+# Applying Forces
+##################################################
 
 
 from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 
 # apply_force_to_all_nodes(layers)
-# apply_force_to_top_nodes(top_nodes, force_in_y_direction=-90)
+apply_force_to_top_nodes(top_nodes, force_in_y_direction=-190)
 
 # place_box(top_nodes, system, floor_material)
 
+##################################################
+# Visualization
+##################################################
 
 from visualization import create_visualization, output_image_frame
 
@@ -49,12 +70,20 @@ system.SetSolver(linear_solver)
 timestep = 0.01
 
 while not will_visualize or visualization.Run():
- 
-	system.DoStepDynamics(timestep)
 
-	if will_visualize:
-		visualization.BeginScene()
-		visualization.Render()
-		# output_image_frame(visualization)
-		visualization.EndScene()
+    system.DoStepDynamics(timestep)
+
+    # check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
+
+    # check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
+
+    # check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
+
+    if will_visualize:
+        visualization.BeginScene()
+        visualization.Render()
+        # output_image_frame(visualization)
+        visualization.EndScene()
+
+
 
