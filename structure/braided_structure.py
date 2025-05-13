@@ -23,6 +23,7 @@ num_nodes_per_layer = num_strands
 def create_braid_structure(braid_mesh, braid_material):
     layers = []
     node_positions = []
+    beam_elements = []
 
     for layer_no in range(num_layers):
         current_layer = []
@@ -72,6 +73,7 @@ def create_braid_structure(braid_mesh, braid_material):
                 layers[layer_no + 1][strand],
                 chrono.ChVector3d(0, 1, 0)
             )
+        beam_elements.extend(builderccw.GetLastBeamElements())
 
         # CW (diagonal wrap)
         buildercw = fea.ChBuilderBeamEuler()
@@ -87,5 +89,6 @@ def create_braid_structure(braid_mesh, braid_material):
             )
 
         topnodes.append(buildercw.GetLastBeamNodes()[-1])
+        beam_elements.extend(buildercw.GetLastBeamElements())
 
-    return layers, topnodes, node_positions
+    return layers, topnodes, node_positions, beam_elements

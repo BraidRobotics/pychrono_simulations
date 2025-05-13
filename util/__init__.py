@@ -1,1 +1,2 @@
 from util.structural_integrity import check_braid_failure
+from util.weight import calculate_model_weight

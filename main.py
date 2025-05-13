@@ -14,10 +14,14 @@ floor_material = create_floor_material()
 
 system.Add(braid_mesh)
 
-from structures import create_floor, create_braid_structure
+from structure import create_floor, create_braid_structure
 
 floor = create_floor(system, floor_material)
-layers, top_nodes, node_positions = create_braid_structure(braid_mesh, braid_material)
+layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material)
+
+from util import check_braid_failure, calculate_model_weight
+
+# calculate_model_weight(beam_elements, braid_material)
 
 
 from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
