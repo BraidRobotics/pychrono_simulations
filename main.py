@@ -25,10 +25,10 @@ from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 # apply_force_to_all_nodes(layers)
 # apply_force_to_top_nodes(top_nodes, force_in_y_direction=-90)
 
-place_box(top_nodes, system, floor_material)
+# place_box(top_nodes, system, floor_material)
 
 
-from visualization import create_visualization
+from visualization import create_visualization, output_image_frame
 
 will_visualize = True
 visualization = None
@@ -51,6 +51,6 @@ while not will_visualize or visualization.Run():
 	if will_visualize:
 		visualization.BeginScene()
 		visualization.Render()
-		# visualization.WriteImageToFile("braid" + f'{int(system.GetChTime() / timestep):05d}' + ".jpg")
+		# output_image_frame(visualization)
 		visualization.EndScene()
 
