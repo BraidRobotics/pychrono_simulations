@@ -15,6 +15,7 @@ def compute_bounding_box(positions):
 	xs = [p.x for p in positions]
 	ys = [p.y for p in positions]
 	zs = [p.z for p in positions]
+	
 	return {
 		"min_x": min(xs), "max_x": max(xs),
 		"min_y": min(ys), "max_y": max(ys),
