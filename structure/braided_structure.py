@@ -48,7 +48,7 @@ def create_braid_structure(braid_mesh, braid_material):
             # --- Node creation ---
             current_node = fea.ChNodeFEAxyzrot(chrono.ChFramed(current_point))
             braid_mesh.AddNode(current_node)
-            node_positions.append(current_point)
+            node_positions.append(current_node.GetPos())
 
             if layer_no == 0:
                 current_node.SetFixed(True)
