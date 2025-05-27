@@ -57,7 +57,7 @@ from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 # Visualization
 ##################################################
 
-from visualization import create_visualization, output_image_frame
+from visualization import create_visualization, output_image_frame, make_video_from_frames
 
 will_visualize = True
 visualization = None
@@ -70,19 +70,24 @@ if (will_visualize):
 ##################################################
 
 timestep = 0.01
+try:
+    while not will_visualize or visualization.Run():
 
-while not will_visualize or visualization.Run():
+        system.DoStepDynamics(timestep)
 
-    system.DoStepDynamics(timestep)
+        # check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
 
-    # check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
+        # check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
 
-    # check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
+        # check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
 
-    # check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
+        if will_visualize:
+            visualization.BeginScene()
+            visualization.Render()
+            # output_image_frame(visualization)
+            visualization.EndScene()
+except KeyboardInterrupt:
+    ...
+    # make_video_from_frames()
 
-    if will_visualize:
-        visualization.BeginScene()
-        visualization.Render()
-        # output_image_frame(visualization)
-        visualization.EndScene()
+    

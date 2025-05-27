@@ -1,2 +1,2 @@
 from visualization.visualize import create_visualization
-from visualization.visualization_util import output_image_frame
+from visualization.record import output_image_frame, make_video_from_frames
