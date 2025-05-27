@@ -1,0 +1,2 @@
+conda activate chrono
+PYTHONPATH=$CONDA_PREFIX/share/chrono/python python main.py
