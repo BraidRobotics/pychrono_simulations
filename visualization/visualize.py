@@ -1,5 +1,4 @@
 import pychrono as chrono
-import pychrono.fea as fea
 import pychrono.irrlicht as irr
 
 def create_visualization(system, floor, braided_mesh, initial_bounds):
@@ -19,7 +18,7 @@ def create_visualization(system, floor, braided_mesh, initial_bounds):
 	visualization = irr.ChVisualSystemIrrlicht()
 	visualization.AttachSystem(system)
 	visualization.SetWindowSize(600, 800)
-	visualization.SetWindowTitle("Biaxial Braid Simulation")
+	visualization.SetWindowTitle("Braid Simulation")
 	visualization.SetShadows(False)
 	visualization.Initialize()
 	visualization.AddSkyBox()
@@ -37,6 +36,5 @@ def create_visualization(system, floor, braided_mesh, initial_bounds):
 
 
 	return visualization
-
 
 

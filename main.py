@@ -1,5 +1,4 @@
 import pychrono as chrono
-import pychrono.fea as fea
 
 ##################################################
 # Physics Engine
@@ -87,6 +86,3 @@ while not will_visualize or visualization.Run():
         visualization.Render()
         # output_image_frame(visualization)
         visualization.EndScene()
-
-
-
