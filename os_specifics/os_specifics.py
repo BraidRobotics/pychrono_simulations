@@ -26,8 +26,10 @@ def setup_macOS_solver(system):
 
 
 def setup_non_macOS_solver(system):
-    linear_solver = chrono.pardisomkl.ChSolverPardisoMKL()
-    # linear_solver.LockSparsityPattern(True)
+    import pychrono.pardisomkl as mkl
+
+    linear_solver = mkl.ChSolverPardisoMKL()
+    linear_solver.LockSparsityPattern(True)
     system.SetSolver(linear_solver)
 
     return linear_solver
