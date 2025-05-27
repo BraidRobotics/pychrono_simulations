@@ -25,3 +25,8 @@ def make_video_from_frames(path="assets/frames", output="output.mp4", fps=30):
 	]
 	subprocess.run(cmd)
 
+
+
+if __name__ == "__main__":
+	make_video_from_frames()
+
