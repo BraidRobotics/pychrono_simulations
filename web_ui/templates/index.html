@@ -7,23 +7,41 @@
 <body>
 	<h1>Braid Simulation Parameters</h1>
 
-	<h1>Adjust Number of Strands</h1>
-	<label for="numStrandsSlider">num_strands: <span id="sliderValue">{{ num_strands }}</span></label><br>
-	<input type="range" id="numStrandsSlider" min="0" max="100" step="1" value="{{ num_strands }}">
+	<label for="numStrandsSlider">num_strands: <span id="numStrandsValue">{{ num_strands }}</span></label><br>
+	<input type="range" id="numStrandsSlider" min="0" max="100" step="1" value="{{ num_strands }}"><br><br>
+
+	<label for="radiusSlider">radius: <span id="radiusValue">{{ radius }}</span></label><br>
+	<input type="range" id="radiusSlider" min="0" max="1" step="0.01" value="{{ radius }}"><br><br>
+
+	<label for="pitchSlider">pitch: <span id="pitchValue">{{ pitch }}</span></label><br>
+	<input type="range" id="pitchSlider" min="0" max="5" step="0.01" value="{{ pitch }}"><br><br>
+
+	<label for="numLayersSlider">num_layers: <span id="numLayersValue">{{ num_layers }}</span></label><br>
+	<input type="range" id="numLayersSlider" min="1" max="100" step="1" value="{{ num_layers }}"><br><br>
 
 	<script>
-		const slider = document.getElementById('numStrandsSlider');
-		const sliderValue = document.getElementById('sliderValue');
+		const sliders = [
+			{ id: 'numStrandsSlider', label: 'numStrandsValue', key: 'num_strands' },
+			{ id: 'radiusSlider', label: 'radiusValue', key: 'radius' },
+			{ id: 'pitchSlider', label: 'pitchValue', key: 'pitch' },
+			{ id: 'numLayersSlider', label: 'numLayersValue', key: 'num_layers' },
+		];
 
-		slider.value = "{{ num_strands }}";
-		sliderValue.textContent = slider.value;
+		sliders.forEach(({ id, label, key }) => {
+			const slider = document.getElementById(id);
+			const valueLabel = document.getElementById(label);
 
-		slider.addEventListener('input', () => {
-			sliderValue.textContent = slider.value;
-			fetch('/set_param', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ num_strands: parseFloat(slider.value) })
+			slider.addEventListener('input', () => {
+				valueLabel.textContent = slider.value;
+
+				const payload = {};
+				payload[key] = parseFloat(slider.value);
+
+				fetch('/set_param', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(payload)
+				});
 			});
 		});
 	</script>

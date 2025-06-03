@@ -1,26 +1,18 @@
 import pychrono as chrono
 import pychrono.fea as fea
 import math
-
-######################################################################################################
-#### parameters for the braid ########################################################################
-######################################################################################################
-######################################################################################################
-
-num_strands = 5       # Number of helical strands
-radius = 0.15
-pitch = 1.13
-num_layers = 10
-
-# generate points
-num_nodes_per_layer = num_strands
-
+from config import BraidedStructureConfig
 
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
 
-def create_braid_structure(braid_mesh, braid_material):
+def create_braid_structure(braid_mesh, braid_material, braided_structure_config: BraidedStructureConfig):
+    num_strands = braided_structure_config.num_strands
+    radius = braided_structure_config.radius
+    pitch = braided_structure_config.pitch
+    num_layers = braided_structure_config.num_layers
+
     layers = []
     node_positions = []
     beam_elements = []

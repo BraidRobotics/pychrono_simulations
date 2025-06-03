@@ -12,7 +12,6 @@ def output_image_frame(visualization, path="assets/frames"):
 	frame_count += 1
 
 
-
 def make_video_from_frames(path="assets/frames", output="output.mp4", fps=30):
 	cmd = [
 		"ffmpeg",

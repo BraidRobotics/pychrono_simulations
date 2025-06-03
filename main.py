@@ -1,8 +1,9 @@
 import pychrono as chrono
+from config import braided_structure_config
 
-##################################################
+####################################################################################################
 # Physics Engine
-##################################################
+####################################################################################################
 
 from physics_model import create_braid_mesh, create_braid_material, create_floor_material
 from os_specifics import setup_solver
@@ -13,9 +14,9 @@ system.SetGravitationalAcceleration(chrono.ChVector3d(0, -9.81, 0))  # gravity
 
 linear_solver = setup_solver(system)
 
-##################################################
+####################################################################################################
 # Mesh / Material
-##################################################
+####################################################################################################
 
 braid_mesh = create_braid_mesh()
 braid_material = create_braid_material(material_radius = 0.008)
@@ -26,12 +27,12 @@ system.Add(braid_mesh)
 from structure import create_floor, create_braid_structure
 
 floor = create_floor(system, floor_material)
-layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material)
+layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
 
 
-##################################################
+####################################################################################################
 # Structural Integrity Checks / Weight Calculation
-##################################################
+####################################################################################################
 
 
 from util import get_current_node_positions_from_beam_elements, compute_bounding_box, check_bounding_box_explosion, \
@@ -41,9 +42,9 @@ from util import get_current_node_positions_from_beam_elements, compute_bounding
 
 initial_bounds = compute_bounding_box(node_positions)
 
-##################################################
+####################################################################################################
 # Applying Forces
-##################################################
+####################################################################################################
 
 
 from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
@@ -53,9 +54,9 @@ from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 
 # place_box(top_nodes, system, floor_material)
 
-##################################################
+####################################################################################################
 # Server GUI to control simulation parameters
-##################################################
+####################################################################################################
 
 from web_ui import start_server
 
@@ -64,9 +65,9 @@ if (will_run_server):
     start_server()
 
 
-##################################################
+####################################################################################################
 # Visualization
-##################################################
+####################################################################################################
 
 from visualization import create_visualization, output_image_frame, make_video_from_frames
 
@@ -76,9 +77,9 @@ visualization = None
 if (will_visualize):
     visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
 
-##################################################
+####################################################################################################
 # Simulation loop
-##################################################
+####################################################################################################
 
 timestep = 0.01
 try:
@@ -97,6 +98,12 @@ try:
             visualization.Render()
             # output_image_frame(visualization)
             visualization.EndScene()
+
+        if will_run_server:
+            with braided_structure_config.lock:
+                if braided_structure_config.rebuild_requested:
+                    braided_structure_config.rebuild_requested = False
+                    create_braid_structure(braid_mesh, braid_material, braided_structure_config)
 except KeyboardInterrupt:
     ...
     # make_video_from_frames()
