@@ -54,6 +54,17 @@ from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 # place_box(top_nodes, system, floor_material)
 
 ##################################################
+# Server GUI to control simulation parameters
+##################################################
+
+from web_ui import start_server
+
+will_run_server = True
+if (will_run_server):
+    start_server()
+
+
+##################################################
 # Visualization
 ##################################################
 

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Control Panel</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+	<h1>Braid Simulation Parameters</h1>
+
+	<h1>Adjust Number of Strands</h1>
+	<label for="numStrandsSlider">num_strands: <span id="sliderValue">{{ num_strands }}</span></label><br>
+	<input type="range" id="numStrandsSlider" min="0" max="100" step="1" value="{{ num_strands }}">
+
+	<script>
+		const slider = document.getElementById('numStrandsSlider');
+		const sliderValue = document.getElementById('sliderValue');
+
+		slider.value = "{{ num_strands }}";
+		sliderValue.textContent = slider.value;
+
+		slider.addEventListener('input', () => {
+			sliderValue.textContent = slider.value;
+			fetch('/set_param', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ num_strands: parseFloat(slider.value) })
+			});
+		});
+	</script>
+</body>
+</html>

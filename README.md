@@ -24,13 +24,11 @@ $ conda activate chrono
 
 ---
 
-conda install -c conda-forge glfw
-conda install -c projectchrono pychrono
+# Install dependencies
 
-conda config --add channels conda-forge
-conda config --add channels projectchrono
-conda config --set channel_priority strict
-
+```bash
+$ conda install --file requirements.txt
+```
 
 ---
 
