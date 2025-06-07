@@ -75,7 +75,6 @@ from visualization import create_visualization, \
 
 will_visualize = True
 visualization = None
-visual_shape = None
 
 if (will_visualize):
     visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
@@ -83,6 +82,9 @@ if (will_visualize):
 ####################################################################################################
 # Simulation loop
 ####################################################################################################
+
+# todo remove, this is for debugging purposes
+do_once = True
 
 timestep = 0.01
 try:
@@ -96,18 +98,25 @@ try:
 
         # check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
 
+        if system.GetChTime() > 0.3 and do_once:
+            do_once = False
+            for layer in layers:
+                for node in layer:
+                    node.SetPos(node.GetPos() + chrono.ChVector3d(0, -1000, 0))
+
+
+        # if will_run_server:
+        #     snapshot = braided_structure_config.get_snapshot()
+        #     if snapshot["rebuild_requested"]:
+        #         braided_structure_config.update(rebuild_requested=False)
+
+
         if will_visualize:
             visualization.BeginScene()
             visualization.Render()
             # output_image_frame(visualization)
             visualization.EndScene()
 
-
-        if will_run_server:
-            snapshot = braided_structure_config.get_snapshot()
-            if snapshot["rebuild_requested"]:
-                braided_structure_config.update(rebuild_requested=False)
-                
 
 
 except KeyboardInterrupt:
