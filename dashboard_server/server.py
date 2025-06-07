@@ -24,7 +24,7 @@ def set_param():
     data = request.get_json()
     update_data = {}
     if "num_strands" in data:
-        update_data["num_strands"] = float(data["num_strands"])
+        update_data["num_strands"] = int(data["num_strands"])
     if "radius" in data:
         update_data["radius"] = float(data["radius"])
     if "pitch" in data:

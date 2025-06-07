@@ -3,7 +3,6 @@ import pychrono.irrlicht as irr
 
 
 def create_visualization(system, floor, braid_mesh, initial_bounds):
-	# create visualization for mesh
 	visualization_mesh = chrono.ChVisualShapeFEA(braid_mesh)
 	visualization_mesh.SetFEMdataType(chrono.ChVisualShapeFEA.DataType_ELEM_BEAM_TY)
 	visualization_mesh.SetColorscaleMinMax(-0.5, 0.5)
@@ -37,4 +36,3 @@ def create_visualization(system, floor, braid_mesh, initial_bounds):
 
 
 	return visualization
-

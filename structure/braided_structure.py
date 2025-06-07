@@ -82,7 +82,7 @@ def create_braid_structure(braid_mesh, braid_material, braided_structure_config:
     return layers, top_nodes, node_positions, beam_elements
 
 
-def destroy_braid_structure(braid_mesh):
-    braid_mesh.ClearElements()
-    braid_mesh.ClearNodes()
-
+def move_braid_structure(layers):
+    for layer in layers:
+        for node in layer:
+            node.SetPos(node.GetPos() + chrono.ChVector3d(0, -1000, 0))

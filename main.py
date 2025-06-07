@@ -24,7 +24,7 @@ floor_material = create_floor_material()
 
 system.Add(braid_mesh)
 
-from structure import create_floor, create_braid_structure, destroy_braid_structure
+from structure import create_floor, create_braid_structure, move_braid_structure
 
 floor = create_floor(system, floor_material)
 layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
@@ -70,8 +70,7 @@ if (will_run_server):
 # Visualization
 ####################################################################################################
 
-from visualization import create_visualization, \
-                            output_image_frame, make_video_from_frames
+from visualization import create_visualization \
 
 will_visualize = True
 visualization = None
@@ -83,32 +82,19 @@ if (will_visualize):
 # Simulation loop
 ####################################################################################################
 
-# todo remove, this is for debugging purposes
-do_once = True
-
 timestep = 0.01
+
 try:
     while not will_visualize or visualization.Run():
 
         system.DoStepDynamics(timestep)
 
-        # check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
-
-        # check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
-
-        # check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
-
-        if system.GetChTime() > 0.3 and do_once:
-            do_once = False
-            for layer in layers:
-                for node in layer:
-                    node.SetPos(node.GetPos() + chrono.ChVector3d(0, -1000, 0))
-
-
-        # if will_run_server:
-        #     snapshot = braided_structure_config.get_snapshot()
-        #     if snapshot["rebuild_requested"]:
-        #         braided_structure_config.update(rebuild_requested=False)
+        if will_run_server:
+            snapshot = braided_structure_config.get_snapshot()
+            if snapshot["rebuild_requested"]:
+                braided_structure_config.update(rebuild_requested=False)
+                move_braid_structure(layers)
+                layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
 
 
         if will_visualize:
@@ -117,6 +103,12 @@ try:
             # output_image_frame(visualization)
             visualization.EndScene()
 
+
+        # check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
+
+        # check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
+
+        # check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
 
 
 except KeyboardInterrupt:
