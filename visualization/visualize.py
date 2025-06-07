@@ -1,14 +1,15 @@
 import pychrono as chrono
 import pychrono.irrlicht as irr
 
-def create_visualization(system, floor, braided_mesh, initial_bounds):
+
+def create_visualization(system, floor, braid_mesh, initial_bounds):
 	# create visualization for mesh
-	visualization_mesh = chrono.ChVisualShapeFEA(braided_mesh)
+	visualization_mesh = chrono.ChVisualShapeFEA(braid_mesh)
 	visualization_mesh.SetFEMdataType(chrono.ChVisualShapeFEA.DataType_ELEM_BEAM_TY)
 	visualization_mesh.SetColorscaleMinMax(-0.5, 0.5)
 	visualization_mesh.SetSmoothFaces(True)
 	visualization_mesh.SetWireframe(False)
-	braided_mesh.AddVisualShapeFEA(visualization_mesh)
+	braid_mesh.AddVisualShapeFEA(visualization_mesh)
 
 	visualizefloor = chrono.ChVisualShapeBox(chrono.ChVector3d(5, 0.1, 5))
 	visualizefloor.SetColor(chrono.ChColor(0.2, 0.2, 0.2))
@@ -36,5 +37,4 @@ def create_visualization(system, floor, braided_mesh, initial_bounds):
 
 
 	return visualization
-
 

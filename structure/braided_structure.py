@@ -3,10 +3,6 @@ import pychrono.fea as fea
 import math
 from config import BraidedStructureConfig
 
-######################################################################################################
-######################################################################################################
-######################################################################################################
-
 def create_braid_structure(braid_mesh, braid_material, braided_structure_config: BraidedStructureConfig):
     num_strands = braided_structure_config.num_strands
     radius = braided_structure_config.radius
@@ -84,3 +80,9 @@ def create_braid_structure(braid_mesh, braid_material, braided_structure_config:
         beam_elements.extend(buildercw.GetLastBeamElements())
 
     return layers, top_nodes, node_positions, beam_elements
+
+
+def destroy_braid_structure(braid_mesh):
+    braid_mesh.ClearElements()
+    braid_mesh.ClearNodes()
+

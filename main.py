@@ -24,7 +24,7 @@ floor_material = create_floor_material()
 
 system.Add(braid_mesh)
 
-from structure import create_floor, create_braid_structure
+from structure import create_floor, create_braid_structure, destroy_braid_structure
 
 floor = create_floor(system, floor_material)
 layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
@@ -58,9 +58,10 @@ from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 # Server GUI to control simulation parameters
 ####################################################################################################
 
-from web_ui import start_server
+from dashboard_server import start_server
 
 will_run_server = True
+
 if (will_run_server):
     start_server()
 
@@ -69,10 +70,12 @@ if (will_run_server):
 # Visualization
 ####################################################################################################
 
-from visualization import create_visualization, output_image_frame, make_video_from_frames
+from visualization import create_visualization, \
+                            output_image_frame, make_video_from_frames
 
 will_visualize = True
 visualization = None
+visual_shape = None
 
 if (will_visualize):
     visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
@@ -99,13 +102,14 @@ try:
             # output_image_frame(visualization)
             visualization.EndScene()
 
+
         if will_run_server:
-            with braided_structure_config.lock:
-                if braided_structure_config.rebuild_requested:
-                    braided_structure_config.rebuild_requested = False
-                    create_braid_structure(braid_mesh, braid_material, braided_structure_config)
+            snapshot = braided_structure_config.get_snapshot()
+            if snapshot["rebuild_requested"]:
+                braided_structure_config.update(rebuild_requested=False)
+                
+
+
 except KeyboardInterrupt:
     ...
     # make_video_from_frames()
-
-    
