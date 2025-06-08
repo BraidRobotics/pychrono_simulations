@@ -13,15 +13,19 @@ def run_single_experiment(experiment_config):
 
     main(simulation_config, experiment_config)
 
+
 if __name__ == "__main__":
     experiment_configs = []
     for i in range(NUM_EXPERIMENTS):
+
+        force_in_y_direction = [i for _ in range(NUM_EXPERIMENTS) for i in range(20, 81)]
+
         experiment_config = ExperimentConfig(
             experiment_name="Structural Integrity Test",
             description="Test of braided structure under applied forces",
             time_to_explosion=0,
             max_simulation_time=2.5,
-            force_applied_in_y_direction=i,
+            force_applied_in_y_direction=force_in_y_direction[i],
             force_applied_in_x_direction=0.0,
             force_type="TOP_NODES_DOWN",
             meta_data=""

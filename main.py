@@ -1,8 +1,7 @@
-import sys
-import json
 from config.experiment_config import ExperimentConfig
 import pychrono as chrono
 from config import braided_structure_config
+from visualization import make_video_from_frames
 
 from database import insert_experiment
 
@@ -106,7 +105,8 @@ def main(simulation_config, experiment_config):
             if simulation_config.will_visualize:
                 visualization.BeginScene()
                 visualization.Render()
-                # output_image_frame(visualization)
+                if simulation_config.will_take_screenshots:
+                    visualization.TakeScreenshot()
                 visualization.EndScene()
 
 
@@ -124,14 +124,13 @@ def main(simulation_config, experiment_config):
 
             if time_passed > experiment_config.max_simulation_time:
                 config_data = experiment_config.__dict__.copy()
-                config_data["time_to_explosion"] = system.GetChTime()
                 insert_experiment(**config_data)
                 break
 
 
     except KeyboardInterrupt:
-        ...
-        # make_video_from_frames()
+        if simulation_config.will_record_video:
+            make_video_from_frames()
 
 
 if __name__ == "__main__":
@@ -141,7 +140,7 @@ if __name__ == "__main__":
 		experiment_name="Structural Integrity Test",
 		description="Test of braided structure under applied forces",
 		time_to_explosion=0,
-		max_simulation_time=1.0,
+		max_simulation_time=10000000.0,
 		force_applied_in_y_direction=0.0,
 		force_applied_in_x_direction=0.0,
 		force_type="TOP_NODES_DOWN",
