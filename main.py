@@ -56,7 +56,7 @@ def main(simulation_config, experiment_config):
 
     from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 
-    # apply_force_to_all_nodes(layers, force_in_y_direction=-40)
+    apply_force_to_all_nodes(layers, experiment_config.force_applied_in_y_direction)
     # apply_force_to_top_nodes(top_nodes, force_in_y_direction=-2)
 
     # place_box(top_nodes, system, floor_material)
@@ -93,6 +93,8 @@ def main(simulation_config, experiment_config):
 
             system.DoStepDynamics(timestep)
 
+            time_passed = system.GetChTime()
+
             if simulation_config.will_run_server:
                 snapshot = braided_structure_config.get_snapshot()
                 if snapshot["rebuild_requested"]:
@@ -109,17 +111,22 @@ def main(simulation_config, experiment_config):
 
 
             has_exploded = check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
-            if has_exploded:
-                if experiment_config:
-                    config_data = experiment_config.__dict__.copy()
-                    config_data["time_to_explosion"] = system.GetChTime()
-                    insert_experiment(**config_data)
-                break
-
             # check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
-
             # check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
 
+            if has_exploded:
+                config_data = experiment_config.__dict__.copy()
+                config_data["time_to_explosion"] = system.GetChTime()
+                insert_experiment(**config_data)
+                break
+
+
+
+            if time_passed > experiment_config.max_simulation_time:
+                config_data = experiment_config.__dict__.copy()
+                config_data["time_to_explosion"] = system.GetChTime()
+                insert_experiment(**config_data)
+                break
 
 
     except KeyboardInterrupt:
@@ -134,12 +141,12 @@ if __name__ == "__main__":
 		experiment_name="Structural Integrity Test",
 		description="Test of braided structure under applied forces",
 		time_to_explosion=0,
-		force_applied=0,
+		max_simulation_time=1.0,
+		force_applied_in_y_direction=0.0,
+		force_applied_in_x_direction=0.0,
 		force_type="TOP_NODES_DOWN",
-		braided_structure_config=braided_structure_config.get_snapshot(),
 		meta_data=""
 	)
 	
 	simulation_config = SimulationConfig(will_run_server=False, will_visualize=True)
 	main(simulation_config, experiment_config)
-

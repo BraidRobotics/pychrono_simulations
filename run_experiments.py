@@ -1,12 +1,13 @@
+import os
 from multiprocessing import Pool
 from config import ExperimentConfig, SimulationConfig
 from main import main
 
 NUM_EXPERIMENTS = 100 
-NUM_CONCURRENT_EXPERIMENTS = 5
+NUM_CONCURRENT_EXPERIMENTS = os.cpu_count()
 
 def run_single_experiment(experiment_config):
-    print(f"Running experiment with force_applied {experiment_config.force_applied}")
+    print(f"Running experiment with force_applied {experiment_config.force_applied_in_y_direction}")
     
     simulation_config = SimulationConfig(will_run_server=False, will_visualize=False)
 
@@ -19,9 +20,10 @@ if __name__ == "__main__":
             experiment_name="Structural Integrity Test",
             description="Test of braided structure under applied forces",
             time_to_explosion=0,
-            force_applied=i,
+            max_simulation_time=2.5,
+            force_applied_in_y_direction=i,
+            force_applied_in_x_direction=0.0,
             force_type="TOP_NODES_DOWN",
-            braided_structure_config={},
             meta_data=""
         )
         experiment_configs.append(experiment_config)

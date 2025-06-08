@@ -14,10 +14,14 @@ def create_table():
             experiment_name TEXT NOT NULL,
             description TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+
             time_to_explosion FLOAT,
-            force_applied FLOAT,
+            max_simulation_time FLOAT DEFAULT 10.0,
+            
             force_type TEXT CHECK(force_type IN ('TOP_NODES_DOWN', 'ALL_NODES_DOWN', 'RIGHT_SIDE_SIDEWAYS')),
-            braided_structure_config TEXT,
+            force_applied_in_y_direction FLOAT,
+            force_applied_in_x_direction FLOAT,
+ 
             meta_data TEXT
         )
     ''')
