@@ -38,7 +38,7 @@ def check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold
     has_exploded = current_volume > (volume_threshold * initial_volume)
 
     if has_exploded and verbose:
-        print("‼️ Explosion detected: bounding box exceeded threshold")
+        print("🛑 Explosion detected: bounding box exceeded threshold")
 
     return has_exploded
 
@@ -60,7 +60,7 @@ def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=True)
 			strain = abs((current_length - rest_length) / rest_length)
 			if strain > strain_threshold:
 				if verbose:
-					print(f"‼️ Beam strain exceeded: {strain:.2f} > {strain_threshold:.2f}")
+					print(f"🛑 Beam strain exceeded: {strain:.2f} > {strain_threshold:.2f}")
 				return True
 	return False
 
@@ -82,7 +82,7 @@ def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=Tr
 				vel = (pos - last_pos).Length()  # Assuming timestep is constant
 				if vel > velocity_threshold:
 					if verbose:
-						print(f"‼️ Velocity spike: {vel:.2f} > {velocity_threshold:.2f}")
+						print(f"🛑 Velocity spike: {vel:.2f} > {velocity_threshold:.2f}")
 					spike_detected = True
 
 			check_node_velocity_spike._last_positions[node_id] = pos
