@@ -1,5 +1,5 @@
 services:
-  dev:
+  chrono:
     build:
       context: .
       dockerfile: Dockerfile

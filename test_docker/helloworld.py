@@ -9,6 +9,11 @@ vis.AddTypicalLights()
 vis.AddSkyBox()
 vis.Initialize()
 
+import os
+if "DISPLAY" not in os.environ:
+    print("⚠️ Headless environment detected — skipping visualization")
+    exit(1)
+
 if not vis.Run():
     print("❌ Visualization could not start — likely DISPLAY issue")
     exit(1)
