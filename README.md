@@ -1,45 +1,54 @@
-# pychrono_simulations
+# PyChrono Simulations
 
-Testing out basic simulations with PyChrono
-
+PyChrono Simulations for the ITU braid robotics project.
 
 ---
 
-## Installation
+## Setup
 
-<!-- todo -->
+#### Install:
+
 https://api.projectchrono.org/pychrono_installation.html
 
-
----
-
-## Run
+#### Run
 
 ```bash
 $ conda activate chrono
 ```
 
-
-
-
----
-
-# Install dependencies
+#### Install dependencies
 
 ```bash
 $ conda install --file requirements.txt
 ```
 
 ---
+---
+---
 
-## ffmpeg command to create a video:
+## The Docker Setup
 
-First recomment this line in main.py:
+The Docker setup vastly improves and standardizes the installation process by building PyChrono from source. 
 
-visualization.WriteImageToFile("assets/frames/" + f'{int(system.GetChTime() / timestep):05d}' + ".jpg")
+There are two configurations:
+
+1. Just PyChrono (no visualization)
+1. PyChrono with Irrlicht (visualization) 
+
+The first one is still a useful way to run simulations and replicate the values / access the experimentation dashboard. 
+
+In order to get the visualization working by forwarding the display to the host machine, one must use VNC or X11 forwarding. This requires Linux and perhaps Windows Subsystem for Linux but has not been tried yet. 
 
 
-In root run:
+---
+---
+---
 
-ffmpeg -framerate 30 -start_number 0 -i assets/frames/%05d.jpg -c:v libx264 -pix_fmt yuv420p output.mp4
+## Todo 
+
+* Get the Docker visualization working with VNC or X11 forwarding.
+
+* Implement the pure PyChrono Docker setup (without Irrlicht) and make it work with the experimentation dashboard.
+
+* Create the experimentation dashboard.
 
