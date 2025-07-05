@@ -1,2 +1,2 @@
 from database.connection import get_connection, close_connection
-from database.queries import insert_experiment
+from database.queries import select_experiment_series_by_id, select_experiments_by_series_id, insert_experiment
