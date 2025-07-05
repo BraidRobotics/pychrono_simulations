@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Overview</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iI2ZnZyIgLz4KPC9zdmc+Cg==" type="image/svg+xml">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+	<title>Braid Robotics Simulation Dashboard</title>
 	<meta charset="utf-8" />
 </head>
 <body>
   <nav>
-    <h4><a id="nav-logo" href="/">Experiments Dashboard</a></h4>
+    <h4><a id="nav-logo" href="/">Frontpage</a></h4>
   </nav>
 
+  {% with flashes = get_flashed_messages(with_categories=true) %}
+    {% if flashes %}
+      <ul class="flashes">
+      {% for category, message in flashes %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
   
   <div class="body">
   	{% block body %}{% endblock %}

@@ -1,0 +1,55 @@
+/* Website Defaults */
+body {
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 14px;
+}
+
+div.page div.body {
+    padding: 10px;
+}
+
+div.page div.footer {
+    background: #eee;
+    color: #888;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+
+ul.flashes {
+    list-style: none;
+    margin: 10px 10px 0 10px;
+    padding: 0;
+}
+
+ul.flashes li {
+    background: #00ff11;
+    border: 1px solid #005122;
+    color: white;
+    padding: 4px;
+    font-size: 13px;
+}
+
+ul.flashes li.error {
+	background: #e10f0f;
+	border: 1px solid #DD6F6F;
+    color: white;
+}
+
+div.error {
+    margin: 10px 0;
+    background: #FAE4E4;
+    border: 1px solid #DD6F6F;
+    padding: 4px;
+    font-size: 13px;
+}
+
+
+/* Custom Styles */
+body {
+    max-width: 80vw;
+}
+
+#new-experiment-input, #new-experiment-button {
+    width: 100%;
+}
