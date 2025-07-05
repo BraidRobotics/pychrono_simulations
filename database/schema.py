@@ -17,7 +17,7 @@ def create_table():
         CREATE TABLE IF NOT EXISTS experiment_series (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             experiment_series_name TEXT NOT NULL UNIQUE,
-            description TEXT,
+            description TEXT DEFAULT '',
        
             max_simulation_time FLOAT DEFAULT 10.0,
             
