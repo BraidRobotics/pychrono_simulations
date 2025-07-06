@@ -19,11 +19,13 @@ def create_table():
             experiment_series_name TEXT NOT NULL UNIQUE,
             description TEXT DEFAULT '',
        
+            num_experiments INTEGER DEFAULT 100,
             max_simulation_time FLOAT DEFAULT 10.0,
             
             force_type TEXT CHECK(force_type IN ('TOP_NODES_DOWN', 'ALL_NODES_DOWN', 'RIGHT_SIDE_SIDEWAYS')),
-            force_applied_in_y_direction FLOAT,
-            force_applied_in_x_direction FLOAT,
+            initial_force_applied_in_y_direction FLOAT,
+            initial_force_applied_in_x_direction FLOAT,
+            force_increment FLOAT,
                    
             num_strands INTEGER,
             num_layers INTEGER,

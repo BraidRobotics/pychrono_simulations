@@ -1,4 +1,4 @@
-/* Website Defaults */
+/ * Website Defaults */
 body {
     font-family: 'Trebuchet MS', sans-serif;
     font-size: 14px;
@@ -23,8 +23,8 @@ ul.flashes {
 }
 
 ul.flashes li {
-    background: #00ff11;
-    border: 1px solid #005122;
+    background: #0c9115;
+    border: 1px solid #013014;
     color: white;
     padding: 4px;
     font-size: 13px;
@@ -45,11 +45,43 @@ div.error {
 }
 
 
-/* Custom Styles */
 body {
     max-width: 80vw;
 }
 
+/* Frontpage */
+
 #new-experiment-input, #new-experiment-button {
     width: 100%;
+}
+
+
+/* Experiments Page */
+
+td input[type="number"],
+td textarea,
+td select {
+    width: 100%;
+    font-size: inherit;
+    font-family: inherit;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    appearance: none;
+}
+
+td input[type="number"]:focus,
+td textarea:focus,
+td select:focus {
+    outline: none;
+}
+
+#description-textarea{
+    height: 0.8em;
+}
+
+#run-experiments-button {
+    background-color: #0c9115;
 }

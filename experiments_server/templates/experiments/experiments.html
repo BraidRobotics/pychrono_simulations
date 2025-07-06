@@ -3,6 +3,203 @@
 {% endblock %}
 {% block body %}
 
-<h1>Experiments</h1>
+<h1>Experiment: {{experiment_series.experiment_series_name}}</h1>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th style="width: 170px;">Description</th>
+            <th># Experiments</th>
+            <th>Max Time</th>
+            <th style="width: 170px;">Force Type</th>
+            <th>Initial Force Y</th>
+            <th>Initial Force X</th>
+            <th>Strands</th>
+            <th>Layers</th>
+            <th>Radius</th>
+            <th>Pitch</th>
+            <th>Force Increment</th>
+            <th>Initial Force Y</th>
+            <th>Initial Force X</th>
+            <th>Delete Entire Series</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><a href="/experiments/{{ experiment_series.experiment_series_name }}">{{ experiment_series.experiment_series_name }}</a></td>
+            <td>
+                <textarea
+                    id="description-textarea"
+                    data-field="description"
+                    data-id="{{ experiment_series.id }}"
+                    onblur="submitEdit(this)"
+                    onkeydown="handleKey(event, this)">{{ experiment_series.description }}</textarea>
+            </td>
+            <td>
+                <input type="number"
+                       min="1"
+                       value="{{ experiment_series.num_experiments }}"
+                       data-field="num_experiments"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       min="0"
+                       value="{{ experiment_series.max_simulation_time }}"
+                       data-field="max_simulation_time"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <select data-field="force_type"
+                        data-id="{{ experiment_series.id }}"
+                        onchange="submitEdit(this)">
+                    <option value="TOP_NODES_DOWN" {% if experiment_series.force_type == 'TOP_NODES_DOWN' %}selected{% endif %}>TOP_NODES_DOWN</option>
+                    <option value="ALL_NODES_DOWN" {% if experiment_series.force_type == 'ALL_NODES_DOWN' %}selected{% endif %}>ALL_NODES_DOWN</option>
+                    <option value="RIGHT_SIDE_SIDEWAYS" {% if experiment_series.force_type == 'RIGHT_SIDE_SIDEWAYS' %}selected{% endif %}>RIGHT_SIDE_SIDEWAYS</option>
+                </select>
+            </td>
+            <td>
+                <input type="number"
+                       value="{{ experiment_series.initial_force_applied_in_y_direction }}"
+                       data-field="initial_force_applied_in_y_direction"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       value="{{ experiment_series.initial_force_applied_in_x_direction }}"
+                       data-field="initial_force_applied_in_x_direction"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       min="1"
+                       value="{{ experiment_series.num_strands }}"
+                       data-field="num_strands"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       min="1"
+                       value="{{ experiment_series.num_layers }}"
+                       data-field="num_layers"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input  type="number"
+                        min="0.01"
+                        step="0.01"
+                        value="{{ experiment_series.radius }}"
+                        data-field="radius"
+                        data-id="{{ experiment_series.id }}"
+                        onblur="submitEdit(this)"
+                        onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input  type="number"
+                        min="0.1"
+                        step="0.1"
+                        value="{{ experiment_series.pitch }}"
+                        data-field="pitch"
+                        data-id="{{ experiment_series.id }}"
+                        onblur="submitEdit(this)"
+                        onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       min="0.01"
+                       step="0.01"
+                       value="{{ experiment_series.force_increment }}"
+                       data-field="force_increment"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       value="{{ experiment_series.initial_force_applied_in_y_direction }}"
+                       data-field="initial_force_applied_in_y_direction"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       value="{{ experiment_series.initial_force_applied_in_x_direction }}"
+                       data-field="initial_force_applied_in_x_direction"
+                       data-id="{{ experiment_series.id }}"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <form action="/api/experiment_series/delete/{{ experiment_series.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this experiment series?');">
+                    <button type="submit">🚫</button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<form action="/api/experiments/all/{{ experiment_series.experiment_series_name }}" method="POST">
+	<button id="run-experiments-button" type="submit">
+		{% if experiments %}
+			Rerun Experiments (delete old run) ▶️
+		{% else %}
+			Run Experiments Series ▶️
+		{% endif %}
+	</button>
+</form>
+
+<p>Image TODO</p>
+<p>Charts TODO</p>
+
+<script>
+    function submitEdit(cell) {
+        const id = cell.getAttribute('data-id');
+        const field = cell.getAttribute('data-field');
+        let value;
+
+        if (cell.tagName === 'INPUT' || cell.tagName === 'SELECT' || cell.tagName === 'TEXTAREA') {
+            value = cell.value.trim();
+        } else {
+            value = cell.innerText.trim();
+        }
+
+        const payload = { [field]: value };
+
+        fetch(`/api/experiment_series/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }).then(response => {
+            if (!response.ok) {
+                alert('Failed to update. Please try again.');
+            }
+        }).catch(() => {
+            alert('Failed to update. Please try again.');
+        });
+    }
+
+    function handleKey(event, cell) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            cell.blur();
+        }
+    }
+</script>
 
 {% endblock %}

@@ -4,7 +4,16 @@ def select_all_experiment_series():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM experiment_series ORDER BY id;')
+    cursor.execute('''
+        SELECT
+            id, experiment_series_name, description,
+            num_experiments, max_simulation_time,
+            force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
+            force_increment,
+            num_strands, num_layers, radius, pitch
+        FROM experiment_series
+        ORDER BY id;
+    ''')
     rows = cursor.fetchall()
 
     close_connection(conn)
@@ -14,7 +23,16 @@ def select_experiment_series_by_name(experiment_series_name):
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM experiment_series WHERE experiment_series_name = ?;', (experiment_series_name,))
+    cursor.execute('''
+        SELECT
+            id, experiment_series_name, description,
+            num_experiments, max_simulation_time,
+            force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
+            force_increment,
+            num_strands, num_layers, radius, pitch
+        FROM experiment_series
+        WHERE experiment_series_name = ?;
+    ''', (experiment_series_name,))
     row = cursor.fetchone()
 
     close_connection(conn)
@@ -37,25 +55,32 @@ def insert_experiment_series(experiment_series_name):
     cursor = conn.cursor()
 
     ## default values
+    num_experiments = 100
+    max_simulation_time = 10.0
     force_type = "TOP_NODES_DOWN"
-    force_applied_in_y_direction = 0.0
-    force_applied_in_x_direction = 0.0
+    initial_force_applied_in_y_direction = 0.0
+    initial_force_applied_in_x_direction = 0.0
+    force_increment = 0.1
     num_strands = 5
     num_layers = 10
     radius = 0.15
     pitch = 1.13
     description = ""
- 
+
     cursor.execute('''
         INSERT INTO experiment_series (
             experiment_series_name, description,
-            force_type, force_applied_in_y_direction, force_applied_in_x_direction,
+            num_experiments, max_simulation_time,
+            force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
+            force_increment,
             num_strands, num_layers, radius, pitch
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     ''', (
         experiment_series_name, description,
-        force_type, force_applied_in_y_direction, force_applied_in_x_direction,
+        num_experiments, max_simulation_time,
+        force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
+        force_increment,
         num_strands, num_layers, radius, pitch
     ))
 
@@ -63,16 +88,33 @@ def insert_experiment_series(experiment_series_name):
     close_connection(conn)
     return cursor.lastrowid
 
-def update_experiment_series(experiment_series_id, experiment_series_name, description):
+def update_experiment_series(experiment_series_id, updates):
+    if not updates:
+        return
+
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        UPDATE experiment_series
-        SET experiment_series_name = ?, description = ?
-        WHERE id = ?;
-    ''', (experiment_series_name, description, experiment_series_id))
+    for field, value in updates.items():
+        cursor.execute(f'''
+            UPDATE experiment_series
+            SET {field} = ?
+            WHERE id = ?;
+        ''', (value, experiment_series_id))
 
     conn.commit()
     close_connection(conn)
-    print(f"Experiment series {experiment_series_id} updated successfully.")
+    print(f"Experiment series {experiment_series_id} updated successfully with fields: {list(updates.keys())}")
+
+def delete_experiment_series(experiment_series_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('DELETE FROM experiments WHERE experiment_series_id = ?;', (experiment_series_id,))
+
+    cursor.execute('DELETE FROM experiment_series WHERE id = ?;', (experiment_series_id,))
+
+    conn.commit()
+    close_connection(conn)
+
+    print(f"Experiment series {experiment_series_id} and its experiments deleted successfully.")
