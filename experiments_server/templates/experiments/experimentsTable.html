@@ -1,0 +1,40 @@
+<h2>Experiment Results</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Experiment ID</th>
+            <th>Timestamp</th>
+            <th>Force Y</th>
+            <th>Force X</th>
+            <th>Time to Box Explosion</th>
+            <th>Max Volume</th>
+            <th>Time to Strain Explosion</th>
+            <th>Max Strain</th>
+            <th>Time to Velocity Spike</th>
+            <th>Max Velocity</th>
+            <th>Final Height</th>
+            <th>Record Video</th>
+            <th>Run Simulation</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for experiment in experiments %}
+        <tr>
+            <td>{{ experiment.experiment_id }}</td>
+            <td>{{ experiment.timestamp }}</td>
+            <td>{{ experiment.force_in_y_direction }}</td>
+            <td>{{ experiment.force_in_x_direction }}</td>
+            <td>{{ experiment.time_to_bounding_box_explosion }}</td>
+            <td>{{ experiment.max_bounding_box_volume }}</td>
+            <td>{{ experiment.time_to_beam_strain_exceed_explosion }}</td>
+            <td>{{ experiment.max_beam_strain }}</td>
+            <td>{{ experiment.time_to_node_velocity_spike_explosion }}</td>
+            <td>{{ experiment.max_node_velocity }}</td>
+            <td>{{ experiment.final_height }}</td>
+            <td>🎥</td>
+            <td>▶️</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
