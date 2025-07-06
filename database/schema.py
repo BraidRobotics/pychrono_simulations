@@ -25,7 +25,8 @@ def create_table():
             force_type TEXT CHECK(force_type IN ('TOP_NODES_DOWN', 'ALL_NODES_DOWN', 'RIGHT_SIDE_SIDEWAYS')),
             initial_force_applied_in_y_direction FLOAT,
             initial_force_applied_in_x_direction FLOAT,
-            force_increment FLOAT,
+            final_force_in_y_direction FLOAT,
+            final_force_in_x_direction FLOAT,
                    
             num_strands INTEGER,
             num_layers INTEGER,
@@ -40,6 +41,9 @@ def create_table():
             experiment_series_id INTEGER NOT NULL,
                    
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                   
+            force_in_y_direction FLOAT,
+            force_in_x_direction FLOAT,
 
             time_to_bounding_box_explosion FLOAT,
             time_to_beam_strain_exceed_explosion FLOAT,

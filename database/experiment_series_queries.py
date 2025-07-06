@@ -4,16 +4,7 @@ def select_all_experiment_series():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        SELECT
-            id, experiment_series_name, description,
-            num_experiments, max_simulation_time,
-            force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
-            force_increment,
-            num_strands, num_layers, radius, pitch
-        FROM experiment_series
-        ORDER BY id;
-    ''')
+    cursor.execute(''' SELECT * FROM experiment_series ORDER BY id;''')
     rows = cursor.fetchall()
 
     close_connection(conn)
@@ -23,16 +14,7 @@ def select_experiment_series_by_name(experiment_series_name):
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        SELECT
-            id, experiment_series_name, description,
-            num_experiments, max_simulation_time,
-            force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
-            force_increment,
-            num_strands, num_layers, radius, pitch
-        FROM experiment_series
-        WHERE experiment_series_name = ?;
-    ''', (experiment_series_name,))
+    cursor.execute('SELECT * FROM experiment_series WHERE experiment_series_name = ?;', (experiment_series_name,))
     row = cursor.fetchone()
 
     close_connection(conn)
@@ -60,7 +42,8 @@ def insert_experiment_series(experiment_series_name):
     force_type = "TOP_NODES_DOWN"
     initial_force_applied_in_y_direction = 0.0
     initial_force_applied_in_x_direction = 0.0
-    force_increment = 0.1
+    final_force_in_y_direction = 0.0
+    final_force_in_x_direction = 0.0
     num_strands = 5
     num_layers = 10
     radius = 0.15
@@ -72,15 +55,15 @@ def insert_experiment_series(experiment_series_name):
             experiment_series_name, description,
             num_experiments, max_simulation_time,
             force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
-            force_increment,
+            final_force_in_y_direction, final_force_in_x_direction,
             num_strands, num_layers, radius, pitch
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     ''', (
         experiment_series_name, description,
         num_experiments, max_simulation_time,
         force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
-        force_increment,
+        final_force_in_y_direction, final_force_in_x_direction,
         num_strands, num_layers, radius, pitch
     ))
 
