@@ -18,36 +18,57 @@ def create_table():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             experiment_series_name TEXT NOT NULL UNIQUE,
             description TEXT DEFAULT '',
-       
+    
+            -- Simulation configuration
             num_experiments INTEGER DEFAULT 100,
             max_simulation_time FLOAT DEFAULT 10.0,
             
+            -- Has Exploded Thresholds
+            bounding_box_volume_threshold FLOAT DEFAULT 1.8,
+            beam_strain_threshold FLOAT DEFAULT 0.08,
+            node_velocity_threshold FLOAT DEFAULT 3.0,
+
+            -- Force configurations
             force_type TEXT CHECK(force_type IN ('TOP_NODES_DOWN', 'ALL_NODES_DOWN', 'RIGHT_SIDE_SIDEWAYS')),
             initial_force_applied_in_y_direction FLOAT,
             initial_force_applied_in_x_direction FLOAT,
             final_force_in_y_direction FLOAT,
             final_force_in_x_direction FLOAT,
-                   
+
+            -- Braided structure configuration   
             num_strands INTEGER,
             num_layers INTEGER,
             radius FLOAT,
-            pitch FLOAT
+            pitch FLOAT,
+            material_thickness FLOAT DEFAULT NULL,
+            weight FLOAT DEFAULT NULL,
+            height FLOAT DEFAULT NULL
+            
         );
     ''')
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS experiments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            experiment_series_id INTEGER NOT NULL,
-                   
+            -- The experiment_id is not auto-incremented to allow me to set it manually and sort by id later
+            -- since the experiments are parallelized, they end up saved out of order otherwise.
+            experiment_id INTEGER,
+            experiment_series_id INTEGER NOT NULL,                   
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                   
+
+            -- Force applied                   
             force_in_y_direction FLOAT,
             force_in_x_direction FLOAT,
 
+            -- Has Exploded
             time_to_bounding_box_explosion FLOAT,
+            max_bounding_box_volume FLOAT,
             time_to_beam_strain_exceed_explosion FLOAT,
+            max_beam_strain FLOAT,
             time_to_node_velocity_spike_explosion FLOAT,
+            max_node_velocity FLOAT,
+                   
+            -- Final Result
+            final_height FLOAT,
                     
             FOREIGN KEY (experiment_series_id) REFERENCES experiment_series(id)
         );
@@ -56,6 +77,10 @@ def create_table():
     cursor.execute('''
         CREATE INDEX IF NOT EXISTS idx_experiments_series_id ON experiments(experiment_series_id);
     ''')
+
+    # Insert a default experiment_series record named "default" with 3 experiments.
+    cursor.execute("INSERT OR IGNORE INTO experiment_series (experiment_series_name, description, num_experiments, max_simulation_time, force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction, final_force_in_y_direction, final_force_in_x_direction, num_strands, num_layers, radius, pitch, material_thickness, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", 
+        ("default", "Default configuration", 3, 2.0, "TOP_NODES_DOWN", 0.0, 0.0, 1.0, 0.0, 5, 10, 0.1, 1.0, None, None, None))
 
     conn.commit()
     close_connection(conn)
