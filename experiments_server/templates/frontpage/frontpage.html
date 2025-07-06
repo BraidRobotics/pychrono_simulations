@@ -19,15 +19,14 @@
             <th># Experiments</th>
             <th>Max Time</th>
             <th>Force Type</th>
-            <th>Force Y</th>
-            <th>Force X</th>
+            <th>Initial Force Y</th>
+            <th>Final Force Y</th>
+            <th>Initial Force X</th>
+            <th>Final Force X</th>
             <th>Strands</th>
             <th>Layers</th>
             <th>Radius</th>
             <th>Pitch</th>
-            <th>Force Increment</th>
-            <th>Initial Force Y</th>
-            <th>Initial Force X</th>
             <th>Image</th>
             <th>Delete</th>
         </tr>
@@ -41,14 +40,13 @@
             <td>{{ series.max_simulation_time }}</td>
             <td>{{ series.force_type }}</td>
             <td>{{ series.initial_force_applied_in_y_direction }}</td>
+            <td>{{ series.final_force_in_y_direction }}</td>
             <td>{{ series.initial_force_applied_in_x_direction }}</td>
+            <td>{{ series.final_force_in_x_direction }}</td>
             <td>{{ series.num_strands }}</td>
             <td>{{ series.num_layers }}</td>
             <td>{{ series.radius }}</td>
             <td>{{ series.pitch }}</td>
-            <td>{{ series.force_increment }}</td>
-            <td>{{ series.initial_force_applied_in_y_direction }}</td>
-            <td>{{ series.initial_force_applied_in_x_direction }}</td>
             <td>Image TODO</td>
             <td>
                 <form action="/api/experiment_series/delete/{{ series.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this experiment series?');">
