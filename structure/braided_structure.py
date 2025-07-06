@@ -82,7 +82,3 @@ def create_braid_structure(braid_mesh, braid_material, braided_structure_config:
     return layers, top_nodes, node_positions, beam_elements
 
 
-def move_braid_structure(layers):
-    for layer in layers:
-        for node in layer:
-            node.SetPos(node.GetPos() + chrono.ChVector3d(0, -1000, 0))

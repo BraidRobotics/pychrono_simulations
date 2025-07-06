@@ -1,6 +1,6 @@
 from config import BraidedStructureConfig
 import pychrono as chrono
-from visualization import make_video_from_frames
+from visualization import take_screenshot, make_video_from_frames
 
 from database.experiments_queries import insert_experiment
 
@@ -48,8 +48,7 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
 
 
-    from util import get_current_node_positions_from_beam_elements, compute_bounding_box, check_bounding_box_explosion, \
-                check_beam_strain_exceed, check_node_velocity_spike, calculate_model_weight
+    from util import calculate_has_exploded, compute_bounding_box
 
     # calculate_model_weight(beam_elements, braid_material)
 
@@ -86,40 +85,48 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
     timestep = 0.01
 
-
     while not experiment_series["will_visualize"] or visualization.Run():
 
         system.DoStepDynamics(timestep)
-
         time_passed = system.GetChTime()
+
+        (
+            max_bounding_box_volume,
+            max_beam_strain,
+            max_node_velocity,
+            time_to_bounding_box_explosion,
+            time_to_beam_strain_exceed_explosion,
+            time_to_node_velocity_spike_explosion
+        ) = calculate_has_exploded(
+            time_passed,
+            beam_elements,
+            initial_bounds,
+            experiment_series
+        )
 
         if experiment_series["will_visualize"]:
             visualization.BeginScene()
             visualization.Render()
             if experiment_series["will_take_screenshots"]:
-                visualization.TakeScreenshot()
+                take_screenshot(visualization)
             visualization.EndScene()
-
-
-        did_bounding_box_explode = check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
-        did_beam_strain_exceed = check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
-        did_node_velocity_spike = check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
-
 
 
         if time_passed > experiment_series["max_simulation_time"]:
             insert_experiment(
+                experiment_id = experiment_config["experiment_id"],
                 experiment_series_id = experiment_series["id"],
                 force_in_y_direction = experiment_config["force_in_y_direction"],
                 force_in_x_direction = experiment_config["force_in_x_direction"],
-                time_to_bounding_box_explosion = None,
-                time_to_beam_strain_exceed_explosion = None,
-                time_to_node_velocity_spike_explosion = None,
+                time_to_bounding_box_explosion = time_to_bounding_box_explosion,
+                max_bounding_box_volume = max_bounding_box_volume,
+                time_to_beam_strain_exceed_explosion = time_to_beam_strain_exceed_explosion,
+                max_beam_strain = max_beam_strain,
+                time_to_node_velocity_spike_explosion = time_to_node_velocity_spike_explosion,
+                max_node_velocity = max_node_velocity
             )
 
             if experiment_series["will_record_video"]:
                 make_video_from_frames()
             
             break
-
-
