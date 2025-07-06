@@ -1,11 +1,10 @@
-from config.experiment_config import ExperimentConfig
+from config import BraidedStructureConfig
 import pychrono as chrono
-from config import braided_structure_config
 from visualization import make_video_from_frames
 
 from database.experiments_queries import insert_experiment
 
-def experiment_loop(simulation_config, experiment_config):
+def experiment_loop(experiment_series, experiment_config):
 
     ####################################################################################################
     # Physics Engine
@@ -23,6 +22,14 @@ def experiment_loop(simulation_config, experiment_config):
     ####################################################################################################
     # Mesh / Material
     ####################################################################################################
+    
+    # todo make sure that this is correct
+    braided_structure_config = BraidedStructureConfig(
+        num_strands=experiment_series["num_strands"],
+        num_layers=experiment_series["num_layers"],
+        radius=experiment_series["radius"],
+        pitch=experiment_series["pitch"]
+    )
 
     braid_mesh = create_braid_mesh()
     braid_material = create_braid_material(material_radius = 0.008)
@@ -30,7 +37,7 @@ def experiment_loop(simulation_config, experiment_config):
 
     system.Add(braid_mesh)
 
-    from structure import create_floor, create_braid_structure, move_braid_structure
+    from structure import create_floor, create_braid_structure
 
     floor = create_floor(system, floor_material)
     layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
@@ -55,19 +62,11 @@ def experiment_loop(simulation_config, experiment_config):
 
     from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 
-    apply_force_to_all_nodes(layers, experiment_config.force_applied_in_y_direction)
+    # todo apply in x direction too
+    apply_force_to_all_nodes(layers, experiment_config["force_in_y_direction"])
     # apply_force_to_top_nodes(top_nodes, force_in_y_direction=-2)
 
     # place_box(top_nodes, system, floor_material)
-
-    ####################################################################################################
-    # Server GUI to control simulation parameters
-    ####################################################################################################
-
-    from experiments_server.start_server import start_server
-
-    if (simulation_config.will_run_server):
-        start_server()
 
 
     ####################################################################################################
@@ -78,7 +77,7 @@ def experiment_loop(simulation_config, experiment_config):
 
     visualization = None
 
-    if (simulation_config.will_visualize):
+    if (experiment_series["will_visualize"]):
         visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
 
 
@@ -87,52 +86,40 @@ def experiment_loop(simulation_config, experiment_config):
     ####################################################################################################
     timestep = 0.01
 
-    try:
-        while not simulation_config.will_visualize or visualization.Run():
 
-            system.DoStepDynamics(timestep)
+    while not experiment_series["will_visualize"] or visualization.Run():
 
-            time_passed = system.GetChTime()
+        system.DoStepDynamics(timestep)
 
-            if simulation_config.will_run_server:
-                snapshot = braided_structure_config.get_snapshot()
-                if snapshot["rebuild_requested"]:
-                    braided_structure_config.update(rebuild_requested=False)
-                    move_braid_structure(layers)
-                    layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
+        time_passed = system.GetChTime()
 
-
-            if simulation_config.will_visualize:
-                visualization.BeginScene()
-                visualization.Render()
-                if simulation_config.will_take_screenshots:
-                    visualization.TakeScreenshot()
-                visualization.EndScene()
+        if experiment_series["will_visualize"]:
+            visualization.BeginScene()
+            visualization.Render()
+            if experiment_series["will_take_screenshots"]:
+                visualization.TakeScreenshot()
+            visualization.EndScene()
 
 
-            # todo uncomment again later
-            # did_bounding_box_explode = check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
-            # did_beam_strain_exceed = check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
-            # did_node_velocity_spike = check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
- 
-            # if did_bounding_box_explode or did_beam_strain_exceed or did_node_velocity_spike:
-            #     config_data = experiment_config.__dict__.copy()
-            #     config_data["time_to_explosion"] = system.GetChTime()
-            #     insert_experiment(**config_data)
-            #     break
+        did_bounding_box_explode = check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0)
+        did_beam_strain_exceed = check_beam_strain_exceed(beam_elements, strain_threshold=0.25)
+        did_node_velocity_spike = check_node_velocity_spike(beam_elements, velocity_threshold=10.0)
 
 
 
-            if time_passed > experiment_config.max_simulation_time:
-                config_data = experiment_config.__dict__.copy()
-                insert_experiment(**config_data)
-                break
+        if time_passed > experiment_series["max_simulation_time"]:
+            insert_experiment(
+                experiment_series_id = experiment_series["id"],
+                force_in_y_direction = experiment_config["force_in_y_direction"],
+                force_in_x_direction = experiment_config["force_in_x_direction"],
+                time_to_bounding_box_explosion = None,
+                time_to_beam_strain_exceed_explosion = None,
+                time_to_node_velocity_spike_explosion = None,
+            )
+
+            if experiment_series["will_record_video"]:
+                make_video_from_frames()
+            
+            break
 
 
-    except KeyboardInterrupt:
-        if simulation_config.will_record_video:
-            make_video_from_frames()
-
-
-
-	
