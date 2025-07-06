@@ -1,20 +1,23 @@
 import os
 from multiprocessing import Pool
 from config import ExperimentConfig, SimulationConfig
-from main import main
+from experiments.experiment import experiment_loop
 
-NUM_EXPERIMENTS = 100 
-NUM_CONCURRENT_EXPERIMENTS = os.cpu_count()
 
 def run_single_experiment(experiment_config):
     print(f"Running experiment with force_applied {experiment_config.force_applied_in_y_direction}")
     
     simulation_config = SimulationConfig(will_run_server=False, will_visualize=False)
 
-    main(simulation_config, experiment_config)
+    experiment_loop(simulation_config, experiment_config)
 
 
-if __name__ == "__main__":
+def run_experiments(experiment_series):
+    print(f"Running experiments for series:", experiment_series)
+    NUM_EXPERIMENTS = experiment_series["num_experiments"]
+
+    NUM_CONCURRENT_EXPERIMENTS = os.cpu_count()
+    
     experiment_configs = []
     for i in range(NUM_EXPERIMENTS):
 
@@ -39,3 +42,5 @@ if __name__ == "__main__":
             results.append(result)
         for result in results:
             result.wait()
+
+
