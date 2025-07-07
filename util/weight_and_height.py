@@ -27,3 +27,17 @@ def calculate_model_weight(beam_elements, braid_material):
 
 	return total_weight_kilograms
 
+
+def calculate_model_height(beam_elements):
+	positions = []
+
+	for element in beam_elements:
+		positions.append(element.GetNodeA().GetPos())
+		positions.append(element.GetNodeB().GetPos())
+
+
+	xs = [p.x for p in positions]
+
+	height = max(xs) - min(xs)
+
+	return height

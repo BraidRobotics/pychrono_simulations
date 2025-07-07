@@ -1,5 +1,44 @@
-import pychrono.fea as fea
-import pychrono as chrono
+
+def calculate_has_exploded(time_passed, beam_elements, initial_bounds, experiment_series):
+    if not hasattr(calculate_has_exploded, "_initialized"):
+        calculate_has_exploded._max_volume = 0.0
+        calculate_has_exploded._max_strain = 0.0
+        calculate_has_exploded._max_velocity = 0.0
+        calculate_has_exploded._time_to_box = None
+        calculate_has_exploded._time_to_strain = None
+        calculate_has_exploded._time_to_velocity = None
+        calculate_has_exploded._initialized = True
+
+    bounding_box_volume_threshold = experiment_series["bounding_box_volume_threshold"]
+    beam_strain_threshold = experiment_series["beam_strain_threshold"]
+    node_velocity_threshold = experiment_series["node_velocity_threshold"]
+
+    bounding_box_exploded, volume = check_bounding_box_explosion(beam_elements, initial_bounds, bounding_box_volume_threshold, verbose=True)
+    beam_strain_exceeded, strain = check_beam_strain_exceed(beam_elements, beam_strain_threshold, verbose=False)
+    velocity_spike_detected, velocity = check_node_velocity_spike(beam_elements, node_velocity_threshold, verbose=False)
+
+    calculate_has_exploded._max_volume = max(calculate_has_exploded._max_volume, volume)
+    calculate_has_exploded._max_strain = max(calculate_has_exploded._max_strain, strain)
+    calculate_has_exploded._max_velocity = max(calculate_has_exploded._max_velocity, velocity)
+
+    if bounding_box_exploded and not calculate_has_exploded._time_to_box:
+        calculate_has_exploded._time_to_box = time_passed
+
+    if beam_strain_exceeded and not calculate_has_exploded._time_to_strain:
+        calculate_has_exploded._time_to_strain = time_passed
+
+    if velocity_spike_detected and not calculate_has_exploded._time_to_velocity:
+        calculate_has_exploded._time_to_velocity = time_passed
+
+    return (
+        calculate_has_exploded._max_volume,
+        calculate_has_exploded._max_strain,
+        calculate_has_exploded._max_velocity,
+        calculate_has_exploded._time_to_box,
+        calculate_has_exploded._time_to_strain,
+        calculate_has_exploded._time_to_velocity
+    )
+
 
 def get_current_node_positions_from_beam_elements(beam_elements):
 	positions = []
@@ -40,7 +79,7 @@ def check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold
     if has_exploded and verbose:
         print("🛑 Explosion detected: bounding box exceeded threshold")
 
-    return has_exploded
+    return has_exploded, current_volume
 
 
 
@@ -51,6 +90,7 @@ def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=True)
 			for beam in beam_elements
 		}
 
+	max_strain = 0.0
 	for beam in beam_elements:
 		nodeA = beam.GetNodeA().GetPos()
 		nodeB = beam.GetNodeB().GetPos()
@@ -58,11 +98,13 @@ def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=True)
 		rest_length = check_beam_strain_exceed._rest_lengths.get(beam, 0)
 		if rest_length > 0:
 			strain = abs((current_length - rest_length) / rest_length)
+			if strain > max_strain:
+				max_strain = strain
 			if strain > strain_threshold:
 				if verbose:
 					print(f"🛑 Beam strain exceeded: {strain:.2f} > {strain_threshold:.2f}")
-				return True
-	return False
+				return True, max_strain
+	return False, max_strain
 
 
 def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=True):
@@ -70,6 +112,7 @@ def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=Tr
 		check_node_velocity_spike._last_positions = {}
 
 	spike_detected = False
+	max_velocity = 0.0
 
 	for beam in beam_elements:
 		for node in [beam.GetNodeA(), beam.GetNodeB()]:
@@ -80,6 +123,8 @@ def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=Tr
 			if last_pos is not None:
 				# Estimate velocity as displacement per frame (Δx / Δt)
 				vel = (pos - last_pos).Length()  # Assuming timestep is constant
+				if vel > max_velocity:
+					max_velocity = vel
 				if vel > velocity_threshold:
 					if verbose:
 						print(f"🛑 Velocity spike: {vel:.2f} > {velocity_threshold:.2f}")
@@ -87,5 +132,7 @@ def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=Tr
 
 			check_node_velocity_spike._last_positions[node_id] = pos
 
-	return spike_detected
+	return spike_detected, max_velocity
+
+
 
