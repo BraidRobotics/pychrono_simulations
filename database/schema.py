@@ -15,7 +15,6 @@ def create_table():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS experiment_series (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
             experiment_series_name TEXT NOT NULL UNIQUE,
             description TEXT DEFAULT '',
     
@@ -75,11 +74,17 @@ def create_table():
     ''')
 
     cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_experiments_series_id ON experiments(experiment_series_id);
+        CREATE INDEX IF NOT EXISTS idx_experiments_series_id ON experiment_series(experiment_series_name);
+    ''')
+
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_experiments_experiment_series_id ON experiments(experiment_series_id);
     ''')
 
     # Insert a default experiment_series record named "default" with 3 experiments.
-    cursor.execute("INSERT OR IGNORE INTO experiment_series (experiment_series_name, description, num_experiments, max_simulation_time, force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction, final_force_in_y_direction, final_force_in_x_direction, num_strands, num_layers, radius, pitch, material_thickness, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", 
+    cursor.execute('''INSERT OR IGNORE INTO experiment_series 
+                   (experiment_series_name, description, num_experiments, max_simulation_time, force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction, final_force_in_y_direction, final_force_in_x_direction, num_strands, num_layers, radius, pitch, material_thickness, weight, height) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''', 
         ("default", "Default configuration", 3, 2.0, "TOP_NODES_DOWN", 0.0, 0.0, 1.0, 0.0, 5, 10, 0.1, 1.0, None, None, None))
 
     conn.commit()

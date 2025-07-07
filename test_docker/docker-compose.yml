@@ -1,9 +1,0 @@
-services:
-  chrono:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - .:/home/chrono/chrono-dev
-    environment:
-      DISPLAY: host.docker.internal:0
