@@ -1,7 +1,8 @@
 from config import BraidedStructureConfig
 import pychrono as chrono
-from visualization import take_screenshot, make_video_from_frames
+from util import take_model_screenshot, take_screenshot, make_video_from_frames
 
+from database.experiment_series_queries import update_experiment_series
 from database.experiments_queries import insert_experiment
 
 def experiment_loop(experiment_series, experiment_config):
@@ -75,9 +76,41 @@ def experiment_loop(experiment_series, experiment_config):
     from visualization import create_visualization \
 
     visualization = None
+    will_visualize = experiment_series["will_visualize"] or experiment_series.get("run_without_simulation_loop", False)
 
-    if (experiment_series["will_visualize"]):
+    if (will_visualize):
         visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
+
+
+    ####################################################################################################
+    # Without Simulation loop
+    ####################################################################################################
+    from util import calculate_model_weight, calculate_model_height
+
+    if experiment_config.get("run_without_simulation_loop", False):
+
+        while visualization is None or visualization.Run():
+            time_step = 0.01
+
+            system.DoStepDynamics(time_step)
+            visualization.BeginScene()
+            visualization.Render()
+            visualization.EndScene()
+            system.DoStepDynamics(time_step)
+            visualization.BeginScene()
+            visualization.Render()
+
+            weight_kg = calculate_model_weight(beam_elements, braid_material)
+            height_m = calculate_model_height(beam_elements)
+
+            # todo update the weight and height in the experiment series
+            # update_experiment_series()
+
+            take_model_screenshot(visualization, experiment_series["experiment_series_name"])
+        
+            return
+            
+
 
 
     ####################################################################################################
@@ -85,8 +118,8 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
     timestep = 0.01
 
-    while not experiment_series["will_visualize"] or visualization.Run():
-
+    while visualization is None or visualization.Run():
+        
         system.DoStepDynamics(timestep)
         time_passed = system.GetChTime()
 
@@ -107,8 +140,8 @@ def experiment_loop(experiment_series, experiment_config):
         if experiment_series["will_visualize"]:
             visualization.BeginScene()
             visualization.Render()
-            if experiment_series["will_take_screenshots"]:
-                take_screenshot(visualization)
+            if experiment_series["will_record_video"]:
+                take_screenshot(visualization, experiment_series["experiment_series_name"])
             visualization.EndScene()
 
 
@@ -127,6 +160,6 @@ def experiment_loop(experiment_series, experiment_config):
             )
 
             if experiment_series["will_record_video"]:
-                make_video_from_frames()
+                make_video_from_frames(experiment_series["experiment_series_name"])
             
             break

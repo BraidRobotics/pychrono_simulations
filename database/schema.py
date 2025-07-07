@@ -41,8 +41,8 @@ def create_table():
             radius FLOAT,
             pitch FLOAT,
             material_thickness FLOAT DEFAULT NULL,
-            weight FLOAT DEFAULT NULL,
-            height FLOAT DEFAULT NULL
+            weight_kg FLOAT DEFAULT NULL,
+            height_m FLOAT DEFAULT NULL
             
         );
     ''')

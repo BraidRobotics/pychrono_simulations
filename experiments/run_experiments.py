@@ -5,7 +5,7 @@ from experiments.experiment import experiment_loop
 from tqdm import tqdm
 
 
-def run_single_experiment(experiment_series, experiment_config):  
+def run_a_single_experiment(experiment_series, experiment_config):  
     experiment_loop(experiment_series, experiment_config)
 
 
@@ -14,7 +14,6 @@ def run_experiments(experiment_series):
     NUM_CONCURRENT_EXPERIMENTS = os.cpu_count()
 
     experiment_series["will_visualize"] = False
-    experiment_series["will_take_screenshots"] = False
     experiment_series["will_record_video"] = False
 
     experiment_configs = []
@@ -43,29 +42,29 @@ def run_experiments(experiment_series):
     with Pool(processes=NUM_CONCURRENT_EXPERIMENTS) as pool:
         results = []
         for experiment_config in experiment_configs:
-            result = pool.apply_async(run_single_experiment, args=(experiment_series, experiment_config))
+            result = pool.apply_async(run_a_single_experiment, args=(experiment_series, experiment_config))
             results.append(result)
         for result in tqdm(results, desc="Running experiments"):
             result.get()
 
 
-def setup_no_experiment(experiment_series, will_visualize=False, will_take_screenshots=False, will_record_video=False):
+def setup_no_experiment(experiment_series, will_visualize=True, will_record_video=False):
     """
     This function sets up the experiment series to not run any force applied
     It will be used to take a screenshot and calculate the properties of the structure
     """
 
     experiment_series["will_visualize"] = will_visualize
-    experiment_series["will_take_screenshots"] = will_take_screenshots
     experiment_series["will_record_video"] = will_record_video
 
     experiment_config = {
         "experiment_id": 1,
         "force_in_y_direction": 0.0,
-        "force_in_x_direction": 0.0
+        "force_in_x_direction": 0.0,
+        "run_without_simulation_loop": True
     }
 
-    run_single_experiment(experiment_series, experiment_config)
+    run_a_single_experiment(experiment_series, experiment_config)
 
 
 
@@ -74,5 +73,5 @@ if __name__ == "__main__":
     from database.experiment_series_queries import select_experiment_series_by_name
     experiment_series = select_experiment_series_by_name('default')
 
-    # setup_no_experiment(experiment_series)
-    run_experiments(experiment_series)
+    setup_no_experiment(experiment_series)
+    # run_experiments(experiment_series)

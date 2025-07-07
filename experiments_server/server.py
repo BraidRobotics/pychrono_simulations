@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import logging
 
-from experiments import run_experiments, run_single_experiment
+from experiments import run_experiments, run_a_single_experiment
 
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
