@@ -103,14 +103,14 @@ def experiment_loop(experiment_series, experiment_config):
             weight_kg = calculate_model_weight(beam_elements, braid_material)
             height_m = calculate_model_height(beam_elements)
 
-            # todo update the weight and height in the experiment series
-            # update_experiment_series()
+            update_experiment_series(experiment_series["experiment_series_name"], {
+                "weight_kg": weight_kg,
+                "height_m": height_m,
+            })
 
             take_model_screenshot(visualization, experiment_series["experiment_series_name"])
         
             return
-            
-
 
 
     ####################################################################################################

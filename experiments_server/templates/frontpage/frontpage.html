@@ -51,8 +51,8 @@
             <td>{{ series.radius }}</td>
             <td>{{ series.pitch }}</td>
             <td>{{ series.material_thickness }}</td>
-            <td>{{ series.weight_kg }}</td>
-            <td>{{ series.height_m }}</td>
+            <td>{{ "%.2f"|format(series.weight_kg) }}</td>
+            <td>{{ "%.2f"|format(series.height_m) }}</td>
             <td>Image TODO</td>
             <td>
                 <form action="/api/experiment_series/delete/{{ series.experiment_series_name }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this experiment series?');">

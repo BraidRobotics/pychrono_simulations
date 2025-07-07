@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import logging
 
-from experiments import run_experiments, run_a_single_experiment
+from experiments import run_experiments, run_no_experiment
 
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
@@ -56,14 +56,17 @@ def create_experiment_series_route():
         flash(f"Experiment series name '{experiment_series_name}' already exists.", "error")
         return redirect(url_for('index_page'))
     
-    experiment_series_id = insert_experiment_series(experiment_series_name)
+    experiment_series = insert_experiment_series(experiment_series_name)
+    run_no_experiment(experiment_series)
 
-    return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name, experiment_series_id=experiment_series_id))
+    return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))
 
 
-@app.route("/api/experiment_series/<experiment_series_id>", methods=["PATCH"])
+@app.route("/api/experiment_series/<experiment_series_name>", methods=["PATCH"])
 def update_experiment_series_route(experiment_series_name):
-    update_experiment_series(experiment_series_name, request.get_json())
+    experiment_series = update_experiment_series(experiment_series_name, request.get_json())
+    run_no_experiment(experiment_series)
+
     return {"status": "success", "message": f"Updated experiment series {experiment_series_name}"}, 200
 
 # uses POST since HTML forms do not support the DELETE method
@@ -71,7 +74,7 @@ def update_experiment_series_route(experiment_series_name):
 def delete_experiment_series_route(experiment_series_name):
     delete_experiment_series(experiment_series_name)
 
-    flash(f"Experiment series with ID {experiment_series_name} has been deleted.", "success")
+    flash(f"Experiment series with name {experiment_series_name} has been deleted.", "success")
 
     return redirect(url_for('index_page'))
 

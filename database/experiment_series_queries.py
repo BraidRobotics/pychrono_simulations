@@ -58,7 +58,8 @@ def insert_experiment_series(experiment_series_name):
             final_force_in_y_direction, final_force_in_x_direction,
             num_strands, num_layers, radius, pitch
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING *;
     ''', (
         experiment_series_name, description,
         num_experiments, max_simulation_time,
@@ -67,9 +68,10 @@ def insert_experiment_series(experiment_series_name):
         num_strands, num_layers, radius, pitch
     ))
 
+    row = cursor.fetchone()
     conn.commit()
     close_connection(conn)
-    return cursor.lastrowid
+    return dict(row)
 
 def update_experiment_series(experiment_series_name, updates):
     if not updates:
@@ -78,16 +80,21 @@ def update_experiment_series(experiment_series_name, updates):
     conn = get_connection()
     cursor = conn.cursor()
 
-    for field, value in updates.items():
-        cursor.execute(f'''
-            UPDATE experiment_series
-            SET {field} = ?
-            WHERE experiment_series_name = ?;
-        ''', (value, experiment_series_name))
+    set_clause = ', '.join([f"{field} = ?" for field in updates])
+    values = list(updates.values()) + [experiment_series_name]
 
+    cursor.execute(f'''
+        UPDATE experiment_series
+        SET {set_clause}
+        WHERE experiment_series_name = ?
+        RETURNING *;
+    ''', values)
+
+    updated_row = cursor.fetchone()
     conn.commit()
     close_connection(conn)
-    print(f"Experiment series {experiment_series_name} updated successfully with fields: {list(updates.keys())}")
+
+    return dict(updated_row) if updated_row else None
 
 def delete_experiment_series(experiment_series_name):
     conn = get_connection()
@@ -100,4 +107,3 @@ def delete_experiment_series(experiment_series_name):
     conn.commit()
     close_connection(conn)
 
-    print(f"Experiment series {experiment_series_name} and its experiments deleted successfully.")
