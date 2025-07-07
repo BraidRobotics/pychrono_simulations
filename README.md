@@ -23,6 +23,13 @@ $ conda install --file requirements.txt
 ```
 
 ---
+
+## OS specifics
+
+While it works on MacOS (tested on M2 Chip), the MK Solver does not support ARM so a less precise solver is used.
+
+
+---
 ---
 ---
 
