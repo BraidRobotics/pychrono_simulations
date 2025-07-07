@@ -48,7 +48,7 @@ def run_experiments(experiment_series):
             result.get()
 
 
-def run_no_experiment(experiment_series, will_visualize=True, will_record_video=False):
+def run_no_experiment(experiment_series, will_visualize=True, will_record_video=False, run_without_simulation_loop=True):
     """
     This function sets up the experiment series to not run any force applied
     It will be used to take a screenshot and calculate the properties of the structure
@@ -61,7 +61,7 @@ def run_no_experiment(experiment_series, will_visualize=True, will_record_video=
         "experiment_id": 1,
         "force_in_y_direction": 0.0,
         "force_in_x_direction": 0.0,
-        "run_without_simulation_loop": True
+        "run_without_simulation_loop": run_without_simulation_loop
     }
 
     with Pool(processes=1) as pool:
@@ -74,5 +74,14 @@ if __name__ == "__main__":
     from database.experiment_series_queries import select_experiment_series_by_name
     experiment_series = select_experiment_series_by_name('_default')
 
-    run_no_experiment(experiment_series)
+    experiment_series["max_simulation_time"] = 1000
+    experiment_series["will_visualize"] = True
+    experiment_series["will_record_video"] = False
+
+    experiment_config = {
+        "experiment_id": 1,
+        "force_in_y_direction": 0.0,
+        "force_in_x_direction": 0.0,
+    }
+    run_a_single_experiment(experiment_series, experiment_config)
     # run_experiments(experiment_series)

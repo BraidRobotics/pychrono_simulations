@@ -41,7 +41,7 @@ def experiment_loop(experiment_series, experiment_config):
     from structure import create_floor, create_braid_structure
 
     floor = create_floor(system, floor_material)
-    layers, top_nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
+    layers, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
 
 
     ####################################################################################################
@@ -50,8 +50,6 @@ def experiment_loop(experiment_series, experiment_config):
 
 
     from util import calculate_has_exploded, compute_bounding_box
-
-    # calculate_model_weight(beam_elements, braid_material)
 
     initial_bounds = compute_bounding_box(node_positions)
 
@@ -62,8 +60,10 @@ def experiment_loop(experiment_series, experiment_config):
 
     from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
 
+
     # todo apply in x direction too
     apply_force_to_all_nodes(layers, experiment_config["force_in_y_direction"])
+    top_nodes = layers[-1]
     # apply_force_to_top_nodes(top_nodes, force_in_y_direction=-2)
 
     # place_box(top_nodes, system, floor_material)
