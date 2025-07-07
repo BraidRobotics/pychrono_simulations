@@ -71,7 +71,7 @@ def setup_no_experiment(experiment_series, will_visualize=True, will_record_vide
 if __name__ == "__main__":
     # todo this should be removed eventually, of course
     from database.experiment_series_queries import select_experiment_series_by_name
-    experiment_series = select_experiment_series_by_name('default')
+    experiment_series = select_experiment_series_by_name('_default')
 
     setup_no_experiment(experiment_series)
     # run_experiments(experiment_series)

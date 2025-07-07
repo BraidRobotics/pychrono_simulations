@@ -5,7 +5,7 @@ from experiments import run_experiments, run_a_single_experiment
 
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
-from database.experiments_queries import select_all_experiments_by_series_id, delete_experiments_by_series_id
+from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name
 
 
 log = logging.getLogger('werkzeug')
@@ -31,7 +31,7 @@ def index_page():
 @app.route("/experiments/<experiment_series_name>", methods=["GET"])
 def experiments_page(experiment_series_name):
     experiment_series = select_experiment_series_by_name(experiment_series_name)
-    experiments = select_all_experiments_by_series_id(experiment_series["id"])
+    experiments = select_all_experiments_by_series_name(experiment_series_name)
     return render_template(
         "experiments/experiments.html",
         experiment_series=experiment_series,
@@ -61,17 +61,17 @@ def create_experiment_series_route():
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name, experiment_series_id=experiment_series_id))
 
 
-@app.route("/api/experiment_series/<int:experiment_series_id>", methods=["PATCH"])
-def update_experiment_series_route(experiment_series_id):
-    update_experiment_series(experiment_series_id, request.get_json())
-    return {"status": "success", "message": f"Updated experiment series {experiment_series_id}"}, 200
+@app.route("/api/experiment_series/<experiment_series_id>", methods=["PATCH"])
+def update_experiment_series_route(experiment_series_name):
+    update_experiment_series(experiment_series_name, request.get_json())
+    return {"status": "success", "message": f"Updated experiment series {experiment_series_name}"}, 200
 
 # uses POST since HTML forms do not support the DELETE method
-@app.route("/api/experiment_series/delete/<int:experiment_series_id>", methods=["POST"])
-def delete_experiment_series_route(experiment_series_id):
-    delete_experiment_series(experiment_series_id)
+@app.route("/api/experiment_series/delete/<experiment_series_name>", methods=["POST"])
+def delete_experiment_series_route(experiment_series_name):
+    delete_experiment_series(experiment_series_name)
 
-    flash(f"Experiment series with ID {experiment_series_id} has been deleted.", "success")
+    flash(f"Experiment series with ID {experiment_series_name} has been deleted.", "success")
 
     return redirect(url_for('index_page'))
 
@@ -82,11 +82,11 @@ def delete_experiment_series_route(experiment_series_id):
 
 @app.route("/api/experiments/all/<experiment_series_name>", methods=["POST"])
 def run_experiments_route(experiment_series_name):
-    experiment_series = select_experiment_series_by_name(experiment_series_name)
-    delete_experiments_by_series_id(experiment_series["id"]) 
+    delete_experiments_by_series_name(experiment_series_name) 
 
     # todo delete image if it exists
 
+    experiment_series = select_experiment_series_by_name(experiment_series_name)
     run_experiments(experiment_series)
 
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))

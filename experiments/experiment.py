@@ -147,16 +147,16 @@ def experiment_loop(experiment_series, experiment_config):
 
         if time_passed > experiment_series["max_simulation_time"]:
             insert_experiment(
-                experiment_id = experiment_config["experiment_id"],
-                experiment_series_id = experiment_series["id"],
-                force_in_y_direction = experiment_config["force_in_y_direction"],
-                force_in_x_direction = experiment_config["force_in_x_direction"],
-                time_to_bounding_box_explosion = time_to_bounding_box_explosion,
-                max_bounding_box_volume = max_bounding_box_volume,
-                time_to_beam_strain_exceed_explosion = time_to_beam_strain_exceed_explosion,
-                max_beam_strain = max_beam_strain,
-                time_to_node_velocity_spike_explosion = time_to_node_velocity_spike_explosion,
-                max_node_velocity = max_node_velocity
+                experiment_config["experiment_id"],
+                experiment_series["experiment_series_name"],
+                experiment_config["force_in_y_direction"],
+                experiment_config["force_in_x_direction"],
+                time_to_bounding_box_explosion,
+                max_bounding_box_volume,
+                time_to_beam_strain_exceed_explosion,
+                max_beam_strain,
+                time_to_node_velocity_spike_explosion,
+                max_node_velocity
             )
 
             if experiment_series["will_record_video"]:

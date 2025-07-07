@@ -4,7 +4,7 @@ def select_all_experiment_series():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute(''' SELECT * FROM experiment_series ORDER BY id;''')
+    cursor.execute('''SELECT * FROM experiment_series ORDER BY experiment_series_name;''')
     rows = cursor.fetchall()
 
     close_connection(conn)
@@ -71,7 +71,7 @@ def insert_experiment_series(experiment_series_name):
     close_connection(conn)
     return cursor.lastrowid
 
-def update_experiment_series(experiment_series_id, updates):
+def update_experiment_series(experiment_series_name, updates):
     if not updates:
         return
 
@@ -82,22 +82,22 @@ def update_experiment_series(experiment_series_id, updates):
         cursor.execute(f'''
             UPDATE experiment_series
             SET {field} = ?
-            WHERE id = ?;
-        ''', (value, experiment_series_id))
+            WHERE experiment_series_name = ?;
+        ''', (value, experiment_series_name))
 
     conn.commit()
     close_connection(conn)
-    print(f"Experiment series {experiment_series_id} updated successfully with fields: {list(updates.keys())}")
+    print(f"Experiment series {experiment_series_name} updated successfully with fields: {list(updates.keys())}")
 
-def delete_experiment_series(experiment_series_id):
+def delete_experiment_series(experiment_series_name):
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute('DELETE FROM experiments WHERE experiment_series_id = ?;', (experiment_series_id,))
+    cursor.execute('DELETE FROM experiments WHERE experiment_series_name = ?;', (experiment_series_name,))
 
-    cursor.execute('DELETE FROM experiment_series WHERE id = ?;', (experiment_series_id,))
+    cursor.execute('DELETE FROM experiment_series WHERE experiment_series_name = ?;', (experiment_series_name,))
 
     conn.commit()
     close_connection(conn)
 
-    print(f"Experiment series {experiment_series_id} and its experiments deleted successfully.")
+    print(f"Experiment series {experiment_series_name} and its experiments deleted successfully.")

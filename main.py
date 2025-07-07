@@ -1,4 +1,4 @@
-from experiments_server.start_server import start_server
+from experiments_server import app
 
 if __name__ == "__main__":
-    start_server()
+    app.run(debug=True, port=8000)

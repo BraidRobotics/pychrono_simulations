@@ -51,7 +51,8 @@ def create_table():
             -- The experiment_id is not auto-incremented to allow me to set it manually and sort by id later
             -- since the experiments are parallelized, they end up saved out of order otherwise.
             experiment_id INTEGER,
-            experiment_series_id INTEGER NOT NULL,                   
+                   
+            experiment_series_name TEXT NOT NULL REFERENCES experiment_series(experiment_series_name),                   
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 
             -- Force applied                   
@@ -67,25 +68,23 @@ def create_table():
             max_node_velocity FLOAT,
                    
             -- Final Result
-            final_height FLOAT,
-                    
-            FOREIGN KEY (experiment_series_id) REFERENCES experiment_series(id)
+            final_height FLOAT
         );
     ''')
 
     cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_experiments_series_id ON experiment_series(experiment_series_name);
+        CREATE INDEX IF NOT EXISTS idx_experiments_series_name ON experiment_series(experiment_series_name);
     ''')
 
     cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_experiments_experiment_series_id ON experiments(experiment_series_id);
+        CREATE INDEX IF NOT EXISTS idx_experiments_experiment_series_name ON experiments(experiment_series_name);
     ''')
 
     # Insert a default experiment_series record named "default" with 3 experiments.
     cursor.execute('''INSERT OR IGNORE INTO experiment_series 
-                   (experiment_series_name, description, num_experiments, max_simulation_time, force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction, final_force_in_y_direction, final_force_in_x_direction, num_strands, num_layers, radius, pitch, material_thickness, weight, height) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''', 
-        ("default", "Default configuration", 3, 2.0, "TOP_NODES_DOWN", 0.0, 0.0, 1.0, 0.0, 5, 10, 0.1, 1.0, None, None, None))
+                   (experiment_series_name, description, num_experiments, max_simulation_time, bounding_box_volume_threshold, beam_strain_threshold, node_velocity_threshold, force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction, final_force_in_y_direction, final_force_in_x_direction, num_strands, num_layers, radius, pitch, material_thickness, weight_kg, height_m) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''', 
+        ("_default", "Default configuration", 3, 2.0, 1.8, 0.08, 3.0, "TOP_NODES_DOWN", 0.0, 0.0, 1.0, 0.0, 5, 10, 0.1, 1.0, None, None, None))
 
     conn.commit()
     close_connection(conn)
