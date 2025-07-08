@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import logging
 
-from experiments import run_experiments, run_no_experiment
+from experiments import run_experiments, run_no_experiment, run_visual_simulation_experiment
 
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
-from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name
+from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_id
 
 
 
@@ -104,6 +104,11 @@ def run_all_experiments_route(experiment_series_name):
 @app.route("/api/experiments/visualize_single/<experiment_series_name>/<experiment_id>", methods=["POST"])
 def run_single_experiment_route(experiment_series_name, experiment_id):
 
-    
 
-    return { "status": "success", "message": f"Running the simulation for experiment {experiment_id} in visual mode" },
+    experiment_series = select_experiment_series_by_name(experiment_series_name)
+    experiment = select_experiment_by_id(experiment_id)
+
+
+    run_visual_simulation_experiment(experiment_series, experiment)
+    
+    return { "status": "success", "message": f"Running the simulation for experiment {experiment_id} in visual mode" }

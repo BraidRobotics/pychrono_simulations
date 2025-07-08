@@ -73,6 +73,25 @@ def run_no_experiment(experiment_series, will_visualize=True, will_record_video=
         pool.apply(run_a_single_experiment, (experiment_series, experiment_config))
 
 
+def run_visual_simulation_experiment(experiment_series, experiment_config):
+    experiment_series["will_visualize"] = True
+    experiment_series["max_simulation_time"] = float('inf')
+    experiment_series["will_record_video"] = False
+
+    # todo this is a hack because this value is None for some reason. Will look at it after migrating the DB
+    experiment_config["force_in_z_direction"] = 0.0
+    experiment_config["torsional_force"] = experiment_series["torsional_force"]
+
+
+    print("****"*10)
+    print(experiment_series)
+    print("****"*10)
+    print(experiment_config)
+    print("****"*10)
+
+    with Pool(processes=1) as pool:
+        pool.apply(run_a_single_experiment, (experiment_series, experiment_config))
+
 
 if __name__ == "__main__":
     # todo this should be removed eventually, of course

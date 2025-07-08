@@ -97,7 +97,7 @@ def create_table():
         initial_force_applied_in_z_direction, final_force_in_z_direction, torsional_force,
         num_strands, num_layers, radius, pitch, radius_taper, material_thickness, weight_kg, height_m) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''',
-        ("_default", "Default configuration", 3, 2.0, 1.8, 0.08, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5, 10, 0.1, 1.0, 0.0, None, None, None))
+        ("_default", "Default configuration", 3, 2.0, 1.8, 0.08, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5, 10, 0.1, 1.0, 0.0, 1.0, None, None))
 
     conn.commit()
     close_connection(conn)

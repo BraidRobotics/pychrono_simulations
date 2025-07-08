@@ -1,5 +1,19 @@
 from database import get_connection, close_connection
 
+def select_experiment_by_id(experiment_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT *
+        FROM experiments
+        WHERE experiment_id = ?;
+    ''', (experiment_id,))
+
+    row = cursor.fetchone()
+    close_connection(conn)
+    return dict(row) if row else None
+
 
 def select_all_experiments_by_series_name(experiment_series_name):
     conn = get_connection()

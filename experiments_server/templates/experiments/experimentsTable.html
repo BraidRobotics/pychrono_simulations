@@ -39,14 +39,14 @@
     </tbody>
 </table>
 <script>
-function runSingleExperiment(experimentId) {
-    const seriesName = "{{ experiment_series.experiment_series_name }}";
-    fetch(`/api/experiments/visualize_single/${seriesName}/${experimentId}`, {
-        method: "POST"
-    }).then(response => {
-        if (!response.ok) {
-            console.error("Failed to start experiment:", response.status);
-        }
-    });
-}
+    function runSingleExperiment(experimentId) {
+        const seriesName = "{{ experiment_series.experiment_series_name }}";
+        fetch(`/api/experiments/visualize_single/${seriesName}/${experimentId}`, {
+            method: "POST"
+        }).then(response => {
+            if (!response.ok) {
+                console.error("Failed to start experiment:", response.status);
+            }
+        });
+    }
 </script>
