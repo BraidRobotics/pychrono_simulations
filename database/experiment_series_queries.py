@@ -39,7 +39,6 @@ def insert_experiment_series(experiment_series_name):
     ## default values
     num_experiments = 100
     max_simulation_time = 10.0
-    force_type = "TOP_NODES_DOWN"
     initial_force_applied_in_y_direction = 0.0
     initial_force_applied_in_x_direction = 0.0
     final_force_in_y_direction = 0.0
@@ -54,7 +53,7 @@ def insert_experiment_series(experiment_series_name):
         INSERT INTO experiment_series (
             experiment_series_name, description,
             num_experiments, max_simulation_time,
-            force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
+            initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
             final_force_in_y_direction, final_force_in_x_direction,
             num_strands, num_layers, radius, pitch
         )
@@ -63,7 +62,7 @@ def insert_experiment_series(experiment_series_name):
     ''', (
         experiment_series_name, description,
         num_experiments, max_simulation_time,
-        force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
+        initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
         final_force_in_y_direction, final_force_in_x_direction,
         num_strands, num_layers, radius, pitch
     ))

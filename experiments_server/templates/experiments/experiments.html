@@ -53,13 +53,6 @@
                        onblur="submitEdit(this)"
                        onkeydown="handleKey(event, this)">
             </td>
-            <td>
-                <select data-field="force_type"
-                        onchange="submitEdit(this)">
-                    <option value="TOP_NODES_DOWN" {% if experiment_series.force_type == 'TOP_NODES_DOWN' %}selected{% endif %}>TOP_NODES_DOWN</option>
-                    <option value="ALL_NODES_DOWN" {% if experiment_series.force_type == 'ALL_NODES_DOWN' %}selected{% endif %}>ALL_NODES_DOWN</option>
-                    <option value="RIGHT_SIDE_SIDEWAYS" {% if experiment_series.force_type == 'RIGHT_SIDE_SIDEWAYS' %}selected{% endif %}>RIGHT_SIDE_SIDEWAYS</option>
-                </select>
             </td>
             <td>
                 <input type="number"

@@ -22,19 +22,24 @@ def run_experiments(experiment_series):
     final_y = experiment_series["final_force_in_y_direction"]
     initial_x = experiment_series["initial_force_applied_in_x_direction"]
     final_x = experiment_series["final_force_in_x_direction"]
+    initial_z = experiment_series["initial_force_applied_in_z_direction"]
+    final_z = experiment_series["final_force_in_z_direction"]
+    
 
     for i in range(NUM_EXPERIMENTS):
         config = {
             "experiment_id": i + 1,
             "force_in_y_direction": 0.0,
-            "force_in_x_direction": 0.0
+            "force_in_x_direction": 0.0,
+            "torsional_force": experiment_series["torsional_force"],
 	    }
         
-        # incrementing the force for each experiment starting from initial up to final
-        if experiment_series["force_type"] in ("TOP_NODES_DOWN", "ALL_NODES_DOWN"):
-            config["force_in_y_direction"] = initial_y + (final_y - initial_y) * (i / (NUM_EXPERIMENTS - 1))
-        elif experiment_series["force_type"] == "RIGHT_SIDE_SIDEWAYS":
-            config["force_in_x_direction"] = initial_x + (final_x - initial_x) * (i / (NUM_EXPERIMENTS - 1))
+        
+        denominator = NUM_EXPERIMENTS - 1 if NUM_EXPERIMENTS > 1 else 1 # Basically to avoid division by zero for the first experiment
+        step_ratio = i / denominator
+        config["force_in_y_direction"] = initial_y + (final_y - initial_y) * step_ratio
+        config["force_in_x_direction"] = initial_x + (final_x - initial_x) * step_ratio
+        config["force_in_z_direction"] = initial_z + (final_z - initial_z) * step_ratio
 
 
         experiment_configs.append(config)
@@ -74,7 +79,7 @@ if __name__ == "__main__":
     from database.experiment_series_queries import select_experiment_series_by_name
     experiment_series = select_experiment_series_by_name('_default')
 
-    experiment_series["max_simulation_time"] = 1000
+    # experiment_series["max_simulation_time"] = 1000
     experiment_series["will_visualize"] = True
     experiment_series["will_record_video"] = False
 
@@ -85,5 +90,7 @@ if __name__ == "__main__":
         "force_in_z_direction": 0.0,
         "torsional_force": 0.0,
     }
-    run_a_single_experiment(experiment_series, experiment_config)
-    # run_experiments(experiment_series)
+
+    # run_no_experiment(experiment_series)
+    # run_a_single_experiment(experiment_series, experiment_config)
+    run_experiments(experiment_series)

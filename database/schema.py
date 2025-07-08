@@ -28,11 +28,14 @@ def create_table():
             node_velocity_threshold FLOAT DEFAULT 3.0,
 
             -- Force configurations (initial is the force applied to the first experiment in the series, final is the last)
-            force_type TEXT CHECK(force_type IN ('TOP_NODES_DOWN', 'ALL_NODES_DOWN', 'RIGHT_SIDE_SIDEWAYS')),
+                -- the exact force applied to the experiment is in the experiments table
             initial_force_applied_in_y_direction FLOAT,
-            initial_force_applied_in_x_direction FLOAT,
             final_force_in_y_direction FLOAT,
+            initial_force_applied_in_x_direction FLOAT,
             final_force_in_x_direction FLOAT,
+            initial_force_applied_in_z_direction FLOAT,
+            final_force_in_z_direction FLOAT,
+            torsional_force FLOAT,
 
             -- Braided structure configuration   
             num_strands INTEGER,
@@ -85,9 +88,13 @@ def create_table():
 
     # Insert a default experiment_series record named "default" with 3 experiments.
     cursor.execute('''INSERT OR IGNORE INTO experiment_series 
-                   (experiment_series_name, description, num_experiments, max_simulation_time, bounding_box_volume_threshold, beam_strain_threshold, node_velocity_threshold, force_type, initial_force_applied_in_y_direction, initial_force_applied_in_x_direction, final_force_in_y_direction, final_force_in_x_direction, num_strands, num_layers, radius, pitch, material_thickness, weight_kg, height_m) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''', 
-        ("_default", "Default configuration", 3, 2.0, 1.8, 0.08, 3.0, "TOP_NODES_DOWN", 0.0, 0.0, 1.0, 0.0, 5, 10, 0.1, 1.0, None, None, None))
+        (experiment_series_name, description, num_experiments, max_simulation_time, bounding_box_volume_threshold, beam_strain_threshold, node_velocity_threshold, 
+        initial_force_applied_in_y_direction, final_force_in_y_direction,
+        initial_force_applied_in_x_direction, final_force_in_x_direction,
+        initial_force_applied_in_z_direction, final_force_in_z_direction, torsional_force,
+        num_strands, num_layers, radius, pitch, radius_taper, material_thickness, weight_kg, height_m) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''',
+        ("_default", "Default configuration", 3, 2.0, 1.8, 0.08, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5, 10, 0.1, 1.0, 0.0, None, None, None))
 
     conn.commit()
     close_connection(conn)

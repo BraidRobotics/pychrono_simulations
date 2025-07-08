@@ -33,8 +33,6 @@ def experiment_loop(experiment_series, experiment_config):
         radius_taper=experiment_series["radius_taper"]
     )
 
-    print("**************************8", braided_structure_config)
-
     braid_mesh = create_braid_mesh()
     braid_material = create_braid_material(material_radius = 0.008)
     floor_material = create_floor_material()
@@ -127,7 +125,6 @@ def experiment_loop(experiment_series, experiment_config):
         apply_lateral_load(nodes, experiment_config["force_in_x_direction"], direction="x")
         apply_lateral_load(nodes, experiment_config["force_in_z_direction"], direction="z")
         apply_torsional_load(nodes, experiment_config["torsional_force"])
-
 
         system.DoStepDynamics(timestep)
         time_passed = system.GetChTime()
