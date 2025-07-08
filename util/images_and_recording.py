@@ -1,7 +1,7 @@
 import subprocess
 import os
 from pathlib import Path
-import sys
+
 
 PROJECT_ROOT = Path(os.getcwd())
 
@@ -10,10 +10,14 @@ def get_path_with_experiment_series_name(experiment_series_name):
 	base_path.mkdir(parents=True, exist_ok=True)
 	return str(base_path)
 
-def get_screenshot_path_if_exists(experiment_series_name):
-	return PROJECT_ROOT / "assets" / experiment_series_name / "model.jpg"
+def delete_model_screenshot(experiment_series_name):
+	filename = os.path.join(get_path_with_experiment_series_name(experiment_series_name), "model.jpg")
+	if os.path.exists(filename):
+		os.remove(filename)
+
 
 def take_model_screenshot(visualization, experiment_series_name):
+	delete_model_screenshot(experiment_series_name)
 	base_path = get_path_with_experiment_series_name(experiment_series_name)
 	filename = os.path.join(base_path, "model.jpg")
 	visualization.WriteImageToFile(filename)

@@ -85,3 +85,7 @@ td select:focus {
 #run-experiments-button {
     background-color: #0c9115;
 }
+
+.outdated td {
+    background-color: rgb(237, 0, 0);
+}

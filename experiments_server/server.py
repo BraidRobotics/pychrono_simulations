@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import logging
 
 from experiments import run_experiments, run_no_experiment
@@ -6,6 +6,7 @@ from experiments import run_experiments, run_no_experiment
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
 from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name
+
 
 
 log = logging.getLogger('werkzeug')
@@ -32,6 +33,8 @@ def index_page():
 def experiments_page(experiment_series_name):
     experiment_series = select_experiment_series_by_name(experiment_series_name)
     experiments = select_all_experiments_by_series_name(experiment_series_name)
+    if experiment_series["is_experiments_outdated"]:
+        flash(f"The experiments are outdated (experiment series config have been changed). Please run the experiments again.", "error")
     return render_template(
         "experiments/experiments.html",
         experiment_series=experiment_series,
@@ -64,7 +67,10 @@ def create_experiment_series_route():
 
 @app.route("/api/experiment_series/<experiment_series_name>", methods=["PATCH"])
 def update_experiment_series_route(experiment_series_name):
-    experiment_series = update_experiment_series(experiment_series_name, request.get_json())
+    body = request.get_json()
+    body["is_experiments_outdated"] = True 
+    experiment_series = update_experiment_series(experiment_series_name, body)
+
     run_no_experiment(experiment_series)
 
     return {"status": "success", "message": f"Updated experiment series {experiment_series_name}"}, 200
@@ -84,17 +90,20 @@ def delete_experiment_series_route(experiment_series_name):
 ##########################################################################################
 
 @app.route("/api/experiments/all/<experiment_series_name>", methods=["POST"])
-def run_experiments_route(experiment_series_name):
+def run_all_experiments_route(experiment_series_name):
     delete_experiments_by_series_name(experiment_series_name) 
 
-    # todo delete image if it exists
+    update_experiment_series(experiment_series_name, { "is_experiments_outdated": False })
+    session.pop('_flashes', None)
 
     experiment_series = select_experiment_series_by_name(experiment_series_name)
     run_experiments(experiment_series)
 
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))
 
-@app.route("/api/experiments/single/<experiment_series_name>", methods=["POST"])
-def run_single_experiment_route():
-    print("todo: run single experiment (visual mode or not, photo / video) defined in the url path variables")
+@app.route("/api/experiments/visualize_single/<experiment_series_name>/<experiment_id>", methods=["POST"])
+def run_single_experiment_route(experiment_series_name, experiment_id):
 
+    
+
+    return { "status": "success", "message": f"Running the simulation for experiment {experiment_id} in visual mode" },

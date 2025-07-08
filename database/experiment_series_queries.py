@@ -39,32 +39,34 @@ def insert_experiment_series(experiment_series_name):
     ## default values
     num_experiments = 100
     max_simulation_time = 10.0
-    initial_force_applied_in_y_direction = 0.0
-    initial_force_applied_in_x_direction = 0.0
-    final_force_in_y_direction = 0.0
-    final_force_in_x_direction = 0.0
-    num_strands = 5
-    num_layers = 10
-    radius = 0.15
-    pitch = 1.13
     description = ""
 
     cursor.execute('''
         INSERT INTO experiment_series (
             experiment_series_name, description,
             num_experiments, max_simulation_time,
-            initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
-            final_force_in_y_direction, final_force_in_x_direction,
-            num_strands, num_layers, radius, pitch
+            bounding_box_volume_threshold, beam_strain_threshold, node_velocity_threshold,
+            initial_force_applied_in_y_direction, final_force_in_y_direction,
+            initial_force_applied_in_x_direction, final_force_in_x_direction,
+            initial_force_applied_in_z_direction, final_force_in_z_direction,
+            torsional_force,
+            num_strands, num_layers, radius, pitch, radius_taper,
+            material_thickness, weight_kg, height_m,
+            is_experiments_outdated
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *;
     ''', (
         experiment_series_name, description,
         num_experiments, max_simulation_time,
-        initial_force_applied_in_y_direction, initial_force_applied_in_x_direction,
-        final_force_in_y_direction, final_force_in_x_direction,
-        num_strands, num_layers, radius, pitch
+        1.8, 0.08, 3.0,
+        0.0, 0.0,
+        0.0, 0.0,
+        0.0, 0.0,
+        0.0,
+        5, 10, 0.15, 1.13, 0.0,
+        None, None, None,
+        False
     ))
 
     row = cursor.fetchone()
@@ -105,4 +107,3 @@ def delete_experiment_series(experiment_series_name):
 
     conn.commit()
     close_connection(conn)
-

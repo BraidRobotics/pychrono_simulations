@@ -45,7 +45,10 @@ def create_table():
             radius_taper FLOAT DEFAULT 0.0, -- Conicity (how much it narrows towards the top)
             material_thickness FLOAT DEFAULT NULL,
             weight_kg FLOAT DEFAULT NULL,
-            height_m FLOAT DEFAULT NULL
+            height_m FLOAT DEFAULT NULL,
+                   
+            -- Meta
+            is_experiments_outdated BOOLEAN DEFAULT FALSE
             
         );
     ''')
