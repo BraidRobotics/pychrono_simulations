@@ -33,20 +33,23 @@
             <td>{{ experiment.max_node_velocity }}</td>
             <td>{{ experiment.final_height }}</td>
             <td>🎥</td>
-            <td><button onclick="runSingleExperiment({{ experiment.experiment_id }})">▶️</button></td>
+            <td><button class="run-btn" data-experiment-id="{{ experiment.experiment_id }}">▶️</button></td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 <script>
-    function runSingleExperiment(experimentId) {
-        const seriesName = "{{ experiment_series.experiment_series_name }}";
-        fetch(`/api/experiments/visualize_single/${seriesName}/${experimentId}`, {
-            method: "POST"
-        }).then(response => {
-            if (!response.ok) {
-                console.error("Failed to start experiment:", response.status);
-            }
+    document.querySelectorAll('.run-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const experimentId = button.dataset.experimentId;
+            const seriesName = "{{ experiment_series.experiment_series_name }}";
+            fetch(`/api/experiments/visualize_single/${seriesName}/${experimentId}`, {
+                method: "POST"
+            }).then(response => {
+                if (!response.ok) {
+                    console.error("Failed to start experiment:", response.status);
+                }
+            });
         });
-    }
+    });
 </script>
