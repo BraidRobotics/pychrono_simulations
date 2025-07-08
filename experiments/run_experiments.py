@@ -82,6 +82,8 @@ if __name__ == "__main__":
         "experiment_id": 1,
         "force_in_y_direction": 0.0,
         "force_in_x_direction": 0.0,
+        "force_in_z_direction": 0.0,
+        "torsional_force": 0.0,
     }
     run_a_single_experiment(experiment_series, experiment_config)
     # run_experiments(experiment_series)

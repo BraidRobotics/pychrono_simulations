@@ -8,5 +8,8 @@ class BraidedStructureConfig:
 	radius: float = 0.15
 	pitch: float = 1.13
 	num_layers: int = 10
+	# todo add to the schema
+	radius_taper: float = 0.01
+	num_beam_segments: int = 10
 
 

@@ -1,1 +1,2 @@
 from forces.forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
+from forces.loads import apply_axial_load, apply_lateral_load, apply_torsional_load

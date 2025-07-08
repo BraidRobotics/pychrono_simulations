@@ -29,8 +29,11 @@ def experiment_loop(experiment_series, experiment_config):
         num_strands=experiment_series["num_strands"],
         num_layers=experiment_series["num_layers"],
         radius=experiment_series["radius"],
-        pitch=experiment_series["pitch"]
+        pitch=experiment_series["pitch"],
+        radius_taper=experiment_series["radius_taper"]
     )
+
+    print("**************************8", braided_structure_config)
 
     braid_mesh = create_braid_mesh()
     braid_material = create_braid_material(material_radius = 0.008)
@@ -41,7 +44,7 @@ def experiment_loop(experiment_series, experiment_config):
     from structure import create_floor, create_braid_structure
 
     floor = create_floor(system, floor_material)
-    layers, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
+    nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
 
 
     ####################################################################################################
@@ -58,15 +61,15 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
 
 
-    from forces import apply_force_to_all_nodes, apply_force_to_top_nodes, place_box
+    from forces import apply_axial_load, apply_lateral_load, apply_torsional_load
 
 
-    # todo apply in x direction too
-    apply_force_to_all_nodes(layers, experiment_config["force_in_y_direction"])
-    top_nodes = layers[-1]
-    # apply_force_to_top_nodes(top_nodes, force_in_y_direction=-2)
-
-    # place_box(top_nodes, system, floor_material)
+    ''' These need to be reapplied at every timestep because FEA only supports SetForce which is reset at every timestep
+     Quote from the documentation api.projectchrono.org/loads.html: "For FEA nodes, similary to the ChForce for ChBody, 
+     it is possible to add a force directly to the node through ChNodeFEAxyz::SetForce(). 
+     However, in this case the options are even more limited, since the force is expressed as a simple ChVector3, 
+     thus always assumed constant and expressed in absolute frame. The ChNodeFEAxyzrot class implements also ChNodeFEAxyzrot::SetTorque()."
+    '''
 
 
     ####################################################################################################
@@ -119,7 +122,13 @@ def experiment_loop(experiment_series, experiment_config):
     timestep = 0.01
 
     while visualization is None or visualization.Run():
-        
+        # Forces
+        apply_axial_load(nodes, experiment_config["force_in_y_direction"])
+        apply_lateral_load(nodes, experiment_config["force_in_x_direction"], direction="x")
+        apply_lateral_load(nodes, experiment_config["force_in_z_direction"], direction="z")
+        apply_torsional_load(nodes, experiment_config["torsional_force"])
+
+
         system.DoStepDynamics(timestep)
         time_passed = system.GetChTime()
 
@@ -136,6 +145,8 @@ def experiment_loop(experiment_series, experiment_config):
             initial_bounds,
             experiment_series
         )
+
+
 
         if experiment_series["will_visualize"]:
             visualization.BeginScene()

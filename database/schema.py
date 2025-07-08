@@ -27,7 +27,7 @@ def create_table():
             beam_strain_threshold FLOAT DEFAULT 0.08,
             node_velocity_threshold FLOAT DEFAULT 3.0,
 
-            -- Force configurations
+            -- Force configurations (initial is the force applied to the first experiment in the series, final is the last)
             force_type TEXT CHECK(force_type IN ('TOP_NODES_DOWN', 'ALL_NODES_DOWN', 'RIGHT_SIDE_SIDEWAYS')),
             initial_force_applied_in_y_direction FLOAT,
             initial_force_applied_in_x_direction FLOAT,
@@ -39,6 +39,7 @@ def create_table():
             num_layers INTEGER,
             radius FLOAT,
             pitch FLOAT,
+            radius_taper FLOAT DEFAULT 0.0, -- Conicity (how much it narrows towards the top)
             material_thickness FLOAT DEFAULT NULL,
             weight_kg FLOAT DEFAULT NULL,
             height_m FLOAT DEFAULT NULL
@@ -56,8 +57,10 @@ def create_table():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 
             -- Force applied                   
-            force_in_y_direction FLOAT,
             force_in_x_direction FLOAT,
+            force_in_y_direction FLOAT,
+            force_in_z_direction FLOAT,
+            torsional_force FLOAT,
 
             -- Has Exploded
             time_to_bounding_box_explosion FLOAT,

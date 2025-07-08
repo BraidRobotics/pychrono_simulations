@@ -3,7 +3,7 @@ import pychrono.fea as fea
 import math
 from config import BraidedStructureConfig
 
-def create_braid_structure(braid_mesh, braid_material, braided_structure_config: BraidedStructureConfig):	
+def create_braid_structure(braid_mesh, braid_material, braided_structure_config: BraidedStructureConfig):
 	nodes = generate_nodes(braid_mesh, braided_structure_config)
 	node_pairs = define_connectivity(nodes, braided_structure_config)
 	beams, joints = create_beam_elements(braid_mesh, node_pairs, braid_material, braided_structure_config)
