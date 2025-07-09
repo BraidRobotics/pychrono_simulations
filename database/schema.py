@@ -2,6 +2,12 @@ from database import get_connection, close_connection
 
 
 def create_table():
+    # todo delete this, this is just for testing while I constantly change the schema
+    import os
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
+    if os.path.exists(db_path):
+        os.remove(db_path)
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -43,7 +49,8 @@ def create_table():
             radius FLOAT,
             pitch FLOAT,
             radius_taper FLOAT DEFAULT 0.0, -- Conicity (how much it narrows towards the top)
-            material_thickness FLOAT DEFAULT NULL,
+            material_thickness FLOAT DEFAULT 1.0,
+            material_youngs_modulus FLOAT DEFAULT 1.72e10, -- Glass-reinforced polyester (GRP) https://en.wikipedia.org/wiki/Young%27s_modulus
             weight_kg FLOAT DEFAULT NULL,
             height_m FLOAT DEFAULT NULL,
                    
