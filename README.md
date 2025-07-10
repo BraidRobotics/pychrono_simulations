@@ -24,10 +24,31 @@ $ conda install --file requirements.txt
 
 ---
 
+## Database
+
+`SQLite` is used as the database and the database is pushed. 
+
+To keep things neater, `alembic` is setup in the database folder instead of root. 
+
+That means that a migration must be run in the following way:
+
+```bash
+$ alembic -c database/alembic.ini upgrade head
+```
+
+---
+
+## Images
+
+Images are stored in the `assets` directory which isn't tracked by git since it will take up too much space. If images need to be transfered, they will have to be copied manually.
+
+If the `assets` folder doesn't exist, it will be created and it will create a subfolder for each experiment series.
+
+---
+
 ## OS specifics
 
 While it works on MacOS (tested on M2 Chip), the MK Solver does not support ARM so a less precise solver is used.
-
 
 ---
 ---
