@@ -37,10 +37,22 @@ def update_experiment_series(session, experiment_series_name, updates):
 		return
 
 	for field, value in updates.items():
+		column = ExperimentSeries.__table__.columns.get(field)
+		if column is not None:
+			try:
+				py_type = column.type.python_type
+				value = py_type(value)
+			except (TypeError, ValueError, NotImplementedError):
+				pass
 		setattr(experiment_series, field, value)
 
+	errors = experiment_series.validate() if hasattr(experiment_series, 'validate') else None
+	if errors:
+		session.rollback()
+		return None, errors
+
 	session.commit()
-	return experiment_series
+	return experiment_series, None
 
 
 def delete_experiment_series(session, experiment_series_name):

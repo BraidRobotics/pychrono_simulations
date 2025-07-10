@@ -24,7 +24,7 @@
             <th>Layers</th>
             <th>Radius</th>
             <th>Radius Taper</th>
-            <th>Pitch</th>
+            <th title="Smaller pitch → tighter twist; larger pitch → looser, more vertical strands">Pitch</th>
             <th>Material Thickness</th>
             <th>Weight (kg)</th>
             <th>Height (m)</th>
@@ -203,14 +203,17 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
-        }).then(response => {
+        }).then(async response => {
             if (!response.ok) {
-                console.log(response);
-                alert('Failed to update. Please try again.');
+                const errorMessage = await response.json().then(
+                    data => `Failed to update: ${data.message || 'Unknown error.'}`,
+                    () => 'Failed to update.'
+                );
+                alert(errorMessage);
             } else {
                 window.location.reload();
             }
-        }).catch(() => {
+        }).catch((error) => {
             console.error('There was a problem with the fetch operation:', error);
             alert('Failed to update. Please try again.');
         });

@@ -1,6 +1,5 @@
 import os
 from multiprocessing import Pool
-from config import SimulationConfig
 from experiments.experiment import experiment_loop
 from tqdm import tqdm
 from database.experiment_series_queries import select_experiment_series_by_name

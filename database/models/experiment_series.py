@@ -39,3 +39,23 @@ class ExperimentSeries(Base):
 
 	# Meta
 	is_experiments_outdated = Column(Boolean, default=False) # Used to know that the values in this table have been changed without rerunning the experiments
+
+	def validate(self):
+		errors = []
+		if self.num_layers < 2:
+			errors.append("Number of layers must be at least 2.")
+		if self.num_strands < 2:
+			errors.append("Number of strands must be at least 2.")
+		if self.radius <= 0:
+			errors.append("Radius must be greater than 0.")
+		if self.pitch <= 0:
+			errors.append("Pitch must be greater than 0.")
+		if self.radius_taper * self.num_layers > self.radius:
+			errors.append("Radius taper times number of layers must not exceed radius.")
+		if self.num_strands % 2 != 0:
+			errors.append("Number of strands should be divisible by 2 for symmetry.")
+		if self.material_thickness <= 0:
+			errors.append("Material thickness must be greater than 0.")
+		if self.material_youngs_modulus <= 0:
+			errors.append("Material Young's modulus must be greater than 0.")
+		return errors

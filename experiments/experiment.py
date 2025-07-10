@@ -1,4 +1,3 @@
-from config import BraidedStructureConfig
 import pychrono as chrono
 from util import take_model_screenshot, take_screenshot, make_video_from_frames
 
@@ -25,15 +24,6 @@ def experiment_loop(experiment_series, experiment_config):
     # Mesh / Material
     ####################################################################################################
     
-    # todo make sure that this is correct
-    braided_structure_config = BraidedStructureConfig(
-        num_strands=experiment_series.num_strands,
-        num_layers=experiment_series.num_layers,
-        radius=experiment_series.radius,
-        pitch=experiment_series.pitch,
-        radius_taper=experiment_series.radius_taper
-    )
-
     braid_mesh = create_braid_mesh()
     braid_material = create_braid_material(material_radius = 0.008)
     floor_material = create_floor_material()
@@ -43,7 +33,7 @@ def experiment_loop(experiment_series, experiment_config):
     from structure import create_floor, create_braid_structure
 
     floor = create_floor(system, floor_material)
-    nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, braided_structure_config)
+    nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, experiment_series)
 
 
     ####################################################################################################

@@ -77,8 +77,12 @@ def create_experiment_series_route():
 @app.route("/api/experiment_series/<experiment_series_name>", methods=["PATCH"])
 def update_experiment_series_route(experiment_series_name):
     body = request.get_json()
-    body["is_experiments_outdated"] = True 
-    experiment_series = update_experiment_series(g.db, experiment_series_name, body)
+    body["is_experiments_outdated"] = True
+    experiment_series, errors = update_experiment_series(g.db, experiment_series_name, body)
+    if experiment_series is None:
+        for message in errors:
+            flash(message, "error")
+        return {"status": "error", "message": errors[0]}, 400
 
     run_no_experiment(experiment_series)
 
