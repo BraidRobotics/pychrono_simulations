@@ -4,6 +4,7 @@ from util import take_model_screenshot, take_screenshot, make_video_from_frames
 
 from database.experiment_series_queries import update_experiment_series
 from database.experiments_queries import insert_experiment
+from database.session import SessionLocal
 
 def experiment_loop(experiment_series, experiment_config):
 
@@ -26,11 +27,11 @@ def experiment_loop(experiment_series, experiment_config):
     
     # todo make sure that this is correct
     braided_structure_config = BraidedStructureConfig(
-        num_strands=experiment_series["num_strands"],
-        num_layers=experiment_series["num_layers"],
-        radius=experiment_series["radius"],
-        pitch=experiment_series["pitch"],
-        radius_taper=experiment_series["radius_taper"]
+        num_strands=experiment_series.num_strands,
+        num_layers=experiment_series.num_layers,
+        radius=experiment_series.radius,
+        pitch=experiment_series.pitch,
+        radius_taper=experiment_series.radius_taper
     )
 
     braid_mesh = create_braid_mesh()
@@ -77,11 +78,17 @@ def experiment_loop(experiment_series, experiment_config):
     from visualization import create_visualization \
 
     visualization = None
-    will_visualize = experiment_series["will_visualize"] or experiment_series.get("run_without_simulation_loop", False)
+    will_visualize = experiment_config.get("will_visualize", False) or experiment_config.get("run_without_simulation_loop", False)
 
     if (will_visualize):
         visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
 
+
+    ####################################################################################################
+    # Database session
+    ####################################################################################################
+
+    session = SessionLocal()
 
     ####################################################################################################
     # Without Simulation loop
@@ -104,12 +111,13 @@ def experiment_loop(experiment_series, experiment_config):
             weight_kg = calculate_model_weight(beam_elements, braid_material)
             height_m = calculate_model_height(beam_elements)
 
-            update_experiment_series(experiment_series["experiment_series_name"], {
+            update_experiment_series(session, experiment_series.experiment_series_name, {
                 "weight_kg": weight_kg,
                 "height_m": height_m,
             })
+            session.close()
 
-            take_model_screenshot(visualization, experiment_series["experiment_series_name"])
+            take_model_screenshot(visualization, experiment_series.experiment_series_name)
         
             return
 
@@ -145,29 +153,36 @@ def experiment_loop(experiment_series, experiment_config):
 
 
 
-        if experiment_series["will_visualize"]:
+        if experiment_config.get("will_visualize", False):
             visualization.BeginScene()
             visualization.Render()
-            if experiment_series["will_record_video"]:
-                take_screenshot(visualization, experiment_series["experiment_series_name"])
+            if experiment_config.get("will_record_video", False):
+                take_screenshot(visualization, experiment_series.experiment_series_name)
             visualization.EndScene()
 
 
-        if time_passed > experiment_series["max_simulation_time"]:
+        if time_passed > experiment_config["max_simulation_time"]:
+            height_m = calculate_model_height(beam_elements)
+
             insert_experiment(
+                session,
                 experiment_config["experiment_id"],
-                experiment_series["experiment_series_name"],
+                experiment_series.experiment_series_name,
                 experiment_config["force_in_y_direction"],
                 experiment_config["force_in_x_direction"],
+                experiment_config["force_in_z_direction"],
+                experiment_config["torsional_force"],
                 time_to_bounding_box_explosion,
                 max_bounding_box_volume,
                 time_to_beam_strain_exceed_explosion,
                 max_beam_strain,
                 time_to_node_velocity_spike_explosion,
-                max_node_velocity
+                max_node_velocity,
+                height_m
             )
+            session.close()
 
-            if experiment_series["will_record_video"]:
-                make_video_from_frames(experiment_series["experiment_series_name"])
+            if experiment_config.get("will_record_video", False):
+                make_video_from_frames(experiment_series.experiment_series_name)
             
             break

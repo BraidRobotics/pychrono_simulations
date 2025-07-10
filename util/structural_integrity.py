@@ -9,9 +9,9 @@ def calculate_has_exploded(time_passed, beam_elements, initial_bounds, experimen
         calculate_has_exploded._time_to_velocity = None
         calculate_has_exploded._initialized = True
 
-    bounding_box_volume_threshold = experiment_series["bounding_box_volume_threshold"]
-    beam_strain_threshold = experiment_series["beam_strain_threshold"]
-    node_velocity_threshold = experiment_series["node_velocity_threshold"]
+    bounding_box_volume_threshold = experiment_series.bounding_box_volume_threshold
+    beam_strain_threshold = experiment_series.beam_strain_threshold
+    node_velocity_threshold = experiment_series.node_velocity_threshold
 
     bounding_box_exploded, volume = check_bounding_box_explosion(beam_elements, initial_bounds, bounding_box_volume_threshold, verbose=True)
     beam_strain_exceeded, strain = check_beam_strain_exceed(beam_elements, beam_strain_threshold, verbose=False)

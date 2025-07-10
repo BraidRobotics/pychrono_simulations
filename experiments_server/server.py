@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, g
 import logging
 
 from experiments import run_experiments, run_no_experiment, run_visual_simulation_experiment
@@ -6,8 +6,7 @@ from experiments import run_experiments, run_no_experiment, run_visual_simulatio
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
 from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_id
-
-
+from database.session import SessionLocal
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -16,6 +15,16 @@ app = Flask(__name__, template_folder="templates")
 
 app.secret_key = "this will never be deployed anywy to production so no harm in pushing the secret key"
 
+@app.before_request
+def create_session():
+	g.db = SessionLocal()
+
+@app.teardown_appcontext
+def teardown_session(exception=None):
+	db = g.pop('db', None)
+	if db is not None:
+		db.close()
+
 
 ##########################################################################################
 # Pages
@@ -23,7 +32,7 @@ app.secret_key = "this will never be deployed anywy to production so no harm in 
 
 @app.route("/")
 def index_page():
-    experiment_series = select_all_experiment_series()
+    experiment_series = select_all_experiment_series(g.db)
     return render_template(
         "frontpage/frontpage.html",
         experiment_series=experiment_series
@@ -31,9 +40,9 @@ def index_page():
 
 @app.route("/experiments/<experiment_series_name>", methods=["GET"])
 def experiments_page(experiment_series_name):
-    experiment_series = select_experiment_series_by_name(experiment_series_name)
-    experiments = select_all_experiments_by_series_name(experiment_series_name)
-    if experiment_series["is_experiments_outdated"]:
+    experiment_series = select_experiment_series_by_name(g.db, experiment_series_name)
+    experiments = select_all_experiments_by_series_name(g.db, experiment_series_name)
+    if experiment_series.is_experiments_outdated:
         flash(f"The experiments are outdated (experiment series config have been changed). Please run the experiments again.", "error")
     return render_template(
         "experiments/experiments.html",
@@ -48,18 +57,18 @@ def experiments_page(experiment_series_name):
 
 @app.route("/api/experiment_series", methods=["GET"])
 def get_experiment_series():
-    experiment_series = select_all_experiment_series()
+    experiment_series = select_all_experiment_series(g.db)
     return {"experiment_series": experiment_series}, 200
 
 @app.route("/api/experiment_series", methods=["POST"])
 def create_experiment_series_route():
     experiment_series_name = request.form.get("experiment_series_name")
     
-    if not is_experiment_series_name_unique(experiment_series_name):
+    if not is_experiment_series_name_unique(g.db, experiment_series_name):
         flash(f"Experiment series name '{experiment_series_name}' already exists.", "error")
         return redirect(url_for('index_page'))
     
-    experiment_series = insert_experiment_series(experiment_series_name)
+    experiment_series = insert_experiment_series(g.db, experiment_series_name)
     run_no_experiment(experiment_series)
 
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))
@@ -69,7 +78,7 @@ def create_experiment_series_route():
 def update_experiment_series_route(experiment_series_name):
     body = request.get_json()
     body["is_experiments_outdated"] = True 
-    experiment_series = update_experiment_series(experiment_series_name, body)
+    experiment_series = update_experiment_series(g.db, experiment_series_name, body)
 
     run_no_experiment(experiment_series)
 
@@ -78,7 +87,7 @@ def update_experiment_series_route(experiment_series_name):
 # uses POST since HTML forms do not support the DELETE method
 @app.route("/api/experiment_series/delete/<experiment_series_name>", methods=["POST"])
 def delete_experiment_series_route(experiment_series_name):
-    delete_experiment_series(experiment_series_name)
+    delete_experiment_series(g.db, experiment_series_name)
 
     flash(f"Experiment series with name {experiment_series_name} has been deleted.", "success")
 
@@ -91,12 +100,12 @@ def delete_experiment_series_route(experiment_series_name):
 
 @app.route("/api/experiments/all/<experiment_series_name>", methods=["POST"])
 def run_all_experiments_route(experiment_series_name):
-    delete_experiments_by_series_name(experiment_series_name) 
+    delete_experiments_by_series_name(g.db, experiment_series_name) 
 
-    update_experiment_series(experiment_series_name, { "is_experiments_outdated": False })
+    update_experiment_series(g.db, experiment_series_name, { "is_experiments_outdated": False })
     session.pop('_flashes', None)
 
-    experiment_series = select_experiment_series_by_name(experiment_series_name)
+    experiment_series = select_experiment_series_by_name(g.db, experiment_series_name)
     run_experiments(experiment_series)
 
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))
@@ -105,8 +114,8 @@ def run_all_experiments_route(experiment_series_name):
 def run_single_experiment_route(experiment_series_name, experiment_id):
 
 
-    experiment_series = select_experiment_series_by_name(experiment_series_name)
-    experiment = select_experiment_by_id(experiment_id)
+    experiment_series = select_experiment_series_by_name(g.db, experiment_series_name)
+    experiment = select_experiment_by_id(g.db, experiment_id)
 
 
     run_visual_simulation_experiment(experiment_series, experiment)

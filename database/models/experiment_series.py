@@ -8,7 +8,7 @@ class ExperimentSeries(Base):
 	description = Column(String, default='')
 
 	# Simulation configuration
-	num_experiments = Column(Integer, default=100)
+	num_experiments = Column(Integer, default=50)
 	max_simulation_time = Column(Float, default=10.0)
 
 	# Has Exploded Thresholds

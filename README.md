@@ -36,6 +36,12 @@ That means that a migration must be run in the following way:
 $ alembic -c database/alembic.ini upgrade head
 ```
 
+And to create a migration (using `initial` in this case):
+
+```bash
+$ alembic -c database/alembic.ini revision --autogenerate -m "initial schema"
+```
+
 ---
 
 ## Images
