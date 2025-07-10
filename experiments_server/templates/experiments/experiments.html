@@ -17,9 +17,13 @@
             <th>Final Force Y</th>
             <th>Initial Force X</th>
             <th>Final Force X</th>
+            <th>Initial Force Z</th>
+            <th>Final Force Z</th>
+            <th>Torsional Force</th>
             <th>Strands</th>
             <th>Layers</th>
             <th>Radius</th>
+            <th>Radius Taper</th>
             <th>Pitch</th>
             <th>Material Thickness</th>
             <th>Weight (kg)</th>
@@ -84,6 +88,27 @@
             </td>
             <td>
                 <input type="number"
+                       value="{{ experiment_series.initial_force_applied_in_z_direction }}"
+                       data-field="initial_force_applied_in_z_direction"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       value="{{ experiment_series.final_force_in_z_direction }}"
+                       data-field="final_force_in_z_direction"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       value="{{ experiment_series.torsional_force }}"
+                       data-field="torsional_force"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
                        min="1"
                        value="{{ experiment_series.num_strands }}"
                        data-field="num_strands"
@@ -104,6 +129,14 @@
                         step="0.01"
                         value="{{ experiment_series.radius }}"
                         data-field="radius"
+                        onblur="submitEdit(this)"
+                        onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input  type="number"
+                        step="0.01"
+                        value="{{ experiment_series.radius_taper }}"
+                        data-field="radius_taper"
                         onblur="submitEdit(this)"
                         onkeydown="handleKey(event, this)">
             </td>

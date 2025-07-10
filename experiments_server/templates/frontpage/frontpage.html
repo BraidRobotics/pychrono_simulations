@@ -18,15 +18,18 @@
             <th>Description</th>
             <th># Experiments</th>
             <th>Max Time</th>
-            <th>Force Type</th>
             <th>Initial Force Y</th>
             <th>Final Force Y</th>
             <th>Initial Force X</th>
             <th>Final Force X</th>
+            <th>Initial Force Z</th>
+            <th>Final Force Z</th>
+            <th>Torsional Force</th>
             <th>Strands</th>
             <th>Layers</th>
             <th>Radius</th>
-            <th>Pitch</th>
+            <th title="Conicity (how much it narrows towards the top)">Radius Taper</th>
+            <th title="The distance between two consecutive strands in the same layer">Pitch</th>
             <th>Material Thickness</th>
             <th>Weight (kg)</th>
             <th>Height (m)</th>
@@ -45,9 +48,13 @@
             <td>{{ series.final_force_in_y_direction }}</td>
             <td>{{ series.initial_force_applied_in_x_direction }}</td>
             <td>{{ series.final_force_in_x_direction }}</td>
+            <td>{{ series.initial_force_applied_in_z_direction }}</td>
+            <td>{{ series.final_force_in_z_direction }}</td>
+            <td>{{ series.torsional_force }}</td>
             <td>{{ series.num_strands }}</td>
             <td>{{ series.num_layers }}</td>
             <td>{{ series.radius }}</td>
+            <td>{{ series.radius_taper }}</td>
             <td>{{ series.pitch }}</td>
             <td>{{ series.material_thickness }}</td>
             <td>{{ "%.2f"|format(series.weight_kg) if series.weight_kg is not none else "" }}</td>
