@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, g
+from flask import Flask, render_template, request, send_from_directory, redirect, url_for, flash, session, g
 import logging
 
 from experiments import run_experiments, run_no_experiment, run_visual_simulation_experiment
@@ -32,10 +32,10 @@ def teardown_session(exception=None):
 
 @app.route("/")
 def index_page():
-    experiment_series = select_all_experiment_series(g.db)
+    all_experiment_series = select_all_experiment_series(g.db)
     return render_template(
         "frontpage/frontpage.html",
-        experiment_series=experiment_series
+        all_experiment_series=all_experiment_series
     )
 
 @app.route("/experiments/<experiment_series_name>", methods=["GET"])
@@ -49,6 +49,11 @@ def experiments_page(experiment_series_name):
         experiment_series=experiment_series,
         experiments=experiments
     )
+
+
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    return send_from_directory('../assets', filename)
 
 
 ##########################################################################################

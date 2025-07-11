@@ -16,7 +16,7 @@
             <th>Time to Velocity Spike</th>
             <th>Max Velocity</th>
             <th>Final Height</th>
-            <th>Record Video</th>
+            <th>Final Screenshot</th>
             <th>Run Simulation</th>
         </tr>
     </thead>
@@ -36,7 +36,12 @@
             <td>{{ experiment.time_to_node_velocity_spike_explosion }}</td>
             <td>{{ experiment.max_node_velocity }}</td>
             <td>{{ experiment.final_height }}</td>
-            <td>🎥</td>
+            <td>
+                <img src="/assets/{{ experiment_series.experiment_series_name }}_{{experiment.experiment_id}}/model.jpg"
+                     alt="Experiment Series Image Not Found Error"
+                     class="modal-trigger"
+                     style="max-width: 100%; height: auto; cursor: pointer;">
+            </td>
             <td><button class="run-btn" data-experiment-id="{{ experiment.experiment_id }}">▶️</button></td>
         </tr>
         {% endfor %}

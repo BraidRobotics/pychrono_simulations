@@ -27,5 +27,36 @@
   	{% block body %}{% endblock %}
   </div>
 
+
+  <div id="img-modal" class="modal" style="display:none;">
+    <span class="modal-close">&times;</span>
+    <img class="modal-content" id="img-modal-content">
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("img-modal");
+        const modalImg = document.getElementById("img-modal-content");
+        const span = document.querySelector(".modal-close");
+        const triggers = document.querySelectorAll(".modal-trigger");
+
+        triggers.forEach(img => {
+            img.addEventListener("dblclick", function () {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+            });
+        });
+
+        span.onclick = function () {
+            modal.style.display = "none";
+        };
+
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+    });
+</script>
 </body>
 </html>
