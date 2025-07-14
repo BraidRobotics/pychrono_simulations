@@ -17,6 +17,7 @@ class Experiment(Base):
 	# Force applied
 	force_in_x_direction = Column(Float)
 	force_in_y_direction = Column(Float)
+	force_top_nodes_in_y_direction = Column(Float)
 	force_in_z_direction = Column(Float)
 	torsional_force = Column(Float)
 

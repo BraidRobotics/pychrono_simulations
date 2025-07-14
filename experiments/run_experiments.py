@@ -21,6 +21,8 @@ def run_experiments(experiment_series):
 
     initial_y = experiment_series.initial_force_applied_in_y_direction
     final_y = experiment_series.final_force_in_y_direction
+    initial_top_nodes_y = experiment_series.initial_top_nodes_force_in_y_direction
+    final_top_nodes_y = experiment_series.final_top_nodes_force_in_y_direction
     initial_x = experiment_series.initial_force_applied_in_x_direction
     final_x = experiment_series.final_force_in_x_direction
     initial_z = experiment_series.initial_force_applied_in_z_direction
@@ -40,6 +42,7 @@ def run_experiments(experiment_series):
         denominator = NUM_EXPERIMENTS - 1 if NUM_EXPERIMENTS > 1 else 1 # Basically to avoid division by zero for the first experiment
         step_ratio = i / denominator
         config["force_in_y_direction"] = initial_y + (final_y - initial_y) * step_ratio
+        config["force_top_nodes_in_y_direction"] = initial_top_nodes_y + (final_top_nodes_y - initial_top_nodes_y) * step_ratio
         config["force_in_x_direction"] = initial_x + (final_x - initial_x) * step_ratio
         config["force_in_z_direction"] = initial_z + (final_z - initial_z) * step_ratio
 
@@ -67,6 +70,7 @@ def run_no_experiment(experiment_series, will_visualize=True, will_record_video=
         "force_in_x_direction": 0.0,
         "force_in_z_direction": 0.0,
         "torsional_force": experiment_series.torsional_force,
+        "force_top_nodes_in_y_direction": experiment_series.initial_top_nodes_force_in_y_direction,
         "will_visualize": will_visualize,
         "will_record_video": will_record_video,
         "run_without_simulation_loop": run_without_simulation_loop,
@@ -84,6 +88,7 @@ def run_visual_simulation_experiment(experiment_series, experiment):
         "force_in_x_direction": experiment.force_in_x_direction,
         "force_in_z_direction": experiment.force_in_z_direction,
         "torsional_force": experiment.torsional_force,
+        "force_top_nodes_in_y_direction": experiment.force_top_nodes_in_y_direction,
         "will_visualize": True,
         "will_record_video": False,
         "max_simulation_time": float("inf")

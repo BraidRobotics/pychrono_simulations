@@ -20,6 +20,8 @@ class ExperimentSeries(Base):
 	# the exact force applied to the experiment is in the experiments table
 	initial_force_applied_in_y_direction = Column(Float, default=0.0)
 	final_force_in_y_direction = Column(Float, default=0.0)
+	initial_top_nodes_force_in_y_direction = Column(Float, default=0.0)
+	final_top_nodes_force_in_y_direction = Column(Float, default=0.0)
 	initial_force_applied_in_x_direction = Column(Float, default=0.0)
 	final_force_in_x_direction = Column(Float, default=0.0)
 	initial_force_applied_in_z_direction = Column(Float, default=0.0)

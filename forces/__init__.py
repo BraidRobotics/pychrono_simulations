@@ -1,1 +1,1 @@
-from forces.loads import apply_axial_load, apply_lateral_load, apply_torsional_load
+from forces.loads import apply_axial_force_to_all_nodes, apply_axial_force_to_top_layer, apply_lateral_load, apply_torsional_load

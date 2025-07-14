@@ -51,17 +51,15 @@ def experiment_loop(experiment_series, experiment_config):
     # Applying Forces
     ####################################################################################################
 
+    # api.projectchrono.org/loads.html
 
-    from forces import apply_axial_load, apply_lateral_load, apply_torsional_load
+    from forces import apply_axial_force_to_all_nodes, apply_axial_force_to_top_layer, apply_lateral_load, apply_torsional_load
 
-
-    ''' These need to be reapplied at every timestep because FEA only supports SetForce which is reset at every timestep
-     Quote from the documentation api.projectchrono.org/loads.html: "For FEA nodes, similary to the ChForce for ChBody, 
-     it is possible to add a force directly to the node through ChNodeFEAxyz::SetForce(). 
-     However, in this case the options are even more limited, since the force is expressed as a simple ChVector3, 
-     thus always assumed constant and expressed in absolute frame. The ChNodeFEAxyzrot class implements also ChNodeFEAxyzrot::SetTorque()."
-    '''
-
+    apply_axial_force_to_all_nodes(nodes, experiment_config["force_in_y_direction"])
+    apply_axial_force_to_top_layer(nodes, experiment_config["force_top_nodes_in_y_direction"])
+    apply_lateral_load(nodes, experiment_config["force_in_x_direction"], direction="x")
+    apply_lateral_load(nodes, experiment_config["force_in_z_direction"], direction="z")
+    apply_torsional_load(nodes, experiment_config["torsional_force"])
 
     ####################################################################################################
     # Visualization
@@ -119,13 +117,8 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
     timestep = 0.01
 
-    while visualization is None or visualization.Run():
-        # Forces
-        apply_axial_load(nodes, experiment_config["force_in_y_direction"])
-        apply_lateral_load(nodes, experiment_config["force_in_x_direction"], direction="x")
-        apply_lateral_load(nodes, experiment_config["force_in_z_direction"], direction="z")
-        apply_torsional_load(nodes, experiment_config["torsional_force"])
 
+    while visualization is None or visualization.Run():
         system.DoStepDynamics(timestep)
         time_passed = system.GetChTime()
 
@@ -163,6 +156,7 @@ def experiment_loop(experiment_series, experiment_config):
                 experiment_config["experiment_id"],
                 experiment_series.experiment_series_name,
                 experiment_config["force_in_y_direction"],
+                experiment_config["force_top_nodes_in_y_direction"],
                 experiment_config["force_in_x_direction"],
                 experiment_config["force_in_z_direction"],
                 experiment_config["torsional_force"],
@@ -193,9 +187,10 @@ if __name__ == "__main__":
     experiment_config = {
         "experiment_id": 1,
         "force_in_y_direction": -100000,  # N
-        "force_in_x_direction": 0,      # N
-        "force_in_z_direction": 0,      # N
-        "torsional_force": 0,           # Nm
+        "force_top_nodes_in_y_direction": -100000,  # N
+        "force_in_x_direction": -100000,      # N
+        "force_in_z_direction": -100000,      # N
+        "torsional_force": -1000000,          # Nm
         "max_simulation_time": 10,      # seconds
         "will_visualize": True,
         "will_record_video": False,
