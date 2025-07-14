@@ -49,7 +49,7 @@ def define_connectivity(nodes, config):
 			node_pairs.append(('beam', diagonal_pair))
 
 			# intersection joints for taped braids with some looseness
-			# node_pairs.append(('joint', vertical_pair[1], diagonal_pair[1]))
+			node_pairs.append(('joint', vertical_pair[1], diagonal_pair[1]))
 
 	return node_pairs
 
