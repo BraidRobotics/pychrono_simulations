@@ -30,7 +30,7 @@ def run_experiments(experiment_series):
     for i in range(NUM_EXPERIMENTS):
         config = {
             "experiment_id": i + 1,
-            "will_visualize": False,
+            "will_visualize": True,
             "will_record_video": False,
             "torsional_force": experiment_series.torsional_force,
             "max_simulation_time": getattr(experiment_series, 'max_simulation_time', None)

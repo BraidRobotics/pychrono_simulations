@@ -1,5 +1,5 @@
 import pychrono as chrono
-from util import take_model_screenshot, take_screenshot, make_video_from_frames
+from util import  take_model_screenshot, take_final_screenshot, take_video_screenshot, make_video_from_frames
 
 from database.experiment_series_queries import update_experiment_series
 from database.experiments_queries import insert_experiment
@@ -149,14 +149,14 @@ def experiment_loop(experiment_series, experiment_config):
             visualization.BeginScene()
             visualization.Render()
             if experiment_config.get("will_record_video", False):
-                take_screenshot(visualization, experiment_series.experiment_series_name)
+                take_video_screenshot(visualization, experiment_series.experiment_series_name)
             visualization.EndScene()
 
 
         if time_passed > experiment_config["max_simulation_time"]:
             height_m = calculate_model_height(beam_elements)
 
-            # todo take final screenshot
+            take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config["experiment_id"])
 
             insert_experiment(
                 session,
