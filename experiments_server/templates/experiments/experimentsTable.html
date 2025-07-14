@@ -25,7 +25,7 @@
         {% for experiment in experiments %}
         <tr>
             <td>{{ experiment.experiment_id }}</td>
-            <td>{{ experiment.timestamp }}</td>
+            <td>{{ experiment.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] if experiment.timestamp else '' }}</td>
             <td>{{ experiment.force_in_y_direction }}</td>
             <td>{{ experiment.force_top_nodes_in_y_direction }}</td>
             <td>{{ experiment.force_in_x_direction }}</td>

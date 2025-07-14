@@ -48,20 +48,6 @@ def experiment_loop(experiment_series, experiment_config):
     initial_bounds = compute_bounding_box(node_positions)
 
     ####################################################################################################
-    # Applying Forces
-    ####################################################################################################
-
-    # api.projectchrono.org/loads.html
-
-    from forces import apply_axial_force_to_all_nodes, apply_axial_force_to_top_layer, apply_lateral_load, apply_torsional_load
-
-    apply_axial_force_to_all_nodes(nodes, experiment_config["force_in_y_direction"])
-    apply_axial_force_to_top_layer(nodes, experiment_config["force_top_nodes_in_y_direction"])
-    apply_lateral_load(nodes, experiment_config["force_in_x_direction"], direction="x")
-    apply_lateral_load(nodes, experiment_config["force_in_z_direction"], direction="z")
-    apply_torsional_load(nodes, experiment_config["torsional_force"])
-
-    ####################################################################################################
     # Visualization
     ####################################################################################################
 
@@ -110,6 +96,24 @@ def experiment_loop(experiment_series, experiment_config):
             take_model_screenshot(visualization, experiment_series.experiment_series_name)
         
             return
+
+    ####################################################################################################
+    # Applying Forces
+    ####################################################################################################
+
+    # api.projectchrono.org/loads.html
+
+    from forces import apply_axial_force_to_all_nodes, apply_axial_force_to_top_layer, apply_lateral_load, apply_torsional_load
+
+    # print(experiment_config["force_in_y_direction"])
+
+    # print(experiment_config)
+
+    apply_axial_force_to_all_nodes(nodes, experiment_config["force_in_y_direction"])
+    # apply_axial_force_to_top_layer(nodes, experiment_config["force_top_nodes_in_y_direction"])
+    # apply_lateral_load(nodes, experiment_config["force_in_x_direction"], direction="x")
+    # apply_lateral_load(nodes, experiment_config["force_in_z_direction"], direction="z")
+    # apply_torsional_load(nodes, experiment_config["torsional_force"])
 
 
     ####################################################################################################

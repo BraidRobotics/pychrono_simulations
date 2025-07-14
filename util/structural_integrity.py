@@ -13,7 +13,7 @@ def calculate_has_exploded(time_passed, beam_elements, initial_bounds, experimen
     beam_strain_threshold = experiment_series.beam_strain_threshold
     node_velocity_threshold = experiment_series.node_velocity_threshold
 
-    bounding_box_exploded, volume = check_bounding_box_explosion(beam_elements, initial_bounds, bounding_box_volume_threshold, verbose=True)
+    bounding_box_exploded, volume = check_bounding_box_explosion(beam_elements, initial_bounds, bounding_box_volume_threshold, verbose=False)
     beam_strain_exceeded, strain = check_beam_strain_exceed(beam_elements, beam_strain_threshold, verbose=False)
     velocity_spike_detected, velocity = check_node_velocity_spike(beam_elements, node_velocity_threshold, verbose=False)
 
@@ -62,7 +62,7 @@ def compute_bounding_box(positions):
 	}
 
 
-def check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0, verbose=True):
+def check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold=2.0, verbose=False):
     current_node_positions = get_current_node_positions_from_beam_elements(beam_elements)
     current_bounds = compute_bounding_box(current_node_positions)
 
@@ -83,7 +83,7 @@ def check_bounding_box_explosion(beam_elements, initial_bounds, volume_threshold
 
 
 
-def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=True):
+def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=False):
 	if not hasattr(check_beam_strain_exceed, "_rest_lengths"):
 		check_beam_strain_exceed._rest_lengths = {
 			beam: (beam.GetNodeB().GetPos() - beam.GetNodeA().GetPos()).Length()
@@ -108,7 +108,7 @@ def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=True)
 	return exceeded, max_strain
 
 
-def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=True):
+def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=False):
 	if not hasattr(check_node_velocity_spike, "_last_positions"):
 		check_node_velocity_spike._last_positions = {}
 
