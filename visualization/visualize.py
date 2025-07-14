@@ -24,13 +24,17 @@ def create_visualization(system, floor, braid_mesh, initial_bounds):
 	visualization.AddSkyBox()
 	visualization.AddTypicalLights()
 
-	# Set the camera position dynamically
+	# Set the camera position to frame the structure closely from a slightly elevated front-right angle
 	center_x = (initial_bounds["min_x"] + initial_bounds["max_x"]) / 2
 	center_y = (initial_bounds["min_y"] + initial_bounds["max_y"]) / 2
 	center_z = (initial_bounds["min_z"] + initial_bounds["max_z"]) / 2
 
+	size_x = initial_bounds["max_x"] - initial_bounds["min_x"]
+	size_y = initial_bounds["max_y"] - initial_bounds["min_y"]
+	size_z = initial_bounds["max_z"] - initial_bounds["min_z"]
+
 	camera_target = chrono.ChVector3d(center_x, center_y, center_z)
-	camera_pos = chrono.ChVector3d(center_x + 0.4, center_y + 0.8, center_z + 0.4)
+	camera_pos = chrono.ChVector3d(center_x + size_x * 1.2, center_y + size_y * 0.7, center_z + size_z * 1.2)
 
 	visualization.AddCamera(camera_pos, camera_target)
 

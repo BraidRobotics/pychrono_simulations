@@ -156,6 +156,8 @@ def experiment_loop(experiment_series, experiment_config):
         if time_passed > experiment_config["max_simulation_time"]:
             height_m = calculate_model_height(beam_elements)
 
+            # todo take final screenshot
+
             insert_experiment(
                 session,
                 experiment_config["experiment_id"],
@@ -180,7 +182,7 @@ def experiment_loop(experiment_series, experiment_config):
             break
 
 if __name__ == "__main__":
-    # Example usage
+    # Example usage for testing purposes
     from database.experiment_series_queries import select_experiment_series_by_name
     from database.session import SessionLocal
 
