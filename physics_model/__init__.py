@@ -1,1 +1,1 @@
-from physics_model.materials import create_braid_mesh, create_braid_material, create_floor_material
+from physics_model.materials import create_braid_mesh, create_strand_material, create_tape_material, create_floor_material

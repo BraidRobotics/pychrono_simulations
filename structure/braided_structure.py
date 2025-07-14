@@ -2,10 +2,10 @@ import pychrono as chrono
 import pychrono.fea as fea
 import math
 
-def create_braid_structure(braid_mesh, braid_material, experiment_series):
+def create_braid_structure(braid_mesh, braid_material, tape_material, experiment_series):
 	nodes = generate_nodes(braid_mesh, experiment_series)
 	node_pairs = define_connectivity(nodes, experiment_series)
-	beams, joints = create_beam_elements(braid_mesh, node_pairs, braid_material)
+	beams, joints = create_beam_elements(braid_mesh, node_pairs, braid_material, tape_material)
 	node_positions = [node.GetPos() for layer in nodes for node in layer]
 	return nodes, node_positions, beams
 
@@ -49,12 +49,12 @@ def define_connectivity(nodes, config):
 			node_pairs.append(('beam', diagonal_pair))
 
 			# intersection joints for taped braids with some looseness
-			node_pairs.append(('joint', vertical_pair[1], diagonal_pair[1]))
+			# node_pairs.append(('joint', vertical_pair[1], diagonal_pair[1]))
 
 	return node_pairs
 
 
-def create_beam_elements(braid_mesh, node_pairs, braid_material):
+def create_beam_elements(braid_mesh, node_pairs, braid_material, tape_material):
 	for pair in node_pairs:
 		assert isinstance(pair, tuple), f"Not a tuple: {pair}"
 		assert len(pair) in (2, 3), f"Unexpected pair length: {pair}"
@@ -85,7 +85,7 @@ def create_beam_elements(braid_mesh, node_pairs, braid_material):
 			builder = fea.ChBuilderBeamEuler()
 			builder.BuildBeam(
 				braid_mesh,
-				braid_material,
+				tape_material,
 				1, # How many segments for the joint beam (braid)
 				node_a,
 				node_b,

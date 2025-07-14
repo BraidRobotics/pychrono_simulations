@@ -91,6 +91,7 @@ def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=True)
 		}
 
 	max_strain = 0.0
+	exceeded = False
 	for beam in beam_elements:
 		nodeA = beam.GetNodeA().GetPos()
 		nodeB = beam.GetNodeB().GetPos()
@@ -103,8 +104,8 @@ def check_beam_strain_exceed(beam_elements, strain_threshold=0.25, verbose=True)
 			if strain > strain_threshold:
 				if verbose:
 					print(f"🛑 Beam strain exceeded: {strain:.2f} > {strain_threshold:.2f}")
-				return True, max_strain
-	return False, max_strain
+				exceeded = True
+	return exceeded, max_strain
 
 
 def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=True):

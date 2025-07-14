@@ -32,7 +32,7 @@ class ExperimentSeries(Base):
 	radius = Column(Float, default=0.1)
 	pitch = Column(Float, default=0.1)  # The distance between two consecutive strands in the same layer
 	radius_taper = Column(Float, default=0.0)  # Conicity (how much it narrows towards the top)
-	material_thickness = Column(Float, default=1.0)
+	material_thickness = Column(Float, default=0.02)
 	material_youngs_modulus = Column(Float, default=1.72e10)  # Glass-reinforced polyester (GRP) https://en.wikipedia.org/wiki/Young%27s_modulus
 	weight_kg = Column(Float, default=None)
 	height_m = Column(Float, default=None)

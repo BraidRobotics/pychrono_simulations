@@ -11,7 +11,7 @@ def experiment_loop(experiment_series, experiment_config):
     # Physics Engine
     ####################################################################################################
 
-    from physics_model import create_braid_mesh, create_braid_material, create_floor_material
+    from physics_model import create_braid_mesh, create_strand_material, create_tape_material, create_floor_material
     from os_specifics import setup_solver
 
     system = chrono.ChSystemSMC()
@@ -25,7 +25,8 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
     
     braid_mesh = create_braid_mesh()
-    braid_material = create_braid_material(material_radius = 0.008)
+    strand_material = create_strand_material(experiment_series.material_youngs_modulus, experiment_series.material_thickness)
+    tape_material = create_tape_material()
     floor_material = create_floor_material()
 
     system.Add(braid_mesh)
@@ -33,7 +34,8 @@ def experiment_loop(experiment_series, experiment_config):
     from structure import create_floor, create_braid_structure
 
     floor = create_floor(system, floor_material)
-    nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, braid_material, experiment_series)
+    nodes, node_positions, beam_elements = create_braid_structure(braid_mesh, strand_material, tape_material, experiment_series)
+
 
 
     ####################################################################################################
@@ -98,7 +100,7 @@ def experiment_loop(experiment_series, experiment_config):
             visualization.BeginScene()
             visualization.Render()
 
-            weight_kg = calculate_model_weight(beam_elements, braid_material)
+            weight_kg = calculate_model_weight(beam_elements, strand_material)
             height_m = calculate_model_height(beam_elements)
 
             update_experiment_series(session, experiment_series.experiment_series_name, {
@@ -176,3 +178,28 @@ def experiment_loop(experiment_series, experiment_config):
                 make_video_from_frames(experiment_series.experiment_series_name)
             
             break
+
+if __name__ == "__main__":
+    # Example usage
+    from database.experiment_series_queries import select_experiment_series_by_name
+    from database.session import SessionLocal
+
+    db = SessionLocal()
+
+    experiment_series = select_experiment_series_by_name(db, "_default")
+
+    experiment_config = {
+        "experiment_id": 1,
+        "force_in_y_direction": -100000,  # N
+        "force_in_x_direction": 0,      # N
+        "force_in_z_direction": 0,      # N
+        "torsional_force": 0,           # Nm
+        "max_simulation_time": 10,      # seconds
+        "will_visualize": True,
+        "will_record_video": False,
+        "run_without_simulation_loop": False
+    }
+
+    experiment_loop(experiment_series, experiment_config)
+
+    db.close()
