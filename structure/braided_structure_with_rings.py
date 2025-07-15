@@ -12,23 +12,23 @@ def create_braid_structure(braid_mesh, braid_material, tape_material, experiment
 
 def generate_nodes(braid_mesh, config):
 	nodes = []
-	num_intersections = config.num_strands  # strands assumed to be even
-	twist_per_layer = (2 * math.pi) / (2 * num_intersections)
-
-	for layer_no in range(config.num_layers):
+	for layer in range(config.num_layers):
+		radius = config.radius - (layer * config.radius_taper)
+		y = layer * config.pitch / config.num_layers
 		layer_nodes = []
-		for point_no in range(num_intersections):
-			angle = layer_no * twist_per_layer + (point_no / num_intersections) * 2 * math.pi
-			radius = config.radius - (layer_no * config.radius_taper)
-			y = layer_no * config.pitch / config.num_layers
+
+		for strand in range(config.num_strands):
+			angle = (strand / config.num_strands) * 2 * math.pi + layer * (math.pi / config.num_strands)
 			x = radius * math.cos(angle)
 			z = radius * math.sin(angle)
 
 			node = fea.ChNodeFEAxyzrot(chrono.ChFramed(chrono.ChVector3d(x, y, z)))
-			if layer_no == 0:
+			if layer == 0:
 				node.SetFixed(True)
+
 			braid_mesh.AddNode(node)
 			layer_nodes.append(node)
+
 		nodes.append(layer_nodes)
 
 	return nodes
@@ -36,17 +36,20 @@ def generate_nodes(braid_mesh, config):
 
 def define_connectivity(nodes, config):
 	node_pairs = []
-	num_rods = config.num_strands
 
-	for rod in range(num_rods):
-		# counter-clockwise
-		for layer_no in range(len(nodes) - 1):
-			node_pairs.append(('beam', (nodes[layer_no][rod], nodes[layer_no + 1][rod])))
+	for layer_no in range(len(nodes) - 1):
+		current_layer = nodes[layer_no]
+		next_layer = nodes[layer_no + 1]
 
-		# clockwise
-		for layer_no in range(len(nodes) - 1):
-			target = rod - 1 if rod > 0 else num_rods - 1
-			node_pairs.append(('beam', (nodes[layer_no][rod], nodes[layer_no + 1][target])))
+		for strand_no in range(config.num_strands):
+			vertical_pair = (current_layer[strand_no], next_layer[strand_no])
+			diagonal_pair = (current_layer[strand_no], next_layer[(strand_no - 1) % config.num_strands])
+
+			node_pairs.append(('beam', vertical_pair))
+			node_pairs.append(('beam', diagonal_pair))
+
+			# intersection joints for taped braids with some looseness
+			node_pairs.append(('joint', vertical_pair[1], diagonal_pair[1]))
 
 	return node_pairs
 

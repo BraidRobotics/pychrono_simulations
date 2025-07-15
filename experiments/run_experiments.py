@@ -85,6 +85,7 @@ def run_visual_simulation_experiment(experiment_series, experiment):
     config = {
         "experiment_id": experiment.experiment_id,
         "force_in_y_direction": experiment.force_in_y_direction,
+        "force_top_nodes_in_y_direction": experiment.force_top_nodes_in_y_direction,
         "force_in_x_direction": experiment.force_in_x_direction,
         "force_in_z_direction": experiment.force_in_z_direction,
         "torsional_force": experiment.torsional_force,

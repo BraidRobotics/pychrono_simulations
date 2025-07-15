@@ -2,8 +2,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from database.models.experiment import Experiment
 
 
-def select_experiment_by_id(session, experiment_id):
-	experiment = session.query(Experiment).filter_by(experiment_id=experiment_id).first()
+def select_experiment_by_series_name_and_id(session, experiment_series_name, experiment_id):
+	experiment = session.query(Experiment).filter_by(
+		experiment_series_name=experiment_series_name,
+		experiment_id=experiment_id
+	).first()
 	return experiment
 
 
