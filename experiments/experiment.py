@@ -103,17 +103,9 @@ def experiment_loop(experiment_series, experiment_config):
 
     # api.projectchrono.org/loads.html
 
-    from forces import apply_axial_force_to_all_nodes, apply_axial_force_to_top_layer, apply_lateral_load, apply_torsional_load
+    from forces import apply_loads, reset_loads
 
-    # print(experiment_config["force_in_y_direction"])
-
-    # print(experiment_config)
-
-    apply_axial_force_to_all_nodes(nodes, experiment_config["force_in_y_direction"])
-    # apply_axial_force_to_top_layer(nodes, experiment_config["force_top_nodes_in_y_direction"])
-    # apply_lateral_load(nodes, experiment_config["force_in_x_direction"], direction="x")
-    # apply_lateral_load(nodes, experiment_config["force_in_z_direction"], direction="z")
-    # apply_torsional_load(nodes, experiment_config["torsional_force"])
+    apply_loads(nodes, experiment_config)
 
 
     ####################################################################################################
@@ -121,10 +113,10 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
     timestep = 0.01
 
-
     while visualization is None or visualization.Run():
         system.DoStepDynamics(timestep)
         time_passed = system.GetChTime()
+        
 
         (
             max_bounding_box_volume,
@@ -141,13 +133,13 @@ def experiment_loop(experiment_series, experiment_config):
         )
 
 
-
         if experiment_config.get("will_visualize", False):
             visualization.BeginScene()
             visualization.Render()
             if experiment_config.get("will_record_video", False):
                 take_video_screenshot(visualization, experiment_series.experiment_series_name)
             visualization.EndScene()
+
 
 
         if time_passed > experiment_config["max_simulation_time"]:
@@ -179,6 +171,7 @@ def experiment_loop(experiment_series, experiment_config):
             
             break
 
+
 if __name__ == "__main__":
     # Example usage for testing purposes
     from database.experiment_series_queries import select_experiment_series_by_name
@@ -190,12 +183,12 @@ if __name__ == "__main__":
 
     experiment_config = {
         "experiment_id": 1,
-        "force_in_y_direction": -100000,  # N
-        "force_top_nodes_in_y_direction": -100000,  # N
-        "force_in_x_direction": -100000,      # N
-        "force_in_z_direction": -100000,      # N
-        "torsional_force": -1000000,          # Nm
-        "max_simulation_time": 10,      # seconds
+        "force_in_y_direction": -0.4,  # N
+        "force_top_nodes_in_y_direction": 0,  # N
+        "force_in_x_direction": 0,      # N
+        "force_in_z_direction": 0,      # N
+        "torsional_force": 0,          # Nm
+        "max_simulation_time": 20,      # seconds
         "will_visualize": True,
         "will_record_video": False,
         "run_without_simulation_loop": False
