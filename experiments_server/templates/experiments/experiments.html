@@ -196,6 +196,8 @@
 <img src="/assets/{{ experiment_series.experiment_series_name }}/model.jpg" alt="Experiment Series Image Not Found Error" style="max-width: 100%; height: auto;">
 
 
+<script src="{{ url_for('static', filename='chart.js') }}"></script>
+
 {% include "experiments/charts.html" %}
 {% include "experiments/experimentsTable.html" %}
 

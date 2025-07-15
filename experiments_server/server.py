@@ -5,7 +5,7 @@ from experiments import run_experiments, run_no_experiment, run_visual_simulatio
 
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
-from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_id
+from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_series_name_and_id
 from database.session import SessionLocal
 
 log = logging.getLogger('werkzeug')
@@ -124,7 +124,7 @@ def run_single_experiment_route(experiment_series_name, experiment_id):
 
 
     experiment_series = select_experiment_series_by_name(g.db, experiment_series_name)
-    experiment = select_experiment_by_id(g.db, experiment_id)
+    experiment = select_experiment_by_series_name_and_id(g.db, experiment_series_name, experiment_id)
 
 
     run_visual_simulation_experiment(experiment_series, experiment)
