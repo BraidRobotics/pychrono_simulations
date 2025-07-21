@@ -20,7 +20,7 @@ def generate_nodes(braid_mesh, config):
 		for point_no in range(num_intersections):
 			angle = layer_no * twist_per_layer + (point_no / num_intersections) * 2 * math.pi
 			radius = config.radius - (layer_no * config.radius_taper)
-			y = layer_no * config.pitch / config.num_layers
+			y = layer_no * config.pitch
 			x = radius * math.cos(angle)
 			z = radius * math.sin(angle)
 

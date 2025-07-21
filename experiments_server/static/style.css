@@ -55,6 +55,25 @@ body {
     width: 100%;
 }
 
+/* Experiment Series Table */
+
+.delete-button-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+}
+
+.delete-button {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: none;
+	font-size: 2em;
+	cursor: pointer;
+}
+
 
 /* Experiments Page */
 

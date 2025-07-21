@@ -29,7 +29,7 @@
             <th>Torsional Force</th>
             <th>Reset Force After (s)</th>
             <th>Strands</th>
-            <th>Layers</th>
+            <th title="Zeroeth Layer counts as 1 layer"># Layers</th>
             <th>Radius</th>
             <th title="Conicity (how much it narrows towards the top)">Radius Taper</th>
             <th title="Smaller pitch → tighter twist; larger pitch → looser, more vertical strands">Pitch</th>
@@ -72,10 +72,13 @@
                      style="max-width: 100%; height: auto; cursor: pointer;">
             </td>
             <td>
-                <form action="/api/experiment_series/delete/{{ experiment_series.experiment_series_name }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this experiment series?');">
-                    <button type="submit">🚫</button>
-                </form>
+                <div class="delete-button-wrapper">
+                    <form action="/api/experiment_series/delete/{{ experiment_series.experiment_series_name }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this experiment series?');">
+                        <button class="delete-button" type="submit">🚫</button>
+                    </form>
+                </div>
             </td>
+            
         </tr>
     {% endfor %}
     </tbody>
