@@ -8,5 +8,5 @@ from database.models import ExperimentSeries
 
 session = SessionLocal()
 if not session.get(ExperimentSeries, "_default"):
-	session.add(ExperimentSeries(experiment_series_name="_default", num_experiments=3, max_simulation_time=2.0,))
+	session.add(ExperimentSeries(experiment_series_name="_default", num_experiments=10, max_simulation_time=5.0, final_force_in_y_direction=-0.5,))
 	session.commit()
