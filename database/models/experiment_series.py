@@ -27,6 +27,7 @@ class ExperimentSeries(Base):
 	initial_force_applied_in_z_direction = Column(Float, default=0.0)
 	final_force_in_z_direction = Column(Float, default=0.0)
 	torsional_force = Column(Float, default=0.0)
+	reset_force_after_seconds = Column(Integer)
 
 	# Braided structure configuration
 	num_strands = Column(Integer, default=8)

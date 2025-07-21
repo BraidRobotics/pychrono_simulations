@@ -20,6 +20,7 @@ class Experiment(Base):
 	force_top_nodes_in_y_direction = Column(Float)
 	force_in_z_direction = Column(Float)
 	torsional_force = Column(Float)
+	equilibrium_after_seconds = Column(Integer)
 
 	# Has Exploded
 	time_to_bounding_box_explosion = Column(Float)
@@ -30,4 +31,7 @@ class Experiment(Base):
 	max_node_velocity = Column(Float)
 
 	# Final Result
+	# this could be the height under load
+	height_under_load = Column(Float)
+	# while this is the height after the load and the force is removed
 	final_height = Column(Float)

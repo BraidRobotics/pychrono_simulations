@@ -22,6 +22,7 @@
             <th>Initial Force Z</th>
             <th>Final Force Z</th>
             <th>Torsional Force</th>
+            <th>Reset Force After (s)</th>
             <th>Strands</th>
             <th>Layers</th>
             <th>Radius</th>
@@ -120,6 +121,13 @@
                 <input type="number"
                        value="{{ experiment_series.torsional_force }}"
                        data-field="torsional_force"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
+            <td>
+                <input type="number"
+                       value="{{ experiment_series.reset_force_after_seconds }}"
+                       data-field="reset_force_after_seconds"
                        onblur="submitEdit(this)"
                        onkeydown="handleKey(event, this)">
             </td>

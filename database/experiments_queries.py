@@ -30,6 +30,7 @@ def insert_experiment(
 	max_beam_strain,
 	time_to_node_velocity_spike_explosion,
 	max_node_velocity,
+	height_under_load,
 	final_height
 ):
 	try:
@@ -47,6 +48,7 @@ def insert_experiment(
 			max_beam_strain=max_beam_strain,
 			time_to_node_velocity_spike_explosion=time_to_node_velocity_spike_explosion,
 			max_node_velocity=max_node_velocity,
+			height_under_load=height_under_load,
 			final_height=final_height
 		)
 		session.add(experiment)

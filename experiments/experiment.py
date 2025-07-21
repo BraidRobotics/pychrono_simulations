@@ -112,11 +112,17 @@ def experiment_loop(experiment_series, experiment_config):
     # Simulation loop
     ####################################################################################################
     timestep = 0.01
+    
+    height_under_load = None
 
     while visualization is None or visualization.Run():
         system.DoStepDynamics(timestep)
         time_passed = system.GetChTime()
         
+        if experiment_series.reset_force_after_seconds and time_passed > experiment_series.reset_force_after_seconds:
+            reset_loads(nodes, experiment_series)
+            height_under_load = calculate_model_height(beam_elements)
+
 
         (
             max_bounding_box_volume,
@@ -132,7 +138,6 @@ def experiment_loop(experiment_series, experiment_config):
             experiment_series
         )
 
-
         # todo remember to add to the breaking condition once the equilibrium function is implemented
         structure_is_in_equilibrium = structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
 
@@ -147,9 +152,11 @@ def experiment_loop(experiment_series, experiment_config):
                 take_video_screenshot(visualization, experiment_series.experiment_series_name)
             visualization.EndScene()
 
+        times_up = time_passed > experiment_config["max_simulation_time"]
+        reset_done = experiment_series.reset_force_after_seconds and time_passed > experiment_series.reset_force_after_seconds
 
-
-        if time_passed > experiment_config["max_simulation_time"]:
+        if (structure_is_in_equilibrium and reset_done) or times_up:
+            
             height_m = calculate_model_height(beam_elements)
 
             take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config["experiment_id"])
@@ -169,6 +176,7 @@ def experiment_loop(experiment_series, experiment_config):
                 max_beam_strain,
                 time_to_node_velocity_spike_explosion,
                 max_node_velocity,
+                height_under_load,
                 height_m
             )
             session.close()

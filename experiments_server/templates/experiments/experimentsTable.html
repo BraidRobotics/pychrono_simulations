@@ -10,12 +10,14 @@
             <th>Force X</th>
             <th>Force Z</th>
             <th>Torsional Force</th>
+            <th>Equilibrium After Seconds</th>
             <th>Time to Box Explosion</th>
             <th>Max Volume</th>
             <th>Time to Strain Explosion</th>
             <th>Max Strain</th>
             <th>Time to Velocity Spike</th>
             <th>Max Velocity</th>
+            <th>Height Under Load</th>
             <th>Final Height</th>
             <th title="This is the image of the final screenshot of the image due to max time exceeded or explosion conditions have been met">Final Experiment Screenshot</th>
             <th>Run Simulation</th>
@@ -31,12 +33,14 @@
             <td>{{ experiment.force_in_x_direction }}</td>
             <td>{{ experiment.force_in_z_direction }}</td>
             <td>{{ experiment.torsional_force }}</td>
+            <td>{{ experiment.equilibrium_after_seconds }}</td>
             <td>{{ experiment.time_to_bounding_box_explosion }}</td>
             <td>{{ experiment.max_bounding_box_volume }}</td>
             <td>{{ experiment.time_to_beam_strain_exceed_explosion }}</td>
             <td>{{ experiment.max_beam_strain }}</td>
             <td>{{ experiment.time_to_node_velocity_spike_explosion }}</td>
             <td>{{ experiment.max_node_velocity }}</td>
+            <td>{{ experiment.height_under_load }}</td>
             <td>{{ experiment.final_height }}</td>
             <td>
                 <img src="/assets/{{ experiment_series.experiment_series_name }}/{{ experiment_series.experiment_series_name }}_{{ experiment.experiment_id }}.jpg"
