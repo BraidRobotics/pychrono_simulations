@@ -6,12 +6,12 @@ class EquilibriumThresholds:
 	# Nylon typically has a yield strain between 2–10%, with elastic deformation typically below 1%
 	target_strain: float = 0.01          # 1%, typical elastic limit for Nylon 
 	strain_tolerance: float = 1e-6       # minimal strain change per timestep
-	max_node_velocity: float = 1e-4      # meters per second
+	max_node_velocity: float = 0.1       # meters but without time step
 	stability_timesteps: int = 10        # must maintain thresholds for 10 steps
 
 thresholds = EquilibriumThresholds()
 	
-def is_in_equilibrium(max_beam_strain, max_node_velocity, initial_bounds):
+def is_in_equilibrium(max_beam_strain, max_node_velocity):
 	if not hasattr(is_in_equilibrium, "previous_strain"):
 		is_in_equilibrium.previous_strain = max_beam_strain
 		is_in_equilibrium.velocity_history = [max_node_velocity] * thresholds.stability_timesteps
@@ -40,8 +40,6 @@ def is_in_equilibrium(max_beam_strain, max_node_velocity, initial_bounds):
 		timesteps_max_node_velocity <= thresholds.max_node_velocity
 		for timesteps_max_node_velocity in is_in_equilibrium.velocity_history
 	)
-
-	print(strain_stable, velocity_stable)
 
 	is_in_equilibrium.previous_strain = max_beam_strain
 

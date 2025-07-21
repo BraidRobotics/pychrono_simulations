@@ -103,7 +103,7 @@ def experiment_loop(experiment_series, experiment_config):
 
     # api.projectchrono.org/loads.html
 
-    from forces import apply_loads, reset_loads
+    from forces import apply_loads, reset_loads, is_in_equilibrium
 
     apply_loads(nodes, experiment_config)
 
@@ -131,6 +131,13 @@ def experiment_loop(experiment_series, experiment_config):
             initial_bounds,
             experiment_series
         )
+
+
+        # todo remember to add to the breaking condition once the equilibrium function is implemented
+        structure_is_in_equilibrium = structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
+
+        if structure_is_in_equilibrium:
+            print("Structure is in equilibrium.", structure_is_in_equilibrium)
 
 
         if experiment_config.get("will_visualize", False):
@@ -183,7 +190,7 @@ if __name__ == "__main__":
 
     experiment_config = {
         "experiment_id": 1,
-        "force_in_y_direction": -0.4,  # N
+        "force_in_y_direction": -0.8,  # N
         "force_top_nodes_in_y_direction": 0,  # N
         "force_in_x_direction": 0,      # N
         "force_in_z_direction": 0,      # N

@@ -9,7 +9,7 @@ def apply_loads(nodes, experiment_config):
 	torsional = experiment_config.get("torsional_force", 0.0)
 
 	for layer_index, layer in enumerate(nodes):
-		for node_index, node in enumerate(layer):
+		for node in layer:
 			force = chrono.ChVector3d(0, 0, 0)
 
 			# Y force for all nodes
