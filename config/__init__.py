@@ -1,2 +1,1 @@
 from config.experiment_config import ExperimentConfig
-from config.simulation_config import SimulationConfig

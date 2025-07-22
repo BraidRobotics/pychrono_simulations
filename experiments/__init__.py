@@ -1,1 +1,1 @@
-from experiments.run_experiments import run_experiments, run_a_single_experiment, run_no_experiment, run_visual_simulation_experiment
+from experiments.run_experiments import run_experiments, run_a_single_experiment, run_non_experiment, run_visual_simulation_experiment

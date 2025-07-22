@@ -1,12 +1,12 @@
 import pychrono as chrono
+from config import ExperimentConfig
 
-
-def apply_loads(nodes, experiment_config):
-	force_y = experiment_config.get("force_in_y_direction", 0.0)
-	force_top_y = experiment_config.get("force_top_nodes_in_y_direction", 0.0)
-	force_x = experiment_config.get("force_in_x_direction", 0.0)
-	force_z = experiment_config.get("force_in_z_direction", 0.0)
-	torsional = experiment_config.get("torsional_force", 0.0)
+def apply_loads(nodes, experiment_config: ExperimentConfig):
+	force_y = experiment_config.force_in_y_direction
+	force_top_y = experiment_config.force_top_nodes_in_y_direction
+	force_x = experiment_config.force_in_x_direction
+	force_z = experiment_config.force_in_z_direction
+	torsional = experiment_config.torsional_force
 
 	for layer_index, layer in enumerate(nodes):
 		for node in layer:

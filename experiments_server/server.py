@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for, flash, session, g
 import logging
 
-from experiments import run_experiments, run_no_experiment, run_visual_simulation_experiment
+from experiments import run_experiments, run_non_experiment, run_visual_simulation_experiment
 
 from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
@@ -74,7 +74,7 @@ def create_experiment_series_route():
         return redirect(url_for('index_page'))
     
     experiment_series = insert_experiment_series(g.db, experiment_series_name)
-    run_no_experiment(experiment_series)
+    run_non_experiment(experiment_series)
 
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))
 
@@ -89,7 +89,7 @@ def update_experiment_series_route(experiment_series_name):
             flash(message, "error")
         return {"status": "error", "message": errors[0]}, 400
 
-    run_no_experiment(experiment_series)
+    run_non_experiment(experiment_series)
 
     return {"status": "success", "message": f"Updated experiment series {experiment_series_name}"}, 200
 

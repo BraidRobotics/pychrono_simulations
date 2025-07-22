@@ -1,11 +1,14 @@
 import pychrono as chrono
+
+from config import ExperimentConfig
+
 from util import  take_model_screenshot, take_final_screenshot, take_video_screenshot, make_video_from_frames
 
 from database.experiment_series_queries import update_experiment_series
 from database.experiments_queries import insert_experiment
 from database.session import SessionLocal
 
-def experiment_loop(experiment_series, experiment_config):
+def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
 
     ####################################################################################################
     # Physics Engine
@@ -54,7 +57,7 @@ def experiment_loop(experiment_series, experiment_config):
     from visualization import create_visualization \
 
     visualization = None
-    will_visualize = experiment_config.get("will_visualize", False) or experiment_config.get("run_without_simulation_loop", False)
+    will_visualize = experiment_config.will_visualize or experiment_config.is_non_experiment_run
 
     if (will_visualize):
         visualization = create_visualization(system, floor, braid_mesh, initial_bounds)
@@ -71,7 +74,7 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
     from util import calculate_model_weight, calculate_model_height
 
-    if experiment_config.get("run_without_simulation_loop", False):
+    if experiment_config.is_non_experiment_run:
 
         while visualization is None or visualization.Run():
             time_step = 0.01
@@ -113,6 +116,7 @@ def experiment_loop(experiment_series, experiment_config):
     ####################################################################################################
     timestep = 0.01
     
+    equilibrium_after_seconds = None
     height_under_load = None
 
     while visualization is None or visualization.Run():
@@ -141,35 +145,37 @@ def experiment_loop(experiment_series, experiment_config):
         # todo remember to add to the breaking condition once the equilibrium function is implemented
         structure_is_in_equilibrium = structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
 
-        if structure_is_in_equilibrium:
+        if structure_is_in_equilibrium and equilibrium_after_seconds is None:
+            equilibrium_after_seconds = time_passed
             print("Structure is in equilibrium.", structure_is_in_equilibrium)
 
 
-        if experiment_config.get("will_visualize", False):
+        if experiment_config.will_visualize:
             visualization.BeginScene()
             visualization.Render()
-            if experiment_config.get("will_record_video", False):
+            if experiment_config.will_record_video:
                 take_video_screenshot(visualization, experiment_series.experiment_series_name)
             visualization.EndScene()
 
-        times_up = time_passed > experiment_config["max_simulation_time"]
+        times_up = time_passed > experiment_config.max_simulation_time
         reset_done = experiment_series.reset_force_after_seconds and time_passed > experiment_series.reset_force_after_seconds
 
         if (structure_is_in_equilibrium and reset_done) or times_up:
             
             final_height = calculate_model_height(beam_elements)
 
-            take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config["experiment_id"])
+            take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config.experiment_id)
 
             insert_experiment(
                 session,
-                experiment_config["experiment_id"],
+                experiment_config.experiment_id,
                 experiment_series.experiment_series_name,
-                experiment_config["force_in_y_direction"],
-                experiment_config["force_top_nodes_in_y_direction"],
-                experiment_config["force_in_x_direction"],
-                experiment_config["force_in_z_direction"],
-                experiment_config["torsional_force"],
+                experiment_config.force_in_y_direction,
+                experiment_config.force_top_nodes_in_y_direction,
+                experiment_config.force_in_x_direction,
+                experiment_config.force_in_z_direction,
+                experiment_config.torsional_force,
+                equilibrium_after_seconds,
                 time_to_bounding_box_explosion,
                 max_bounding_box_volume,
                 time_to_beam_strain_exceed_explosion,
@@ -181,7 +187,7 @@ def experiment_loop(experiment_series, experiment_config):
             )
             session.close()
 
-            if experiment_config.get("will_record_video", False):
+            if experiment_config.will_record_video:
                 make_video_from_frames(experiment_series.experiment_series_name)
             
             break
@@ -196,18 +202,20 @@ if __name__ == "__main__":
 
     experiment_series = select_experiment_series_by_name(db, "_default")
 
-    experiment_config = {
-        "experiment_id": 1,
-        "force_in_y_direction": -0.8,  # N
-        "force_top_nodes_in_y_direction": 0,  # N
-        "force_in_x_direction": 0,      # N
-        "force_in_z_direction": 0,      # N
-        "torsional_force": 0,          # Nm
-        "max_simulation_time": 20,      # seconds
-        "will_visualize": True,
-        "will_record_video": False,
-        "run_without_simulation_loop": False
-    }
+    experiment_config = ExperimentConfig(
+        experiment_id=1,
+        force_in_y_direction=-0.8,  # N
+        force_top_nodes_in_y_direction=0,  # N
+        force_in_x_direction=0,  # N
+        force_in_z_direction=0,  # N
+        torsional_force=0,  # Nm
+        max_simulation_time=20,  # seconds
+        will_visualize=True,
+        will_record_video=False,
+        is_non_experiment_run=False
+    )
+    
+    print(experiment_config)
 
     experiment_loop(experiment_series, experiment_config)
 
