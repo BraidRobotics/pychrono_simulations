@@ -7,3 +7,5 @@ init_db:
 
 migrate_db:
 	@alembic -c database/alembic.ini revision --autogenerate -m "New migration"
+	@alembic -c database/alembic.ini upgrade head
+	
