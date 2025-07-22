@@ -2,11 +2,34 @@
 <html>
 <head>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+  
+  <script src="{{ url_for('static', filename='chart.js') }}"></script>
+  <script src="{{ url_for('static', filename='chartjs-plugin-zoom.js') }}"></script>
+
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iI2ZnZyIgLz4KPC9zdmc+Cg==" type="image/svg+xml">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 
 	<title>Braid Robotics Simulation Dashboard</title>
 	<meta charset="utf-8" />
+  <script>
+    // Defining the zoom plugin configuration for Chart.js globally for reusability
+    window.chartJsPlugins = {
+      plugins: {
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true,
+              modifierKey: 'meta'
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: 'xy'
+          }
+        }
+      }
+    };
+  </script>
 </head>
 <body>
   <nav>

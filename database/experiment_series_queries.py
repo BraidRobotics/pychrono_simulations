@@ -1,4 +1,4 @@
-from database.models.experiment_series import ExperimentSeries
+from database.models.experiment_series_model import ExperimentSeries
 from sqlalchemy.exc import SQLAlchemyError
 
 

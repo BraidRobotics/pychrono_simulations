@@ -1,5 +1,5 @@
 from sqlalchemy.exc import SQLAlchemyError
-from database.models.experiment import Experiment
+from database.models.experiment_model import Experiment
 
 
 def select_experiment_by_series_name_and_id(session, experiment_series_name, experiment_id):
