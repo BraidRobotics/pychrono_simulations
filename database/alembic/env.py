@@ -19,6 +19,8 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from database.models.base import Base
+# Import all models to ensure Alembic autogeneration detects them
+from database.models import experiment_model, experiment_series_model
 
 target_metadata = Base.metadata
 
