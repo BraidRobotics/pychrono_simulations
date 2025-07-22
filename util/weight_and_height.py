@@ -36,8 +36,7 @@ def calculate_model_height(beam_elements):
 		positions.append(element.GetNodeB().GetPos())
 
 
-	xs = [p.x for p in positions]
-
-	height = max(xs) - min(xs)
+	ys = [p.y for p in positions]
+	height = max(ys) - min(ys)
 
 	return height

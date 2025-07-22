@@ -120,8 +120,8 @@ def experiment_loop(experiment_series, experiment_config):
         time_passed = system.GetChTime()
         
         if experiment_series.reset_force_after_seconds and time_passed > experiment_series.reset_force_after_seconds:
-            reset_loads(nodes, experiment_series)
             height_under_load = calculate_model_height(beam_elements)
+            reset_loads(nodes, experiment_series)
 
 
         (
@@ -157,7 +157,7 @@ def experiment_loop(experiment_series, experiment_config):
 
         if (structure_is_in_equilibrium and reset_done) or times_up:
             
-            height_m = calculate_model_height(beam_elements)
+            final_height = calculate_model_height(beam_elements)
 
             take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config["experiment_id"])
 
@@ -177,7 +177,7 @@ def experiment_loop(experiment_series, experiment_config):
                 time_to_node_velocity_spike_explosion,
                 max_node_velocity,
                 height_under_load,
-                height_m
+                final_height
             )
             session.close()
 

@@ -1,0 +1,53 @@
+<h3>Force vs. Final Height</h3>
+
+<h4>Note that the x-axis is reversed and goes from high force in the y-direction to low since negatives indicate a downward force.</h4>
+
+<canvas id="forceVsHeightChart"></canvas>
+<script>
+	const FORCE_Y_DATA = JSON.parse('{{ experiments | map(attribute="force_in_y_direction") | list | tojson | safe }}');
+	// const FORCE_X_DATA = JSON.parse('{{ experiments | map(attribute="force_in_x_direction") | list | tojson | safe }}');
+	// const FORCE_Z_DATA = JSON.parse('{{ experiments | map(attribute="force_in_z_direction") | list | tojson | safe }}');
+	const FINAL_HEIGHTS = JSON.parse('{{ experiments | map(attribute="final_height") | list | tojson | safe }}');
+	const ctx = document.getElementById('forceVsHeightChart').getContext('2d');
+	const forceVsHeightChart = new Chart(ctx, {
+		type: 'scatter',
+		data: {
+			datasets: [
+				{
+					label: 'Y Force',
+					data: FORCE_Y_DATA.map((force, i) => ({ x: force, y: FINAL_HEIGHTS[i] })),
+					backgroundColor: 'rgba(255, 99, 132, 1)'
+				},
+				// {
+				// 	label: 'X Force',
+				// 	data: FORCE_X_DATA.map((force, i) => ({ x: force, y: FINAL_HEIGHTS[i] })),
+				// 	backgroundColor: 'rgba(54, 162, 235, 1)'
+				// },
+				// {
+				// 	label: 'Z Force',
+				// 	data: FORCE_Z_DATA.map((force, i) => ({ x: force, y: FINAL_HEIGHTS[i] })),
+				// 	backgroundColor: 'rgba(75, 192, 192, 1)'
+				// }
+			]
+		},
+		options: {
+			scales: {
+				x: {
+					reverse: true,
+					title: {
+						display: true,
+						text: 'Force (N)'
+					}
+				},
+				y: {
+					title: {
+						display: true,
+						text: 'Final Height (m)'
+					}
+				}
+			}
+		}
+	});
+</script>
+
+</file>

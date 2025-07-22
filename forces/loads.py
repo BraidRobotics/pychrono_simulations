@@ -19,7 +19,7 @@ def apply_loads(nodes, experiment_config):
 			force += chrono.ChVector3d(force_x, 0, force_z)
 
 			# Torsional force
-			center = chrono.ChVector3d(0, nodes[-1][0].GetPos().y, 0)
+			center = chrono.ChVector3d(0, node.GetPos().y, 0)
 			r = node.GetPos() - center
 			r_mag = r.Length()
 			if r_mag != 0:
