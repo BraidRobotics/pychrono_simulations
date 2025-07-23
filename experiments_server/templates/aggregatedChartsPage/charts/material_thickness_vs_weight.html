@@ -1,0 +1,69 @@
+<h3>Material Thickness vs. Weight</h3>
+
+<canvas id="materialThicknessVsWeightChart"></canvas>
+
+<script>
+	const RAW_DATA_Material_Thickness_VS_Weight = JSON.parse('{{ material_thickness_vs_weight_chart_values | tojson | safe }}');
+
+	const chartData = RAW_DATA_Material_Thickness_VS_Weight.map(row => ({
+		x: row.material_thickness,
+		y: row.weight_kg,
+		label: row.experiment_series_name
+	}));
+
+	const ctxMaterialThicknessVsWeight = document.getElementById('materialThicknessVsWeightChart').getContext('2d');
+
+	const materialThicknessVsWeightChart = new Chart(ctxMaterialThicknessVsWeight, {
+		type: 'scatter',
+		data: {
+			datasets: [
+				{
+					label: 'Material Thickness vs Weight',
+					data: chartData,
+					backgroundColor: 'rgba(255, 99, 132, 1)',
+					pointRadius: 5,
+					pointHoverRadius: 7,
+					tooltip: {
+						callbacks: {
+							label: function(context) {
+								const label = context.raw.label || '';
+								const x = context.raw.x.toFixed(4);
+								const y = context.raw.y.toFixed(4);
+								return `${label}: (${x} m, ${y} kg)`;
+							}
+						}
+					}
+				},
+			]
+		},
+		options: {
+			...window.chartJsPlugins,
+			scales: {
+				x: {
+					title: {
+						display: true,
+						text: 'Material Thickness (m)'
+					}
+				},
+				y: {
+					title: {
+						display: true,
+						text: 'Weight (kg)'
+					}
+				}
+			},
+			plugins: {
+				tooltip: {
+					callbacks: {
+						label: function(context) {
+							const label = context.raw.label || '';
+							const x = context.raw.x.toFixed(4);
+							const y = context.raw.y.toFixed(4);
+							return `${label}: (${x} m, ${y} kg)`;
+						}
+					}
+				}
+			}
+		}
+	});
+</script>

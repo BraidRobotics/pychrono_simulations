@@ -3,9 +3,10 @@ import logging
 
 from experiments import run_experiments, run_non_experiment, run_visual_simulation_experiment
 
-from database.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
+from database.queries.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series, update_experiment_series, delete_experiment_series
-from database.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_series_name_and_id
+from database.queries.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_series_name_and_id
+from database.queries.graph_queries import get_material_thickness_vs_weight_chart_values, get_load_capacity_ratio_y_chart_values
 from database.session import SessionLocal
 
 log = logging.getLogger('werkzeug')
@@ -45,11 +46,20 @@ def experiments_page(experiment_series_name):
     if experiment_series.is_experiments_outdated:
         flash(f"The experiments are outdated (experiment series config have been changed). Please run the experiments again.", "error")
     return render_template(
-        "experiments/experiments.html",
+        "experiments/experimentsPage.html",
         experiment_series=experiment_series,
         experiments=experiments
     )
 
+@app.route("/aggregated_charts", methods=["GET"])
+def aggregated_charts_page():
+    material_thickness_vs_weight_chart_values = get_material_thickness_vs_weight_chart_values(g.db)
+    load_capacity_ratio_y_chart_values = get_load_capacity_ratio_y_chart_values(g.db)
+    return render_template(
+        "aggregatedChartsPage/aggregatedChartsPage.html",
+        material_thickness_vs_weight_chart_values=material_thickness_vs_weight_chart_values,
+        load_capacity_ratio_y_chart_values=load_capacity_ratio_y_chart_values
+    )
 
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):

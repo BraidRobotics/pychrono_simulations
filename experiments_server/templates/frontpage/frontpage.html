@@ -3,8 +3,10 @@
 {% endblock %}
 {% block body %}
 
+<h1><a href="/aggregated_charts">Aggregated Charts</a></h1>
 
-<h2>Create a New Experiment Series</h2>
+
+<h1>Create a New Experiment Series</h1>
 <form action="/api/experiment_series" method="POST">
     <input id="new-experiment-input" type="text" placeholder="Unique Experiment Series Name" name="experiment_series_name" required>
     <button id="new-experiment-button">Create A New Experiment Series</button>

@@ -2,7 +2,7 @@ import os
 from multiprocessing import Pool
 from experiments.experiment import experiment_loop
 from tqdm import tqdm
-from database.experiment_series_queries import select_experiment_series_by_name
+from database.queries.experiment_series_queries import select_experiment_series_by_name
 from database.session import SessionLocal
 from config import ExperimentConfig
 

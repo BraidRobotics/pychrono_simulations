@@ -4,8 +4,8 @@ from config import ExperimentConfig
 
 from util import  take_model_screenshot, take_final_screenshot, take_video_screenshot, make_video_from_frames
 
-from database.experiment_series_queries import update_experiment_series
-from database.experiments_queries import insert_experiment
+from database.queries.experiment_series_queries import update_experiment_series
+from database.queries.experiments_queries import insert_experiment
 from database.session import SessionLocal
 
 def experiment_loop(experiment_series, experiment_config: ExperimentConfig):

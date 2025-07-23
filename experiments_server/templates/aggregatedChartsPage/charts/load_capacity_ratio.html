@@ -1,0 +1,44 @@
+<h3>Load Capacity Ratio</h3>
+
+<p>Payload to weight ratio</p>
+
+<p>Note: This finds the closest experiment in the experiment series that did not explode.</p>
+<p>It filters out the experiment series where all experiments exploded or where none did.</p>
+
+<canvas id="loadCapacityRatioChart"></canvas>
+
+<script>
+	const RAW_DATA_Load_Capacity_Ratio = JSON.parse('{{ load_capacity_ratio_y_chart_values | tojson | safe }}');
+	const ctxLoadCapacityRatio = document.getElementById('loadCapacityRatioChart').getContext('2d');
+
+	const loadCapacityRatioChart = new Chart(ctxLoadCapacityRatio, {
+		type: 'scatter',
+		data: {
+			datasets: [
+				{
+					label: 'Y Force',
+					data: RAW_DATA_Load_Capacity_Ratio.map(d => ({ x: d.force, y: d.payload_to_weight_ratio })),
+					backgroundColor: 'rgba(255, 99, 132, 1)'
+				},
+			]
+		},
+		options: {
+			...window.chartJsPlugins,
+			scales: {
+				x: {
+					reverse: true,
+					title: {
+						display: true,
+						text: 'Force (N)'
+					}
+				},
+				y: {
+					title: {
+						display: true,
+						text: 'Payload to Weight Ratio'
+					}
+				}
+			}
+		}
+	});
+</script>
