@@ -7,9 +7,9 @@
 <script>
 	const FORCE_Y_DATA = JSON.parse('{{ experiments | map(attribute="force_in_y_direction") | list | tojson | safe }}');
 	const FINAL_HEIGHTS = JSON.parse('{{ experiments | map(attribute="final_height") | list | tojson | safe }}');
-	const ctx = document.getElementById('forceVsHeightChart').getContext('2d');
+	const ctxForceVsFinalHeight = document.getElementById('forceVsHeightChart').getContext('2d');
 
-	const forceVsHeightChart = new Chart(ctx, {
+	const forceVsHeightChart = new Chart(ctxForceVsFinalHeight, {
 		type: 'scatter',
 		data: {
 			datasets: [

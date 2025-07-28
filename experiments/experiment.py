@@ -124,8 +124,9 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
         time_passed = system.GetChTime()
         
         if experiment_series.reset_force_after_seconds and time_passed > experiment_series.reset_force_after_seconds:
-            height_under_load = calculate_model_height(beam_elements)
-            reset_loads(nodes, experiment_series)
+            if height_under_load is None:
+                height_under_load = calculate_model_height(beam_elements)
+            reset_loads(nodes)
 
 
         (

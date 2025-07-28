@@ -78,4 +78,4 @@ def _get_load_capacity_ratio_chart_values(session, force_column):
 					})
 				break
 
-	return results
+	return [dict(r) for r in results]

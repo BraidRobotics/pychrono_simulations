@@ -1,6 +1,10 @@
 from database.models.experiment_series_model import ExperimentSeries
 from sqlalchemy.exc import SQLAlchemyError
 
+def sqlalchemy_model_to_dict(model):
+	if model is None:
+		return None
+	return {key: value for key, value in model.__dict__.items() if key != "_sa_instance_state"}
 
 def select_all_experiment_series(session):
 	experiment_series = session.query(ExperimentSeries).order_by(ExperimentSeries.experiment_series_name).all()

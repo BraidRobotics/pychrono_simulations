@@ -1,0 +1,78 @@
+<h3>Elastic Recovery</h3>
+
+<h4>A graph showing height under load vs. final height as all load is removed.</h4>
+
+
+<div id="elasticRecoveryChartsContainer"></div>
+
+<script>
+    const experimentSeries = JSON.parse('{{ experiment_series_dict | tojson | safe }}');
+    const experiments = JSON.parse('{{ experiments | tojson | safe }}');
+
+    const varyingForcePairs = [
+			['initial_force_applied_in_y_direction', 'final_force_in_y_direction'],
+			['initial_top_nodes_force_in_y_direction', 'final_top_nodes_force_in_y_direction'],
+			['initial_force_applied_in_x_direction', 'final_force_applied_in_x_direction'],
+			['initial_force_applied_in_z_direction', 'final_force_in_z_direction']
+    ];
+
+
+    function shouldShowElasticRecoveryGraph(data, pair) {
+    	const hasReset = data.reset_force_after_seconds ?? false;
+    	if (!hasReset) return false;
+
+    	const [initialKey, finalKey] = pair;
+    	return (
+    		data[initialKey] != null &&
+    		data[finalKey] != null &&
+    		data[initialKey] !== data[finalKey]
+    	);
+    }
+
+	const container = document.getElementById('elasticRecoveryChartsContainer');
+
+	varyingForcePairs.forEach(([initialKey, finalKey]) => {
+        
+        if (shouldShowElasticRecoveryGraph(experimentSeries, [initialKey, finalKey])) {
+            const chartId = `chart_${initialKey}_vs_height`;
+            const canvas = document.createElement('canvas');
+            canvas.id = chartId;
+            container.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: `${initialKey} → ${finalKey}`,
+                            data: experiments.map((experiment) => ({
+                                x: experiment.height_under_load,
+                                y: experiment.final_height
+                            })),
+                            backgroundColor: 'rgba(54, 162, 235, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    ...window.chartJsPlugins,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Height Under Load (m)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Final Height (m)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+
+</script>

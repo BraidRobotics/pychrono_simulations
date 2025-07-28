@@ -28,7 +28,7 @@ def teardown_session(exception=None):
 
 
 ##########################################################################################
-# Pages
+# Pages 
 ##########################################################################################
 
 @app.route("/")
@@ -42,12 +42,18 @@ def index_page():
 @app.route("/experiments/<experiment_series_name>", methods=["GET"])
 def experiments_page(experiment_series_name):
     experiment_series = select_experiment_series_by_name(g.db, experiment_series_name)
-    experiments = select_all_experiments_by_series_name(g.db, experiment_series_name)
+    experiment_series_dict = {key: value for key, value in experiment_series.__dict__.items() if key != "_sa_instance_state"}
+    experiments_raw = select_all_experiments_by_series_name(g.db, experiment_series_name)
+    experiments = [
+        {key: value for key, value in experiment.__dict__.items() if key != "_sa_instance_state"}
+        for experiment in experiments_raw
+    ]
     if experiment_series.is_experiments_outdated:
         flash(f"The experiments are outdated (experiment series config have been changed). Please run the experiments again.", "error")
     return render_template(
         "experiments/experimentsPage.html",
         experiment_series=experiment_series,
+        experiment_series_dict=experiment_series_dict,
         experiments=experiments
     )
 
