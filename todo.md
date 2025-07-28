@@ -1,4 +1,14 @@
 
+
+# Todos
+
+go through the todos in the code
+
+go through the meeting notes
+
+---
+
+
 # UI Suggestions
 
 create a drop down for material types
@@ -54,3 +64,12 @@ experiment that if we place 3 lines spread at 120 degrees in a circle that pull 
 what if we put the structure on its head and make it pull an object upwards
 
 
+---
+
+## Future Work
+
+Create a Pychrono Docker setup without irrlicht but with FEA
+
+Create a workflow that uses the Docker to test if it can run a simulation / that the codebase is still valid (?)
+
+Websockets
