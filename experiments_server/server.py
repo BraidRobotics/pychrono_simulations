@@ -9,6 +9,8 @@ from database.queries.experiments_queries import select_all_experiments_by_serie
 from database.queries.graph_queries import get_material_thickness_vs_weight_chart_values, get_load_capacity_ratio_y_chart_values
 from database.session import SessionLocal
 
+from util import delete_experiment_series_folder
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -113,6 +115,8 @@ def update_experiment_series_route(experiment_series_name):
 @app.route("/api/experiment_series/delete/<experiment_series_name>", methods=["POST"])
 def delete_experiment_series_route(experiment_series_name):
     delete_experiment_series(g.db, experiment_series_name)
+
+    delete_experiment_series_folder(experiment_series_name)
 
     flash(f"Experiment series with name {experiment_series_name} has been deleted.", "success")
 

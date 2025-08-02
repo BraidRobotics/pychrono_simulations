@@ -11,32 +11,30 @@
 	const RAW_DATA_Load_Capacity_Ratio = JSON.parse('{{ load_capacity_ratio_y_chart_values | tojson | safe }}');
 	const ctxLoadCapacityRatio = document.getElementById('loadCapacityRatioChart').getContext('2d');
 
-	const loadCapacityRatioChart = new Chart(ctxLoadCapacityRatio, {
+	const points = RAW_DATA_Load_Capacity_Ratio.map((data) => ({ x: Number(data.force), y: Number(data.load_capacity_ratio) }));
+
+	new Chart(ctxLoadCapacityRatio, {
 		type: 'scatter',
 		data: {
-			datasets: [
-				{
-					label: 'Y Force',
-					data: RAW_DATA_Load_Capacity_Ratio.map(d => ({ x: d.force, y: d.payload_to_weight_ratio })),
-					backgroundColor: 'rgba(255, 99, 132, 1)'
-				},
-			]
+			datasets: [{
+				label: 'Y Force',
+				data: points,
+				parsing: false,
+				pointRadius: 6,
+				pointHoverRadius: 7
+			}]
 		},
 		options: {
 			...window.chartJsPlugins,
 			scales: {
 				x: {
 					reverse: true,
-					title: {
-						display: true,
-						text: 'Force (N)'
-					}
+					grace: '20%',
+					title: { display: true, text: 'Force (N)' }
 				},
 				y: {
-					title: {
-						display: true,
-						text: 'Payload to Weight Ratio'
-					}
+					grace: '20%',
+					title: { display: true, text: 'Payload to Weight Ratio' }
 				}
 			}
 		}
