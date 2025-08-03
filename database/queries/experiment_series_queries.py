@@ -1,4 +1,5 @@
 from database.models.experiment_series_model import ExperimentSeries
+from database.models.experiment_model import Experiment
 from sqlalchemy.exc import SQLAlchemyError
 
 def sqlalchemy_model_to_dict(model):
@@ -60,5 +61,6 @@ def update_experiment_series(session, experiment_series_name, updates):
 
 
 def delete_experiment_series(session, experiment_series_name):
+	session.query(Experiment).filter_by(experiment_series_name=experiment_series_name).delete()
 	session.query(ExperimentSeries).filter_by(experiment_series_name=experiment_series_name).delete()
 	session.commit()
