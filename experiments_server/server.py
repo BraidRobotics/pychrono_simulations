@@ -141,11 +141,8 @@ def run_all_experiments_route(experiment_series_name):
 
 @app.route("/api/experiments/visualize_single/<experiment_series_name>/<experiment_id>", methods=["POST"])
 def run_single_experiment_route(experiment_series_name, experiment_id):
-
-
     experiment_series = select_experiment_series_by_name(g.db, experiment_series_name)
     experiment = select_experiment_by_series_name_and_id(g.db, experiment_series_name, experiment_id)
-
 
     run_visual_simulation_experiment(experiment_series, experiment)
     
