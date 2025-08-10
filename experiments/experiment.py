@@ -123,7 +123,7 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
         system.DoStepDynamics(timestep)
         time_passed = system.GetChTime()
         
-        if experiment_series.reset_force_after_seconds and time_passed > experiment_series.reset_force_after_seconds:
+        if (experiment_series.reset_force_after_seconds is not None) and (time_passed > experiment_series.reset_force_after_seconds):
             if height_under_load is None:
                 height_under_load = calculate_model_height(beam_elements)
             reset_loads(nodes)
@@ -144,12 +144,10 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
         )
 
         # todo remember to add to the breaking condition once the equilibrium function is implemented
-        structure_is_in_equilibrium = structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
+        structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
 
         if structure_is_in_equilibrium and equilibrium_after_seconds is None:
             equilibrium_after_seconds = time_passed
-            print("Structure is in equilibrium.", structure_is_in_equilibrium)
-
 
         if experiment_config.will_visualize:
             visualization.BeginScene()
@@ -158,10 +156,11 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
                 take_video_screenshot(visualization, experiment_series.experiment_series_name)
             visualization.EndScene()
 
+        structure_exploded = (time_to_bounding_box_explosion is not None or time_to_beam_strain_exceed_explosion is not None or time_to_node_velocity_spike_explosion is not None)
+        reset_done = (experiment_series.reset_force_after_seconds is None) or (time_passed > experiment_series.reset_force_after_seconds)
         times_up = time_passed > experiment_config.max_simulation_time
-        reset_done = experiment_series.reset_force_after_seconds and time_passed > experiment_series.reset_force_after_seconds
 
-        if (structure_is_in_equilibrium and reset_done) or times_up:
+        if (structure_is_in_equilibrium and reset_done) or structure_exploded or times_up:
             
             final_height = calculate_model_height(beam_elements)
 
@@ -193,31 +192,3 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
             
             break
 
-
-if __name__ == "__main__":
-    # Example usage for testing purposes
-    from database.experiment_series_queries import select_experiment_series_by_name
-    from database.session import SessionLocal
-
-    db = SessionLocal()
-
-    experiment_series = select_experiment_series_by_name(db, "_default")
-
-    experiment_config = ExperimentConfig(
-        experiment_id=1,
-        force_in_y_direction=-0.8,  # N
-        force_top_nodes_in_y_direction=0,  # N
-        force_in_x_direction=0,  # N
-        force_in_z_direction=0,  # N
-        torsional_force=0,  # Nm
-        max_simulation_time=20,  # seconds
-        will_visualize=True,
-        will_record_video=False,
-        is_non_experiment_run=False
-    )
-    
-    print(experiment_config)
-
-    experiment_loop(experiment_series, experiment_config)
-
-    db.close()
