@@ -26,10 +26,10 @@ def create_strand_material(young_modulus, material_thickness):
 
 def create_tape_material():
     tape_material = fea.ChBeamSectionEulerSimple()
-    tape_material.SetAsCircularSection(0.001)
-    tape_material.SetYoungModulus(1e4)
+    tape_material.SetAsCircularSection(0.0005)
+    tape_material.SetYoungModulus(1e6)
     tape_material.SetDensity(1200)
-    tape_material.SetRayleighDamping(0.03)
+    tape_material.SetRayleighDamping(0.06)
     return tape_material
 
 

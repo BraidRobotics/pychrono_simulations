@@ -22,9 +22,11 @@ def apply_loads(nodes, experiment_config: ExperimentConfig):
 			center = chrono.ChVector3d(0, node.GetPos().y, 0)
 			r = node.GetPos() - center
 			r_mag = r.Length()
-			if r_mag != 0:
+			if r_mag > 0:
+				# tangential direction about +Y
 				tangential_direction = r.Cross(chrono.ChVector3d(0, 1, 0)).GetNormalized()
-				force += tangential_direction * (torsional / r_mag)
+				eps = 1e-6
+				force += tangential_direction * (torsional * r_mag / (r_mag * r_mag + eps))
 
 			# Add extra force to top layer
 			if layer_index == len(nodes) - 1:
