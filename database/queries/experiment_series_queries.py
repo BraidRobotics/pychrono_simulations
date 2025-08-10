@@ -22,7 +22,17 @@ def is_experiment_series_name_unique(session, experiment_series_name):
 	return count == 0
 
 
-def insert_experiment_series(session, experiment_series_name):
+def insert_experiment_series(session, experiment_series):
+	try:
+		session.add(experiment_series)
+		session.commit()
+		return experiment_series
+	except SQLAlchemyError:
+		session.rollback()
+		raise
+
+
+def insert_experiment_series_default(session, experiment_series_name):
 	try:
 		instance = ExperimentSeries(experiment_series_name=experiment_series_name)
 		session.add(instance)

@@ -4,7 +4,7 @@ import logging
 from experiments import run_experiments, run_non_experiment, run_visual_simulation_experiment
 
 from database.queries.experiment_series_queries import select_all_experiment_series, select_experiment_series_by_name, is_experiment_series_name_unique, \
-    insert_experiment_series, update_experiment_series, delete_experiment_series
+    insert_experiment_series_default, update_experiment_series, delete_experiment_series
 from database.queries.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_series_name_and_id
 from database.queries.graph_queries import get_material_thickness_vs_weight_chart_values, get_load_capacity_ratio_y_chart_values
 from database.session import SessionLocal
@@ -91,7 +91,7 @@ def create_experiment_series_route():
         flash(f"Experiment series name '{experiment_series_name}' already exists.", "error")
         return redirect(url_for('index_page'))
     
-    experiment_series = insert_experiment_series(g.db, experiment_series_name)
+    experiment_series = insert_experiment_series_default(g.db, experiment_series_name)
     run_non_experiment(experiment_series)
 
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))

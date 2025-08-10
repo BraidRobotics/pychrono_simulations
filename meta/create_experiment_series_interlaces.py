@@ -2,27 +2,28 @@ from sqlalchemy.inspection import inspect
 from database.models import ExperimentSeries
 from database.queries.experiment_series_queries import insert_experiment_series
 from database.session import SessionLocal
+import shutil
 
-num_experiment_series = 6
+num_experiment_series = 16
 num_experiments = 12
-interlaced_experiment_series_name = "interlaced_experiment_series_test"
+interlaced_experiment_series_name = "strand_thickness_experiment_"
 
 initial_model = ExperimentSeries(
     experiment_series_name=interlaced_experiment_series_name + "_00",
     num_experiments=num_experiments,
-    final_force_in_y_direction=-0.5
+    material_thickness=0.001
 )
 
 final_model = ExperimentSeries(
     experiment_series_name=interlaced_experiment_series_name + "_" + str(num_experiment_series),
     num_experiments=num_experiments,
-    final_force_in_y_direction=-1.5
+    material_thickness=0.15
 )
 
 session = SessionLocal()
 
 # Save initial model
-# insert_experiment_series(session, initial_model)
+insert_experiment_series(session, initial_model)
 
 columns = [column.key for column in inspect(ExperimentSeries).mapper.column_attrs if column.key != "experiment_series_name"]
 
@@ -46,10 +47,13 @@ for i in range(1, num_experiment_series):
         experiment_series_name=f"{interlaced_experiment_series_name}_{i:02d}",
         **values
     )
-    interpolated_models.append(model)
+    insert_experiment_series(session, model)
+
+    print("=" * shutil.get_terminal_size().columns)
     print(f"Created experiment series: {model.experiment_series_name} with interpolated fields: {values}")
+    print("=" * shutil.get_terminal_size().columns)
 
 
 
 # Save final model
-# insert_experiment_series(session, final_model)
+insert_experiment_series(session, final_model)
