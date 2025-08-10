@@ -2,7 +2,7 @@
 
 Builds PyChrono from source using Docker and this setup includes Irrlicht.
 
-While containers are headless there are techniques to forward the display to a host machine, such as using VNC or X11 forwarding. 
+While containers are headless there are techniques to forward the display to a host machine, such as using VNC or X11 forwarding.
 
 **The below claim has not been tested yet:**
 
@@ -14,7 +14,7 @@ While containers are headless there are techniques to forward the display to a h
 
 ## How to get started
 
-Build the Docker image. 
+Build the Docker image.
 
 ```bash
 $ docker compose up --build
@@ -23,7 +23,7 @@ $ docker compose up --build
 Run the image and start a bash shell in the container:
 
 ```bash
-$ docker compose run chorno bash
+$ docker compose run chrono bash
 ```
 
 In the shell, start the `helloworld.py` script:

@@ -10,4 +10,4 @@ migrate_db:
 	@alembic -c database/alembic.ini upgrade head
 
 run_all_experiments:
-	@python3 -m meta.run_all_experiment_series
+	@python -m meta.run_all_experiment_series
