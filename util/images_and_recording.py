@@ -1,7 +1,7 @@
 import subprocess
 import os
 from pathlib import Path
-
+import shutil
 
 PROJECT_ROOT = Path(os.getcwd())
 
@@ -11,11 +11,13 @@ def get_path_with_experiment_series_name(experiment_series_name):
 	return str(base_path)
 
 def delete_experiment_series_folder(experiment_series_name):
-	base_path = get_path_with_experiment_series_name(experiment_series_name)
-	if os.path.exists(base_path):
-		subprocess.run(["rm", "-rf", base_path])
-	else:
-		print(f"Path {base_path} does not exist, nothing to delete.")
+    base_path = get_path_with_experiment_series_name(experiment_series_name)
+    if os.path.isdir(base_path):
+        shutil.rmtree(base_path)
+    elif os.path.exists(base_path):
+        os.remove(base_path)
+    else:
+        print(f"Path {base_path} does not exist, nothing to delete.")
 
 def _get_image_path(experiment_series_name, filename):
 	base_path = get_path_with_experiment_series_name(experiment_series_name)
