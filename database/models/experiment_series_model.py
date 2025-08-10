@@ -61,11 +61,14 @@ class ExperimentSeries(Base):
 			errors.append("Material thickness must be greater than 0.")
 		if self.material_youngs_modulus <= 0:
 			errors.append("Material Young's modulus must be greater than 0.")
-		if self.reset_force_after_seconds is not None:
-			print(self.reset_force_after_seconds)
-			if (self.initial_force_applied_in_y_direction != self.final_force_in_y_direction or
-				self.initial_top_nodes_force_in_y_direction != self.final_top_nodes_force_in_y_direction or
-				self.initial_force_applied_in_x_direction != self.final_force_in_x_direction or
-				self.initial_force_applied_in_z_direction != self.final_force_in_z_direction):
-				errors.append("""Force varies from initial to final but 'reset_force_after_seconds' is not set. \nThis will cause the final force to never be applied.""")
+		forces_vary = (
+			self.initial_force_applied_in_y_direction != self.final_force_in_y_direction or
+			self.initial_top_nodes_force_in_y_direction != self.final_top_nodes_force_in_y_direction or
+			self.initial_force_applied_in_x_direction != self.final_force_in_x_direction or
+			self.initial_force_applied_in_z_direction != self.final_force_in_z_direction
+		)
+		# if forces_vary and self.reset_force_after_seconds is None:
+		# 	errors.append("""Force varies from initial to final but 'reset_force_after_seconds' is not set. \nThis would cause the final force to never be applied.""")
+		# if self.reset_force_after_seconds is not None and self.reset_force_after_seconds < self.max_simulation_time:
+		# 	errors.append("""'reset_force_after_seconds' must be greater than or equal to 'max_simulation_time'. \nThis would cause the final force to never be applied.""")
 		return errors
