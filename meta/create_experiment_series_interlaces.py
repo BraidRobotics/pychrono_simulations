@@ -2,22 +2,26 @@ from sqlalchemy.inspection import inspect
 from database.models import ExperimentSeries
 from database.queries.experiment_series_queries import insert_experiment_series
 from database.session import SessionLocal
-import shutil
 
-num_experiment_series = 16
-num_experiments = 12
+num_experiment_series = 6
+num_experiments = 16
 interlaced_experiment_series_name = "strand_thickness_experiment_"
+
 
 initial_model = ExperimentSeries(
     experiment_series_name=interlaced_experiment_series_name + "_00",
     num_experiments=num_experiments,
-    material_thickness=0.001
+    material_thickness=0.005,
+    initial_force_applied_in_y_direction=-1.0,
+    final_force_in_y_direction=-15.0,
 )
 
 final_model = ExperimentSeries(
     experiment_series_name=interlaced_experiment_series_name + "_" + str(num_experiment_series),
     num_experiments=num_experiments,
-    material_thickness=0.15
+    material_thickness=0.2  ,
+    initial_force_applied_in_y_direction=-1.0,
+    final_force_in_y_direction=-15.0,
 )
 
 session = SessionLocal()
@@ -48,10 +52,6 @@ for i in range(1, num_experiment_series):
         **values
     )
     insert_experiment_series(session, model)
-
-    print("=" * shutil.get_terminal_size().columns)
-    print(f"Created experiment series: {model.experiment_series_name} with interpolated fields: {values}")
-    print("=" * shutil.get_terminal_size().columns)
 
 
 
