@@ -167,6 +167,13 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
 
             if structure_exploded:
                 final_height = None
+                # Done in order to take a screenshot of the explosion so that it's easier to discern visually that it has exploded
+                for _ in range(100):
+                    system.DoStepDynamics(timestep)
+                    visualization.BeginScene()
+                    visualization.Render()
+                    visualization.EndScene()
+            
 
             take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config.experiment_id)
 
