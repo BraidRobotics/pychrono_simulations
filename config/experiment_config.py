@@ -13,6 +13,7 @@ class ExperimentConfig:
 	torsional_force: float = 0.0
 
 	is_non_experiment_run: bool = False
+	run_forever: bool = False
 	will_visualize: bool = False
 	will_record_video: bool = False
 

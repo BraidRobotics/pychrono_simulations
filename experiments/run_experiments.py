@@ -87,6 +87,7 @@ def run_visual_simulation_experiment(experiment_series, experiment):
         force_in_x_direction=experiment.force_in_x_direction,
         force_in_z_direction=experiment.force_in_z_direction,
         torsional_force=experiment.torsional_force,
+        run_forever=True,
         will_visualize=True,
         will_record_video=False,
         max_simulation_time=float("inf")

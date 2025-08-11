@@ -156,13 +156,17 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
                 take_video_screenshot(visualization, experiment_series.experiment_series_name)
             visualization.EndScene()
 
-        structure_exploded = (time_to_bounding_box_explosion is not None or time_to_beam_strain_exceed_explosion is not None or time_to_node_velocity_spike_explosion is not None)
+        structure_exploded = time_to_bounding_box_explosion is not None
         reset_done = (experiment_series.reset_force_after_seconds is None) or (time_passed > experiment_series.reset_force_after_seconds)
         times_up = time_passed > experiment_config.max_simulation_time
 
-        if (structure_is_in_equilibrium and reset_done) or structure_exploded or times_up:
+
+        if not experiment_config.run_forever and ((structure_is_in_equilibrium and reset_done) or structure_exploded or times_up):
             
             final_height = calculate_model_height(beam_elements)
+
+            if structure_exploded:
+                final_height = None
 
             take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config.experiment_id)
 
