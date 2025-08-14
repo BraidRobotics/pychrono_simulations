@@ -48,17 +48,17 @@ def define_connectivity(nodes, config):
 			target = rod - 1 if rod > 0 else num_rods - 1
 			node_pairs.append(('beam', (nodes[layer_no][rod], nodes[layer_no + 1][target])))
 
-	# Add 'joint' connections between neighboring nodes in the same layer
-	for layer_no in range(len(nodes)):
-		for rod in range(num_rods):
-			next_rod = (rod + 1) % num_rods
-			node_pairs.append(('joint', nodes[layer_no][rod], nodes[layer_no][next_rod]))
+	# # Add 'joint' connections between neighboring nodes in the same layer
+	# for layer_no in range(len(nodes)):
+	# 	for rod in range(num_rods):
+	# 		next_rod = (rod + 1) % num_rods
+	# 		node_pairs.append(('joint', nodes[layer_no][rod], nodes[layer_no][next_rod]))
 
-	# Add diagonal tape joints between adjacent rods in adjacent layers
-	for layer_no in range(len(nodes) - 1):
-		for rod in range(num_rods):
-			next_rod = (rod + 1) % num_rods
-			node_pairs.append(('joint', nodes[layer_no][rod], nodes[layer_no + 1][next_rod]))
+	# # Add diagonal tape joints between adjacent rods in adjacent layers
+	# for layer_no in range(len(nodes) - 1):
+	# 	for rod in range(num_rods):
+	# 		next_rod = (rod + 1) % num_rods
+	# 		node_pairs.append(('joint', nodes[layer_no][rod], nodes[layer_no + 1][next_rod]))
 
 	return node_pairs
 
