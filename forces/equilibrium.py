@@ -6,7 +6,7 @@ class EquilibriumThresholds:
 	# Nylon typically has a yield strain between 2–10%, with elastic deformation typically below 1%
 	target_strain: float = 0.01          # 1%, typical elastic limit for Nylon 
 	strain_tolerance: float = 1e-6       # minimal strain change per timestep
-	stability_timesteps: int = 100        # must maintain thresholds for 100 steps
+	stability_timesteps: int = 1000        # must maintain thresholds for 1000 steps
 
 thresholds = EquilibriumThresholds()
 
