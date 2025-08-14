@@ -2,7 +2,7 @@ import pychrono as chrono
 
 from config import ExperimentConfig
 
-from util import  take_model_screenshot, take_final_screenshot, take_video_screenshot, make_video_from_frames
+from util import  take_model_screenshot, take_final_screenshot, take_video_screenshot, make_video_from_frames, reset_structural_integrity_state
 
 from database.queries.experiment_series_queries import update_experiment_series
 from database.queries.experiments_queries import insert_experiment
@@ -106,8 +106,12 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
 
     # api.projectchrono.org/loads.html
 
-    from forces import apply_loads, reset_loads, is_in_equilibrium
+    from forces import apply_loads, reset_loads, is_in_equilibrium, reset_equilibrium_state
 
+    # Reset all stateful function states for this experiment
+    reset_equilibrium_state()
+    reset_structural_integrity_state()
+    
     apply_loads(nodes, experiment_config)
 
 

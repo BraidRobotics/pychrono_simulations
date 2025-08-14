@@ -136,4 +136,31 @@ def check_node_velocity_spike(beam_elements, velocity_threshold=10.0, verbose=Fa
 	return spike_detected, max_velocity
 
 
+def reset_structural_integrity_state():
+	"""Reset all stateful structural integrity functions between experiments"""
+	# Reset calculate_has_exploded state
+	if hasattr(calculate_has_exploded, "_initialized"):
+		delattr(calculate_has_exploded, "_initialized")
+	if hasattr(calculate_has_exploded, "_max_volume"):
+		delattr(calculate_has_exploded, "_max_volume")
+	if hasattr(calculate_has_exploded, "_max_strain"):
+		delattr(calculate_has_exploded, "_max_strain")
+	if hasattr(calculate_has_exploded, "_max_velocity"):
+		delattr(calculate_has_exploded, "_max_velocity")
+	if hasattr(calculate_has_exploded, "_time_to_box"):
+		delattr(calculate_has_exploded, "_time_to_box")
+	if hasattr(calculate_has_exploded, "_time_to_strain"):
+		delattr(calculate_has_exploded, "_time_to_strain")
+	if hasattr(calculate_has_exploded, "_time_to_velocity"):
+		delattr(calculate_has_exploded, "_time_to_velocity")
+	
+	# Reset check_beam_strain_exceed state
+	if hasattr(check_beam_strain_exceed, "_rest_lengths"):
+		delattr(check_beam_strain_exceed, "_rest_lengths")
+	
+	# Reset check_node_velocity_spike state
+	if hasattr(check_node_velocity_spike, "_last_positions"):
+		delattr(check_node_velocity_spike, "_last_positions")
+
+
 

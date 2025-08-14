@@ -3,7 +3,7 @@ from database.models import ExperimentSeries
 from database.queries.experiment_series_queries import insert_experiment_series
 from database.session import SessionLocal
 
-num_experiment_series = 6
+num_experiment_series = 5
 num_experiments = 16
 interlaced_experiment_series_name = "strand_thickness_experiment_"
 
@@ -11,17 +11,17 @@ interlaced_experiment_series_name = "strand_thickness_experiment_"
 initial_model = ExperimentSeries(
     experiment_series_name=interlaced_experiment_series_name + "_00",
     num_experiments=num_experiments,
-    material_thickness=0.005,
-    initial_force_applied_in_y_direction=-1.0,
-    final_force_in_y_direction=-15.0,
+    material_thickness=0.002,
+    initial_force_applied_in_y_direction=0.0,
+    final_force_in_y_direction=-8.0,
 )
 
 final_model = ExperimentSeries(
-    experiment_series_name=interlaced_experiment_series_name + "_" + str(num_experiment_series),
+    experiment_series_name=f"{interlaced_experiment_series_name}_{num_experiment_series:02d}",
     num_experiments=num_experiments,
-    material_thickness=0.2  ,
+    material_thickness=0.008,
     initial_force_applied_in_y_direction=-1.0,
-    final_force_in_y_direction=-15.0,
+    final_force_in_y_direction=-8.0,
 )
 
 session = SessionLocal()

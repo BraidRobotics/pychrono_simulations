@@ -25,7 +25,7 @@
     </thead>
     <tbody>
         {% for experiment in experiments %}
-        <tr>
+        <tr {% if experiment.time_to_bounding_box_explosion or experiment.time_to_node_velocity_spike_explosion %} style="background-color: rgba(255, 165, 0, 0.4);"{% endif %}>
             <td>{{ experiment.experiment_id }}</td>
             <td>{{ experiment.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] if experiment.timestamp else '' }}</td>
             <td>{{ experiment.force_in_y_direction }}</td>
