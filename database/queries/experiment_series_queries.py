@@ -12,6 +12,19 @@ def select_all_experiment_series(session):
 	return experiment_series
 
 
+def select_all_experiment_series_grouped(session):
+	experiment_series = session.query(ExperimentSeries).order_by(ExperimentSeries.group_name, ExperimentSeries.experiment_series_name).all()
+	
+	grouped_experiment_series = {}
+	for series in experiment_series:
+		group_name = series.group_name or "Ungrouped"
+		if group_name not in grouped_experiment_series:
+			grouped_experiment_series[group_name] = []
+		grouped_experiment_series[group_name].append(series)
+	
+	return grouped_experiment_series
+
+
 def select_experiment_series_by_name(session, experiment_series_name):
 	experiment_series = session.query(ExperimentSeries).filter_by(experiment_series_name=experiment_series_name).first()
 	return experiment_series

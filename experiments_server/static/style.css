@@ -74,10 +74,37 @@ body {
 	cursor: pointer;
 }
 
+.group-header {
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px;
+    margin: 10px 0 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    user-select: none;
+}
+
+.group-header:hover {
+    background-color: #261d45;
+}
+
+.group-header .toggle-icon {
+    float: right;
+    font-weight: bold;
+}
+
+.group-content {
+    margin-bottom: 20px;
+}
+
+.collapsed .group-content {
+    display: none;
+}
 
 /* Experiments Page */
 
 td input[type="number"],
+td input[type="text"],
 td textarea,
 td select {
     width: 100%;
@@ -92,6 +119,7 @@ td select {
 }
 
 td input[type="number"]:focus,
+td input[type="text"]:focus,
 td textarea:focus,
 td select:focus {
     outline: none;

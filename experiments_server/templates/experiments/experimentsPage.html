@@ -10,6 +10,7 @@
     <thead>
         <tr>
             <th>Name</th>
+            <th>Group Name</th>
             <th style="width: 170px;">Description</th>
             <th># Experiments</th>
             <th>Max Time</th>
@@ -37,6 +38,13 @@
     <tbody>
         <tr class="{% if experiment_series.is_experiments_outdated %}outdated{% endif %}">
             <td><a href="/experiments/{{ experiment_series.experiment_series_name }}">{{ experiment_series.experiment_series_name }}</a></td>
+            <td>
+                <input type="text"
+                       value="{{ experiment_series.group_name }}"
+                       data-field="group_name"
+                       onblur="submitEdit(this)"
+                       onkeydown="handleKey(event, this)">
+            </td>
             <td>
                 <textarea
                     id="description-textarea"

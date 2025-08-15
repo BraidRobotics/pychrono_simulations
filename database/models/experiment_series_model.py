@@ -5,6 +5,7 @@ class ExperimentSeries(Base):
 	__tablename__ = 'experiment_series'
 
 	experiment_series_name = Column(String, primary_key=True, unique=True, nullable=False)
+	group_name = Column(String, default='')
 	description = Column(String, default='')
 
 	# Simulation configuration

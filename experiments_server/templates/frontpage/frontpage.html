@@ -13,76 +13,102 @@
 </form>
 
 <h2>Previous Experiment Series</h2>
-<table border="1" cellpadding="5" cellspacing="0">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th># Experiments</th>
-            <th>Max Time</th>
-            <th title="A negative value means downward force.">Initial Force Y</th>
-            <th title="A negative value means downward force.">Final Force Y</th>
-            <th title="A negative value means downward force.">Top Nodes Initial Y</th>
-            <th title="A negative value means downward force.">Top Nodes Final Y</th>
-            <th>Initial Force X</th>
-            <th>Final Force X</th>
-            <th>Initial Force Z</th>
-            <th>Final Force Z</th>
-            <th>Torsional Force</th>
-            <th>Reset Force After (s)</th>
-            <th>Strands</th>
-            <th title="Zeroeth Layer counts as 1 layer"># Layers</th>
-            <th>Radius</th>
-            <th title="Conicity (how much it narrows towards the top)">Radius Taper</th>
-            <th title="Smaller pitch → tighter twist; larger pitch → looser, more vertical strands">Pitch</th>
-            <th>Material Thickness</th>
-            <th>Weight (kg)</th>
-            <th>Height (m)</th>
-            <th>Image</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for experiment_series in all_experiment_series %}
-        <tr>
-            <td><a href="/experiments/{{ experiment_series.experiment_series_name }}">{{ experiment_series.experiment_series_name }}</a></td>
-            <td>{{ experiment_series.description }}</td>
-            <td>{{ experiment_series.num_experiments }}</td>
-            <td>{{ experiment_series.max_simulation_time }}</td>
-            <td>{{ experiment_series.initial_force_applied_in_y_direction }}</td>
-            <td>{{ experiment_series.final_force_in_y_direction }}</td>
-            <td>{{ experiment_series.initial_top_nodes_force_in_y_direction }}</td>
-            <td>{{ experiment_series.final_top_nodes_force_in_y_direction }}</td>
-            <td>{{ experiment_series.initial_force_applied_in_x_direction }}</td>
-            <td>{{ experiment_series.final_force_in_x_direction }}</td>
-            <td>{{ experiment_series.initial_force_applied_in_z_direction }}</td>
-            <td>{{ experiment_series.final_force_in_z_direction }}</td>
-            <td>{{ experiment_series.torsional_force }}</td>
-            <td>{{ experiment_series.reset_force_after_seconds }}</td>
-            <td>{{ experiment_series.num_strands }}</td>
-            <td>{{ experiment_series.num_layers }}</td>
-            <td>{{ experiment_series.radius }}</td>
-            <td>{{ experiment_series.radius_taper }}</td>
-            <td>{{ experiment_series.pitch }}</td>
-            <td>{{ experiment_series.material_thickness }}</td>
-            <td>{{ "%.2f"|format(experiment_series.weight_kg) if experiment_series.weight_kg is not none else "" }}</td>
-            <td>{{ "%.2f"|format(experiment_series.height_m) if experiment_series.height_m is not none else "" }}</td>
-            <td>
-                <img src="/assets/{{ experiment_series.experiment_series_name }}/model.jpg"
-                     alt="Experiment Series Image Not Found Error"
-                     class="modal-trigger"
-                     style="max-width: 100%; height: auto; cursor: pointer;">
-            </td>
-            <td>
-                <div class="delete-button-wrapper">
-                    <form action="/api/experiment_series/delete/{{ experiment_series.experiment_series_name }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this experiment series?');">
-                        <button class="delete-button" type="submit">🚫</button>
-                    </form>
-                </div>
-            </td>
-            
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+
+{% for group_name, experiment_series_list in grouped_experiment_series.items() %}
+<div class="experiment-group collapsed">
+    <div class="group-header" onclick="toggleGroup(this)">
+        {{ group_name }} ({{ experiment_series_list|length }} series)
+        <span class="toggle-icon">▼</span>
+    </div>
+    <div class="group-content">
+        <table border="1" cellpadding="5" cellspacing="0" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th># Experiments</th>
+                    <th>Max Time</th>
+                    <th title="A negative value means downward force.">Initial Force Y</th>
+                    <th title="A negative value means downward force.">Final Force Y</th>
+                    <th title="A negative value means downward force.">Top Nodes Initial Y</th>
+                    <th title="A negative value means downward force.">Top Nodes Final Y</th>
+                    <th>Initial Force X</th>
+                    <th>Final Force X</th>
+                    <th>Initial Force Z</th>
+                    <th>Final Force Z</th>
+                    <th>Torsional Force</th>
+                    <th>Reset Force After (s)</th>
+                    <th>Strands</th>
+                    <th title="Zeroeth Layer counts as 1 layer"># Layers</th>
+                    <th>Radius</th>
+                    <th title="Conicity (how much it narrows towards the top)">Radius Taper</th>
+                    <th title="Smaller pitch → tighter twist; larger pitch → looser, more vertical strands">Pitch</th>
+                    <th>Material Thickness</th>
+                    <th>Weight (kg)</th>
+                    <th>Height (m)</th>
+                    <th>Image</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for experiment_series in experiment_series_list %}
+                <tr>
+                    <td><a href="/experiments/{{ experiment_series.experiment_series_name }}">{{ experiment_series.experiment_series_name }}</a></td>
+                    <td>{{ experiment_series.description }}</td>
+                    <td>{{ experiment_series.num_experiments }}</td>
+                    <td>{{ experiment_series.max_simulation_time }}</td>
+                    <td>{{ experiment_series.initial_force_applied_in_y_direction }}</td>
+                    <td>{{ experiment_series.final_force_in_y_direction }}</td>
+                    <td>{{ experiment_series.initial_top_nodes_force_in_y_direction }}</td>
+                    <td>{{ experiment_series.final_top_nodes_force_in_y_direction }}</td>
+                    <td>{{ experiment_series.initial_force_applied_in_x_direction }}</td>
+                    <td>{{ experiment_series.final_force_in_x_direction }}</td>
+                    <td>{{ experiment_series.initial_force_applied_in_z_direction }}</td>
+                    <td>{{ experiment_series.final_force_in_z_direction }}</td>
+                    <td>{{ experiment_series.torsional_force }}</td>
+                    <td>{{ experiment_series.reset_force_after_seconds }}</td>
+                    <td>{{ experiment_series.num_strands }}</td>
+                    <td>{{ experiment_series.num_layers }}</td>
+                    <td>{{ experiment_series.radius }}</td>
+                    <td>{{ experiment_series.radius_taper }}</td>
+                    <td>{{ experiment_series.pitch }}</td>
+                    <td>{{ experiment_series.material_thickness }}</td>
+                    <td>{{ "%.2f"|format(experiment_series.weight_kg) if experiment_series.weight_kg is not none else "" }}</td>
+                    <td>{{ "%.2f"|format(experiment_series.height_m) if experiment_series.height_m is not none else "" }}</td>
+                    <td>
+                        <img src="/assets/{{ experiment_series.experiment_series_name }}/model.jpg"
+                             alt="Experiment Series Image Not Found Error"
+                             class="modal-trigger"
+                             style="max-width: 100%; height: auto; cursor: pointer;">
+                    </td>
+                    <td>
+                        <div class="delete-button-wrapper">
+                            <form action="/api/experiment_series/delete/{{ experiment_series.experiment_series_name }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this experiment series?');">
+                                <button class="delete-button" type="submit">🚫</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function toggleGroup(headerElement) {
+    const groupDiv = headerElement.parentElement;
+    const toggleIcon = headerElement.querySelector('.toggle-icon');
+    
+    if (groupDiv.classList.contains('collapsed')) {
+        groupDiv.classList.remove('collapsed');
+        toggleIcon.textContent = '▲';
+    } else {
+        groupDiv.classList.add('collapsed');
+        toggleIcon.textContent = '▼';
+    }
+}
+</script>
+
 {% endblock %}
