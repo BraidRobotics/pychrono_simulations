@@ -39,72 +39,68 @@ def extract_failure_data():
     return thickness_data, failure_data
 
 def plot_thickness_force_relationship():
-    """Create plots showing relationship between material thickness and force capacity"""
+    """Create simplified visualization showing thickness-force relationship"""
     thickness_data, failure_data = extract_failure_data()
     
     # Convert to numpy arrays for easier manipulation
     thickness = np.array(thickness_data)
     force = np.array(failure_data)
     
-    # Create figure with subplots
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
-    
-    # Plot 1: Linear scale
-    ax1.scatter(thickness, force, color='blue', s=100, alpha=0.7)
-    ax1.plot(thickness, force, color='blue', alpha=0.5, linestyle='--')
-    ax1.set_xlabel('Material Thickness (m)')
-    ax1.set_ylabel('First Failure Force (N)')
-    ax1.set_title('Force Capacity vs Thickness\n(Linear Scale)')
-    ax1.grid(True, alpha=0.3)
-    
-    # Plot 2: Log-log scale to see power law relationship
-    ax2.loglog(thickness, force, 'bo-', markersize=8)
-    ax2.set_xlabel('Material Thickness (m)')
-    ax2.set_ylabel('First Failure Force (N)')
-    ax2.set_title('Force Capacity vs Thickness\n(Log-Log Scale)')
-    ax2.grid(True, alpha=0.3)
-    
-    # Fit power law on log-log scale
+    # Fit power law relationship
     log_thickness = np.log(thickness)
     log_force = np.log(force)
     coeffs = np.polyfit(log_thickness, log_force, 1)
     power_exponent = coeffs[0]
+    r_squared = np.corrcoef(log_thickness, log_force)[0,1]**2
     
-    # Plot fitted line
+    # Create simplified figure
+    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+    
+    # Main plot with both data and fit
+    thickness_mm = thickness * 1000  # Convert to mm for readability
+    ax.scatter(thickness_mm, force, color='blue', s=150, alpha=0.8, 
+               label='Experimental Data', zorder=3)
+    
+    # Plot power law fit
     thickness_fit = np.linspace(thickness.min(), thickness.max(), 100)
     force_fit = np.exp(coeffs[1]) * thickness_fit**power_exponent
-    ax2.plot(thickness_fit, force_fit, 'r--', linewidth=2, 
-             label=f'Power Law Fit: F ∝ t^{power_exponent:.2f}')
-    ax2.legend()
+    thickness_fit_mm = thickness_fit * 1000
+    ax.plot(thickness_fit_mm, force_fit, 'red', linewidth=3, 
+            label=f'Power Law: F ∝ t^{power_exponent:.1f}', zorder=2)
     
-    # Plot 3: Thickness ratio vs force ratio
-    thickness_ratio = thickness / thickness[0]  # Normalize to thinnest
-    force_ratio = force / force[0]  # Normalize to weakest
+    # Formatting
+    ax.set_xlabel('Strand Thickness (mm)', fontsize=14)
+    ax.set_ylabel('First Failure Force (N)', fontsize=14)
+    ax.set_title('Braided Structure Strength vs Strand Thickness', fontsize=16, pad=20)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=12, loc='upper left')
     
-    ax3.scatter(thickness_ratio, force_ratio, color='green', s=100, alpha=0.7)
-    ax3.plot(thickness_ratio, force_ratio, color='green', alpha=0.5, linestyle='--')
-    
-    # Add reference lines
-    ax3.plot(thickness_ratio, thickness_ratio, 'k--', alpha=0.5, label='Linear (1:1)')
-    ax3.plot(thickness_ratio, thickness_ratio**2, 'r--', alpha=0.5, label='Quadratic (t²)')
-    ax3.plot(thickness_ratio, thickness_ratio**3, 'm--', alpha=0.5, label='Cubic (t³)')
-    
-    ax3.set_xlabel('Thickness Ratio (relative to thinnest)')
-    ax3.set_ylabel('Force Capacity Ratio (relative to weakest)')
-    ax3.set_title('Scaling Relationship:\nThickness vs Force Capacity')
-    ax3.legend()
-    ax3.grid(True, alpha=0.3)
+    # Add equation text box
+    equation_text = f'F = k × t^{power_exponent:.1f}\nR² = {r_squared:.3f}'
+    ax.text(0.95, 0.05, equation_text, transform=ax.transAxes, 
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.8),
+            fontsize=12, verticalalignment='bottom', horizontalalignment='right')
     
     plt.tight_layout()
-    
-    # Print summary statistics
-    print(f"Power law exponent: {power_exponent:.2f}")
-    print(f"R² correlation: {np.corrcoef(log_thickness, log_force)[0,1]**2:.3f}")
-    print("\nThickness -> Force scaling:")
-    for i, (t, f) in enumerate(zip(thickness, force)):
-        print(f"  {t:.4f}m ({thickness_ratio[i]:.1f}x) -> {f:.3f}N ({force_ratio[i]:.1f}x)")
-    
     plt.show()
+    
+    # Simplified summary
+    thickness_ratio = thickness / thickness[0]
+    force_ratio = force / force[0]
+    
+    print("=== BRAIDED STRUCTURE STRENGTH ANALYSIS ===")
+    print(f"Relationship: Power Law (F ∝ t^{power_exponent:.1f})")
+    print(f"R² fit quality: {r_squared:.3f}")
+    print()
+    print("Key Finding: When strand thickness doubles (2x), force capacity increases by ~{:.1f}x".format(2**power_exponent))
+    print()
+    print("Thickness (mm)  →  Force (N)  →  Strength Multiplier")
+    print("=" * 50)
+    for i, (t, f, tr, fr) in enumerate(zip(thickness_mm, force, thickness_ratio, force_ratio)):
+        print(f"{t:6.1f}mm      →  {f:6.3f}N  →  {fr:5.1f}x stronger")
+    print()
+    print(f"Mathematical formula: F = {np.exp(coeffs[1]):.3f} × t^{power_exponent:.1f}")
+    print("(where F = force in Newtons, t = thickness in meters)")
 
 if __name__ == "__main__":
     plot_thickness_force_relationship()
