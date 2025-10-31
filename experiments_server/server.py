@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for, flash, session, g
 import logging
+from pathlib import Path
 
 from experiments import run_experiments, run_non_experiment, run_visual_simulation_experiment
 
@@ -54,10 +55,13 @@ def experiments_page(experiment_series_name):
         for experiment in experiments_raw
     ]
 
-    # Graph paths
     safe_name = experiment_series_name.replace('/', '_').replace(' ', '_')
     force_graph_path = f"series_{safe_name}_force.html"
     height_graph_path = f"series_{safe_name}_height.html"
+
+    graphs_dir = Path(__file__).parent / "assets" / "graphs"
+    force_graph_exists = (graphs_dir / force_graph_path).exists()
+    height_graph_exists = (graphs_dir / height_graph_path).exists()
 
     if experiment_series.is_experiments_outdated:
         flash(f"The experiments are outdated (experiment series config have been changed). Please run the experiments again.", "error")
@@ -67,7 +71,9 @@ def experiments_page(experiment_series_name):
         experiment_series_dict=experiment_series_dict,
         experiments=experiments,
         force_graph_path=force_graph_path,
-        height_graph_path=height_graph_path
+        height_graph_path=height_graph_path,
+        force_graph_exists=force_graph_exists,
+        height_graph_exists=height_graph_exists
     )
 
 @app.route("/aggregated_charts", methods=["GET"])
@@ -75,11 +81,13 @@ def aggregated_charts_page():
     # Graph paths
     load_capacity_graph_path = "load_capacity_ratio_y.html"
     material_thickness_graph_path = "material_thickness_vs_weight.html"
+    material_thickness_force_graph_path = "material_thickness_vs_force.html"
 
     return render_template(
         "aggregatedChartsPage/aggregatedChartsPage.html",
         load_capacity_graph_path=load_capacity_graph_path,
-        material_thickness_graph_path=material_thickness_graph_path
+        material_thickness_graph_path=material_thickness_graph_path,
+        material_thickness_force_graph_path=material_thickness_force_graph_path
     )
 
 @app.route('/assets/<path:filename>')
@@ -159,8 +167,8 @@ def run_all_experiments_route(experiment_series_name):
 @app.route("/api/experiments/visualize_single/<experiment_series_name>/<experiment_id>", methods=["POST"])
 def run_single_experiment_route(experiment_series_name, experiment_id):
     experiment_series = select_experiment_series_by_name(g.db, experiment_series_name)
-    experiment = select_experiment_by_series_name_and_id(g.db, experiment_series_name, experiment_id)
+    experiment = select_experiment_by_series_name_and_id(g.db, experiment_series_name, int(experiment_id))
 
     run_visual_simulation_experiment(experiment_series, experiment)
-    
+
     return { "status": "success", "message": f"Running the simulation for experiment {experiment_id} in visual mode" }

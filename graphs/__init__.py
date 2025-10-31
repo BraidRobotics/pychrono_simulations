@@ -1,6 +1,7 @@
 from .aggregate_graphs import (
     generate_load_capacity_ratio_graph,
-    generate_material_thickness_weight_graph
+    generate_material_thickness_weight_graph,
+    generate_material_thickness_force_graph
 )
 from .series_graphs import (
     generate_experiment_series_force_graph,

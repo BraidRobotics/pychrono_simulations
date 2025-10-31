@@ -5,7 +5,7 @@ from tqdm import tqdm
 from database.queries.experiment_series_queries import select_experiment_series_by_name
 from database.session import SessionLocal
 from config import ExperimentConfig
-from experiments_server.graphs import generate_graphs_after_experiments
+from graphs import generate_graphs_after_experiments
 
 
 def run_a_single_experiment(experiment_series_name, experiment_config: ExperimentConfig):  

@@ -1,16 +1,26 @@
 <h2>Charts</h2>
 
-{% if force_graph_path %}
+{% if force_graph_exists %}
 <div style="margin-bottom: 40px;">
     <h3>Force vs Experiment ID</h3>
     <iframe src="/graphs/{{ force_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
 </div>
+{% else %}
+<div style="margin-bottom: 40px;">
+    <h3>Force vs Experiment ID</h3>
+    <p style="color: #666; font-style: italic;">No graph available - all experiments may have exploded or no experiments have been run yet.</p>
+</div>
 {% endif %}
 
-{% if height_graph_path %}
+{% if height_graph_exists %}
 <div style="margin-bottom: 40px;">
     <h3>Height Reduction vs Force</h3>
     <iframe src="/graphs/{{ height_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
+</div>
+{% else %}
+<div style="margin-bottom: 40px;">
+    <h3>Height Reduction vs Force:</h3>
+    <h3>No graph available - all experiments may have exploded or no experiments have been run yet.</h3>
 </div>
 {% endif %}
 

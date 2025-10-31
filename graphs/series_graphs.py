@@ -2,32 +2,27 @@ import plotly.graph_objects as go
 from pathlib import Path
 import pandas as pd
 
-GRAPHS_DIR = Path(__file__).parent.parent / "assets" / "graphs"
+GRAPHS_DIR = Path(__file__).parent.parent / "experiments_server" / "assets" / "graphs"
 GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _prepare_experiments_dataframe(experiments):
-    # Remove SQLAlchemy state and convert to DataFrame
     experiments_dicts = [{k: v for k, v in exp.__dict__.items() if k != "_sa_instance_state"} for exp in experiments]
     return pd.DataFrame(experiments_dicts)
 
 
-def generate_experiment_series_force_graph(session, experiment_series_name, experiments):
+def generate_experiment_series_force_graph(session, safe_name, experiments):
     if not experiments:
         return None
 
     df = _prepare_experiments_dataframe(experiments)
-
-    # Filter out None values
     df = df[df['force_in_y_direction'].notna()]
 
     if df.empty:
         return None
 
-    # Create line chart with markers
     fig = go.Figure()
 
-    # Add trace for experiments that didn't explode
     df_no_explosion = df[df['time_to_bounding_box_explosion'].isna()]
     if not df_no_explosion.empty:
         fig.add_trace(go.Scatter(
@@ -40,7 +35,6 @@ def generate_experiment_series_force_graph(session, experiment_series_name, expe
             hovertemplate='<b>Experiment %{x}</b><br>Force: %{y:.3f} N<extra></extra>'
         ))
 
-    # Add trace for experiments that exploded
     df_exploded = df[df['time_to_bounding_box_explosion'].notna()]
     if not df_exploded.empty:
         fig.add_trace(go.Scatter(
@@ -52,9 +46,8 @@ def generate_experiment_series_force_graph(session, experiment_series_name, expe
             hovertemplate='<b>Experiment %{x}</b><br>Force: %{y:.3f} N<br>(Exploded)<extra></extra>'
         ))
 
-    # Update layout
     fig.update_layout(
-        title=f'Force vs Experiment ID - {experiment_series_name}',
+        title=f'Force vs Experiment ID - {safe_name}',
         xaxis_title='Experiment ID',
         yaxis_title='Force in Y Direction (N)',
         height=500,
@@ -62,37 +55,26 @@ def generate_experiment_series_force_graph(session, experiment_series_name, expe
         showlegend=True
     )
 
-    # Save as HTML
-    safe_name = experiment_series_name.replace('/', '_').replace(' ', '_')
     output_path = GRAPHS_DIR / f"series_{safe_name}_force.html"
-    fig.write_html(
-        str(output_path),
-        include_plotlyjs='cdn',
-        config={'displayModeBar': True, 'displaylogo': False}
-    )
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return f"series_{safe_name}_force.html"
 
 
-def generate_experiment_series_height_graph(session, experiment_series_name, experiments, initial_height):
+def generate_experiment_series_height_graph(session, safe_name, experiments, initial_height):
     if not experiments or not initial_height:
         return None
 
     df = _prepare_experiments_dataframe(experiments)
-
-    # Filter out None values
     df = df[df['height_under_load'].notna() & df['force_in_y_direction'].notna()]
 
     if df.empty:
         return None
 
-    # Calculate height reduction percentage
     df['height_reduction_pct'] = ((initial_height - df['height_under_load']) / initial_height) * 100
 
-    # Create scatter plot
     fig = go.Figure()
 
-    # Add trace for experiments that didn't explode
     df_no_explosion = df[df['time_to_bounding_box_explosion'].isna()]
     if not df_no_explosion.empty:
         fig.add_trace(go.Scatter(
@@ -104,7 +86,6 @@ def generate_experiment_series_height_graph(session, experiment_series_name, exp
             hovertemplate='<b>Force: %{x:.3f} N</b><br>Height Reduction: %{y:.1f}%<extra></extra>'
         ))
 
-    # Add trace for experiments that exploded
     df_exploded = df[df['time_to_bounding_box_explosion'].notna()]
     if not df_exploded.empty:
         fig.add_trace(go.Scatter(
@@ -116,19 +97,11 @@ def generate_experiment_series_height_graph(session, experiment_series_name, exp
             hovertemplate='<b>Force: %{x:.3f} N</b><br>Height Reduction: %{y:.1f}%<br>(Exploded)<extra></extra>'
         ))
 
-    # Add horizontal line at 10% height reduction
     if not df.empty:
-        fig.add_hline(
-            y=10,
-            line_dash="dash",
-            line_color="orange",
-            annotation_text="10% Target",
-            annotation_position="right"
-        )
+        fig.add_hline(y=10, line_dash="dash", line_color="orange", annotation_text="10% Target", annotation_position="right")
 
-    # Update layout
     fig.update_layout(
-        title=f'Height Reduction vs Force - {experiment_series_name}',
+        title=f'Height Reduction vs Force - {safe_name}',
         xaxis_title='Force in Y Direction (N)',
         yaxis_title='Height Reduction (%)',
         height=500,
@@ -136,13 +109,7 @@ def generate_experiment_series_height_graph(session, experiment_series_name, exp
         showlegend=True
     )
 
-    # Save as HTML
-    safe_name = experiment_series_name.replace('/', '_').replace(' ', '_')
     output_path = GRAPHS_DIR / f"series_{safe_name}_height.html"
-    fig.write_html(
-        str(output_path),
-        include_plotlyjs='cdn',
-        config={'displayModeBar': True, 'displaylogo': False}
-    )
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return f"series_{safe_name}_height.html"

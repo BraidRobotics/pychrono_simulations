@@ -20,4 +20,12 @@
 <p>No data available for material thickness graph.</p>
 {% endif %}
 
+{% if material_thickness_force_graph_path %}
+<div style="margin-bottom: 40px;">
+    <iframe src="/graphs/{{ material_thickness_force_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
+</div>
+{% else %}
+<p>No data available for material thickness vs force graph.</p>
+{% endif %}
+
 {% endblock %}
