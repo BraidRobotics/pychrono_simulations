@@ -11,6 +11,8 @@ from database.session import SessionLocal
 
 from util import delete_experiment_series_folder
 
+
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -51,28 +53,42 @@ def experiments_page(experiment_series_name):
         {key: value for key, value in experiment.__dict__.items() if key != "_sa_instance_state"}
         for experiment in experiments_raw
     ]
+
+    # Graph paths
+    safe_name = experiment_series_name.replace('/', '_').replace(' ', '_')
+    force_graph_path = f"series_{safe_name}_force.html"
+    height_graph_path = f"series_{safe_name}_height.html"
+
     if experiment_series.is_experiments_outdated:
         flash(f"The experiments are outdated (experiment series config have been changed). Please run the experiments again.", "error")
     return render_template(
         "experiments/experimentsPage.html",
         experiment_series=experiment_series,
         experiment_series_dict=experiment_series_dict,
-        experiments=experiments
+        experiments=experiments,
+        force_graph_path=force_graph_path,
+        height_graph_path=height_graph_path
     )
 
 @app.route("/aggregated_charts", methods=["GET"])
 def aggregated_charts_page():
-    material_thickness_vs_weight_chart_values = get_material_thickness_vs_weight_chart_values(g.db)
-    load_capacity_ratio_y_chart_values = get_load_capacity_ratio_y_chart_values(g.db)
+    # Graph paths
+    load_capacity_graph_path = "load_capacity_ratio_y.html"
+    material_thickness_graph_path = "material_thickness_vs_weight.html"
+
     return render_template(
         "aggregatedChartsPage/aggregatedChartsPage.html",
-        material_thickness_vs_weight_chart_values=material_thickness_vs_weight_chart_values,
-        load_capacity_ratio_y_chart_values=load_capacity_ratio_y_chart_values
+        load_capacity_graph_path=load_capacity_graph_path,
+        material_thickness_graph_path=material_thickness_graph_path
     )
 
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):
     return send_from_directory('../assets', filename)
+
+@app.route('/graphs/<path:filename>')
+def serve_graphs(filename):
+    return send_from_directory('assets/graphs', filename)
 
 
 ##########################################################################################

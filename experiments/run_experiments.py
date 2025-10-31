@@ -5,6 +5,7 @@ from tqdm import tqdm
 from database.queries.experiment_series_queries import select_experiment_series_by_name
 from database.session import SessionLocal
 from config import ExperimentConfig
+from experiments_server.graphs import generate_graphs_after_experiments
 
 
 def run_a_single_experiment(experiment_series_name, experiment_config: ExperimentConfig):  
@@ -54,6 +55,9 @@ def run_experiments(experiment_series):
             results.append(result)
         for result in tqdm(results, desc="Running experiments"):
             result.get()
+
+    # Generate graphs after experiments complete
+    generate_graphs_after_experiments(experiment_series)
 
 
 def run_non_experiment(experiment_series, will_visualize=True, will_record_video=False, is_non_experiment_run=True):

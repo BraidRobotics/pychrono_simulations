@@ -147,11 +147,12 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
             experiment_series
         )
 
-        # todo remember to add to the breaking condition once the equilibrium function is implemented
         structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
 
         if structure_is_in_equilibrium and equilibrium_after_seconds is None:
             equilibrium_after_seconds = time_passed
+            if height_under_load is None:
+                height_under_load = calculate_model_height(beam_elements)
 
         if experiment_config.will_visualize:
             visualization.BeginScene()
@@ -166,11 +167,15 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
 
 
         if not experiment_config.run_forever and ((structure_is_in_equilibrium and reset_done) or structure_exploded or times_up):
-            
+
             final_height = calculate_model_height(beam_elements)
+
+            if height_under_load is None and experiment_series.reset_force_after_seconds is None:
+                height_under_load = final_height
 
             if structure_exploded:
                 final_height = None
+                height_under_load = None
                 # Done in order to take a screenshot of the explosion so that it's easier to discern visually that it has exploded
                 for _ in range(100):
                     system.DoStepDynamics(timestep)

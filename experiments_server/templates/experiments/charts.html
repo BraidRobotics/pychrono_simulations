@@ -1,8 +1,16 @@
 <h2>Charts</h2>
 
-{% include './experiments/charts/force_vs_final_height.html' %}
+{% if force_graph_path %}
+<div style="margin-bottom: 40px;">
+    <h3>Force vs Experiment ID</h3>
+    <iframe src="/graphs/{{ force_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
+</div>
+{% endif %}
 
-{% include './experiments/charts/stability_time.html' %}
-
-{% include './experiments/charts/elastic_recovery.html' %}
+{% if height_graph_path %}
+<div style="margin-bottom: 40px;">
+    <h3>Height Reduction vs Force</h3>
+    <iframe src="/graphs/{{ height_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
+</div>
+{% endif %}
 

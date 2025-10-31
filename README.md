@@ -60,7 +60,7 @@ While it works on MacOS (tested on M2 Chip), the MK Solver does not support ARM 
 ---
 ---
 
-## The Docker Setup
+## The Docker Setup [Experimental]
 
 The Docker setup vastly improves and standardizes the installation process by building PyChrono from source. 
 
@@ -72,17 +72,4 @@ There are two configurations:
 The first one is still a useful way to run simulations and replicate the values / access the experimentation dashboard. 
 
 In order to get the visualization working by forwarding the display to the host machine, one must use VNC or X11 forwarding. This requires Linux and perhaps Windows Subsystem for Linux but has not been tried yet. 
-
-
----
----
----
-
-## Todo 
-
-* Get the Docker visualization working with VNC or X11 forwarding.
-
-* Implement the pure PyChrono Docker setup (without Irrlicht) and make it work with the experimentation dashboard.
-
-* Create the experimentation dashboard.
 
