@@ -148,12 +148,15 @@ def _get_load_capacity_ratio_chart_values(session, force_column):
 
 		if best_experiment:
 			force_value = getattr(best_experiment, force_column)
-			ratio = abs(force_value) / series.weight_kg if series.weight_kg else None
+			# Specific Load Capacity = Force / (Weight × g)
+			# This gives how many times its own weight the structure can support
+			weight_force = series.weight_kg * 9.81  # Convert kg to Newtons
+			ratio = abs(force_value) / weight_force if weight_force else None
 			if ratio is not None:
 				results.append({
 					"experiment_series_name": series_name,
-					"force": force_value,
-					"load_capacity_ratio": ratio
+					"force": abs(force_value),
+					"specific_load_capacity": ratio
 				})
 
 	return [dict(r) for r in results]

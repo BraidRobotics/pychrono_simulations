@@ -54,14 +54,14 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
     fig = px.scatter(
         df,
         x='force',
-        y='load_capacity_ratio',
+        y='specific_load_capacity',
         hover_data=['experiment_series_name'],
         labels={
-            'force': 'Force (N)',
-            'load_capacity_ratio': 'Payload to Weight Ratio',
+            'force': 'Force at 10% Compression (N)',
+            'specific_load_capacity': 'Load Capacity (times its own weight)',
             'experiment_series_name': 'Experiment Series'
         },
-        title='Load Capacity Ratio',
+        title='Specific Load Capacity at 10% Compression',
         trendline='ols',
         trendline_color_override='red'
     )
@@ -69,8 +69,6 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
     fig.update_traces(marker=dict(size=10))
 
     fig.add_annotation(
-        text="Note: This finds experiments with 10% height reduction that did not explode.<br>"
-             "Filters out series where all experiments exploded or none did.",
         xref="paper", yref="paper",
         x=0.5, y=-0.15,
         showarrow=False,

@@ -1,4 +1,4 @@
-.PHONY: init_db migrate_db run_all_experiments create_experiment_series_interlaces
+.PHONY: init_db migrate_db run_all_experiments create_experiment_series_interlaces generate_graphs
 
 init_db:
 	@rm -f database.db
@@ -14,3 +14,7 @@ run_all_experiments:
 
 create_experiment_series_interlaces:
 	@python -m meta.create_experiment_series_interlaces
+
+
+generate_graphs:
+	@python -m graphs.generate_after_experiments

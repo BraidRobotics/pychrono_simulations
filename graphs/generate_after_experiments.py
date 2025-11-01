@@ -49,3 +49,16 @@ def delete_relevant_graphs(safe_name):
         (graphs_dir / "material_thickness_vs_force.html").unlink(missing_ok=True)
     else:
         graphs_dir.mkdir(parents=True, exist_ok=True)
+
+
+if __name__ == "__main__":
+    from database.session import SessionLocal
+    from database.queries.experiment_series_queries import select_all_experiment_series
+
+    session = SessionLocal()
+    try:
+        experiment_series_list = select_all_experiment_series(session)
+        for experiment_series in experiment_series_list:
+            generate_graphs_after_experiments(experiment_series)
+    finally:
+        session.close()
