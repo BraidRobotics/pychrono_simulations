@@ -3,9 +3,13 @@
 {% endblock %}
 {% block body %}
 
-<h1><a href="/aggregated_charts">Aggregated Charts</a></h1>
+<div class="block">
+    <h1>
+        <a href="/aggregated_charts">Aggregated Charts</a>
+    </h1>
+</div>
 
-
+<div class="block">
 <h1>Create a New Experiment Series</h1>
 <form action="/api/experiment_series" method="POST">
     <input id="new-experiment-input" type="text" placeholder="Unique Experiment Series Name" name="experiment_series_name" required>
@@ -95,6 +99,7 @@
     </div>
 </div>
 {% endfor %}
+</div>
 
 <script>
 function toggleGroup(headerElement) {

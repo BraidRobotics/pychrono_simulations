@@ -58,10 +58,12 @@ def experiments_page(experiment_series_name):
     safe_name = experiment_series_name.replace('/', '_').replace(' ', '_')
     force_graph_path = f"series_{safe_name}_force.html"
     height_graph_path = f"series_{safe_name}_height.html"
+    elastic_recovery_graph_path = f"series_{safe_name}_elastic_recovery.html"
 
     graphs_dir = Path(__file__).parent / "assets" / "graphs"
     force_graph_exists = (graphs_dir / force_graph_path).exists()
     height_graph_exists = (graphs_dir / height_graph_path).exists()
+    elastic_recovery_graph_exists = (graphs_dir / elastic_recovery_graph_path).exists()
 
     if experiment_series.is_experiments_outdated:
         flash(f"The experiments are outdated (experiment series config have been changed). Please run the experiments again.", "error")
@@ -72,8 +74,10 @@ def experiments_page(experiment_series_name):
         experiments=experiments,
         force_graph_path=force_graph_path,
         height_graph_path=height_graph_path,
+        elastic_recovery_graph_path=elastic_recovery_graph_path,
         force_graph_exists=force_graph_exists,
-        height_graph_exists=height_graph_exists
+        height_graph_exists=height_graph_exists,
+        elastic_recovery_graph_exists=elastic_recovery_graph_exists
     )
 
 @app.route("/aggregated_charts", methods=["GET"])

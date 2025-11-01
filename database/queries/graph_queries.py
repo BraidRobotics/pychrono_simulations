@@ -5,6 +5,8 @@ from collections import defaultdict
 from database.models.experiment_series_model import ExperimentSeries
 from database.models.experiment_model import Experiment
 
+from graphs import TARGET_HEIGHT_REDUCTION_PERCENT
+
 def get_material_thickness_vs_weight_chart_values(session):
     values = session.query(
         ExperimentSeries.experiment_series_name,
@@ -38,7 +40,7 @@ def get_material_thickness_vs_force_chart_values(session):
         grouped[experiment.experiment_series_name].append(experiment)
 
     results = []
-    target_height_reduction = 0.10
+    target_height_reduction = TARGET_HEIGHT_REDUCTION_PERCENT / 100
 
     for series_name, experiments in grouped.items():
         series = series_map.get(series_name)
@@ -91,6 +93,7 @@ def get_load_capacity_ratio_torsional_chart_values(session):
 
 
 def _get_load_capacity_ratio_chart_values(session, force_column):
+	from graphs import TARGET_HEIGHT_REDUCTION_PERCENT
 
 	series_map = {
 		row.experiment_series_name: row
@@ -113,9 +116,9 @@ def _get_load_capacity_ratio_chart_values(session, force_column):
 		if not series or not series.height_m:
 			continue
 
-		# Find experiment with ~10% height reduction that didn't explode
+		# Find experiment with target height reduction that didn't explode
 		best_experiment = None
-		target_height_reduction = 0.10  # 10%
+		target_height_reduction = TARGET_HEIGHT_REDUCTION_PERCENT / 100
 
 		for experiment in experiments:
 			# Skip experiments that exploded
@@ -133,12 +136,12 @@ def _get_load_capacity_ratio_chart_values(session, force_column):
 			# Calculate height reduction percentage
 			height_reduction = (series.height_m - experiment.height_under_load) / series.height_m
 
-			# Select experiment closest to 10% height reduction
+			# Select experiment closest to target height reduction
 			if height_reduction >= target_height_reduction:
 				if best_experiment is None:
 					best_experiment = experiment
 				else:
-					# Compare which is closer to 10% target
+					# Compare which is closer to target
 					best_height_reduction = (series.height_m - best_experiment.height_under_load) / series.height_m
 					if abs(height_reduction - target_height_reduction) < abs(best_height_reduction - target_height_reduction):
 						best_experiment = experiment
