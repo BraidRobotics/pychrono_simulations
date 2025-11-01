@@ -209,6 +209,9 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
 
             if experiment_config.will_record_video:
                 make_video_from_frames(experiment_series.experiment_series_name)
-            
+
+            if visualization is not None:
+                visualization.GetDevice().closeDevice()
+
             break
 
