@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}Layer Analysis{% endblock %}
+{% block body %}
+
+<h1>Layer Count Analysis</h1>
+
+<p>
+    This analysis explores how the number of layers affects structural performance.
+    <strong>Note:</strong> Adding layers increases both material and height proportionally.
+    All measurements are taken at <strong>10% height compression</strong> for consistent comparison.
+</p>
+
+<div>
+    <h2>Height vs Layer Count Validation</h2>
+    <p>
+        <strong>Purpose:</strong> Confirms that height scales linearly with layer count in the simulation.<br>
+        <strong>Theory:</strong> Height = num_layers × pitch<br>
+        <strong>Expected:</strong> Perfect linear relationship.
+    </p>
+    {% if layer_height_graph_path %}
+    <iframe src="/graphs/{{ layer_height_graph_path }}" width="100%" height="550" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for height validation graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Force Capacity vs Layer Count</h2>
+    <p>
+        <strong>Purpose:</strong> Reveals how load capacity scales with layer count (and proportional height increase).<br>
+        <strong>Theoretical Models:</strong>
+    </p>
+    <ul>
+        <li><strong>Linear (F ∝ n):</strong> Material increase dominates</li>
+        <li><strong>Sublinear (F ∝ √n or constant):</strong> Buckling from increased height dominates</li>
+        <li><strong>Peak and decline:</strong> Optimal slenderness ratio exists</li>
+    </ul>
+    <p>
+        <strong>Interpretation:</strong> If force plateaus or decreases, structures become too slender and buckling limits capacity.
+    </p>
+    {% if layer_force_graph_path %}
+    <iframe src="/graphs/{{ layer_force_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for force capacity graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Structural Efficiency vs Layer Count</h2>
+    <p>
+        <strong>Purpose:</strong> Determines if adding layers improves or degrades weight efficiency.<br>
+        <strong>Question Answered:</strong> Is there an optimal number of layers for maximum load per unit weight?<br>
+        <strong>Expected:</strong> Efficiency likely decreases as structures become taller and more prone to buckling.
+    </p>
+    {% if layer_efficiency_graph_path %}
+    <iframe src="/graphs/{{ layer_efficiency_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for structural efficiency graph.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

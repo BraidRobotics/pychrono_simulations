@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}Elastic Recovery Analysis{% endblock %}
+{% block body %}
+
+<h1>Elastic Recovery Multi-Parameter Analysis</h1>
+
+<p>
+    This analysis explores how <strong>multiple structural parameters</strong> (thickness, layers, strands) affect elastic recovery after removing applied force.
+    Unlike single-parameter experiments, this reveals their <strong>relative importance</strong> and interactions.
+</p>
+
+<div>
+    <h2>Recovery Quality by Thickness</h2>
+    <p>
+        <strong>Purpose:</strong> Shows how material thickness affects elastic recovery.<br>
+        <strong>Metric:</strong> Recovery % = (final_height - height_under_load) / (original_height - height_under_load) × 100<br>
+        <strong>Expected:</strong> Thicker strands should recover better (higher %) due to greater material stiffness.
+    </p>
+    {% if recovery_by_thickness_graph_path %}
+    <iframe src="/graphs/{{ recovery_by_thickness_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for recovery by thickness graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Recovery Quality by Layer Count</h2>
+    <p>
+        <strong>Purpose:</strong> Shows how layer count affects elastic recovery.<br>
+        <strong>Expected:</strong> More layers may improve recovery (more structure) or worsen it (more buckling from height).
+    </p>
+    {% if recovery_by_layers_graph_path %}
+    <iframe src="/graphs/{{ recovery_by_layers_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for recovery by layers graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Recovery Quality by Strand Count</h2>
+    <p>
+        <strong>Purpose:</strong> Shows how strand count affects elastic recovery.<br>
+        <strong>Expected:</strong> More strands add material but may change braid geometry, with complex effects on recovery.
+    </p>
+    {% if recovery_by_strands_graph_path %}
+    <iframe src="/graphs/{{ recovery_by_strands_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for recovery by strands graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Multi-Parameter Heatmap: Thickness vs Layers</h2>
+    <p>
+        <strong>Purpose:</strong> 2D visualization showing recovery quality across thickness and layer combinations.<br>
+        <strong>Use:</strong> Identifies optimal parameter combinations and interaction effects.<br>
+        <strong>Color:</strong> Darker/warmer = better recovery.
+    </p>
+    {% if recovery_heatmap_thickness_layers_path %}
+    <iframe src="/graphs/{{ recovery_heatmap_thickness_layers_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for thickness-layers heatmap.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Parameter Importance Analysis</h2>
+    <p>
+        <strong>Purpose:</strong> Bar chart showing which parameter (thickness, layers, strands) has the strongest correlation with recovery quality.<br>
+        <strong>Interpretation:</strong> Taller bar = that parameter is more important for optimizing elastic recovery.<br>
+        <strong>Use:</strong> Focus optimization efforts on the most influential parameter.
+    </p>
+    {% if parameter_importance_graph_path %}
+    <iframe src="/graphs/{{ parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for parameter importance analysis.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

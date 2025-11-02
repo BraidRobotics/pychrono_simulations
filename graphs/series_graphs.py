@@ -139,7 +139,6 @@ def generate_experiment_series_height_graph(session, safe_name, experiments, ini
         title=f'Height Reduction vs Force - {safe_name}',
         xaxis_title='Force in Y Direction (N)',
         yaxis_title='Height Reduction (%)',
-        yaxis=dict(range=[0, 12]),
         height=500,
         hovermode='closest',
         showlegend=True
@@ -153,17 +152,13 @@ def generate_experiment_series_height_graph(session, safe_name, experiments, ini
 
 def generate_experiment_series_elastic_recovery_graph(session, safe_name, experiments, reset_force_after_seconds):
     if not experiments or reset_force_after_seconds is None:
-        print(f"Skipping elastic recovery graph for {safe_name}: reset_force_after_seconds={reset_force_after_seconds}")
         return None
 
     df = _prepare_experiments_dataframe(experiments)
     df = df[df['height_under_load'].notna() & df['final_height'].notna()]
 
     if df.empty:
-        print(f"Skipping elastic recovery graph for {safe_name}: no data after filtering")
         return None
-
-    print(f"Generating elastic recovery graph for {safe_name} with {len(df)} data points")
 
     fig = go.Figure()
 

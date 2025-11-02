@@ -15,6 +15,5 @@ run_all_experiments:
 create_experiment_series_interlaces:
 	@python -m meta.create_experiment_series_interlaces
 
-
 generate_graphs:
-	@python -m graphs.generate_after_experiments
+	@python -m graphs

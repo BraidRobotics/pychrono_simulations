@@ -2,30 +2,26 @@
 {% block title %}Aggregated Charts{% endblock %}
 {% block body %}
 
-<h1 style="color: green">Aggregated Charts</h1>
+<h1>Universal Analysis: All Experiment Series</h1>
 
-{% if load_capacity_graph_path %}
-<div style="margin-bottom: 40px;">
-    <iframe src="/graphs/{{ load_capacity_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
-</div>
-{% else %}
-<p>No data available for load capacity ratio graph.</p>
-{% endif %}
+<p>
+    This page shows cross-cutting analysis that compares performance across <strong>all experiment types</strong>.
+    For experiment-specific analysis, see <a href="/thickness_analysis">Thickness Analysis</a> or <a href="/layer_analysis">Layer Analysis</a>.
+    All measurements are taken at <strong>10% height compression</strong> for consistent comparison.
+</p>
 
-{% if material_thickness_graph_path %}
-<div style="margin-bottom: 40px;">
-    <iframe src="/graphs/{{ material_thickness_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
+<div>
+    <h2>Structural Efficiency vs Weight</h2>
+    <p>
+        <strong>Purpose:</strong> Identifies which designs provide the best load-bearing capacity relative to their weight across all experiment types.<br>
+        <strong>Calculation:</strong> Specific Load Capacity = Force at 10% compression / (Weight × 9.81 m/s²)<br>
+        <strong>Higher values indicate more efficient material usage.</strong>
+    </p>
+    {% if load_capacity_graph_path %}
+    <iframe src="/graphs/{{ load_capacity_graph_path }}" width="100%" height="550" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for structural efficiency graph.</p>
+    {% endif %}
 </div>
-{% else %}
-<p>No data available for material thickness graph.</p>
-{% endif %}
-
-{% if material_thickness_force_graph_path %}
-<div style="margin-bottom: 40px;">
-    <iframe src="/graphs/{{ material_thickness_force_graph_path }}" width="100%" height="550" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>
-</div>
-{% else %}
-<p>No data available for material thickness vs force graph.</p>
-{% endif %}
 
 {% endblock %}

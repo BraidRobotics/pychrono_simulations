@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block title %}Strands Analysis{% endblock %}
+{% block body %}
+
+<h1>Strand Count Analysis</h1>
+
+<p>
+    This analysis explores how the number of strands affects structural performance.
+    All measurements are taken at <strong>10% height compression</strong> for consistent comparison.
+</p>
+
+<div>
+    <h2>Weight Scaling Validation</h2>
+    <p>
+        <strong>Purpose:</strong> Validates simulation physics by confirming weight scales linearly with strand count.<br>
+        <strong>Theory:</strong> Weight = Density × Volume ∝ num_strands (for constant geometry)<br>
+        <strong>Expected:</strong> Data points should align with theoretical linear scaling line.
+    </p>
+    {% if strand_count_weight_graph_path %}
+    <iframe src="/graphs/{{ strand_count_weight_graph_path }}" width="100%" height="550" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for weight scaling graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Force Capacity Scaling Laws</h2>
+    <p>
+        <strong>Purpose:</strong> Identifies how load capacity scales with strand count.<br>
+        <strong>Theoretical Models:</strong>
+    </p>
+    <ul>
+        <li><strong>Linear (F ∝ n):</strong> Material quantity dominates (axial compression)</li>
+        <li><strong>Quadratic (F ∝ n²):</strong> Structural stiffness dominates (bending/buckling)</li>
+    </ul>
+    <p>
+        <strong>Interpretation:</strong> Linear scaling suggests simple material addition; quadratic suggests improved structural geometry.
+    </p>
+    {% if strand_count_force_graph_path %}
+    <iframe src="/graphs/{{ strand_count_force_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for force capacity scaling graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Structural Efficiency Scaling</h2>
+    <p>
+        <strong>Purpose:</strong> Shows how efficiently structures support load relative to their weight as strand count increases.<br>
+        <strong>Question Answered:</strong> Do more strands improve weight efficiency?<br>
+        <strong>Theoretical Models:</strong>
+    </p>
+    <ul>
+        <li><strong>Constant (E ∝ n⁰):</strong> Efficiency unchanged (F ∝ W ∝ n)</li>
+        <li><strong>Linear (E ∝ n):</strong> Efficiency increases linearly (F ∝ n², W ∝ n)</li>
+    </ul>
+    <p>
+        <strong>Interpretation:</strong> If data follows linear scaling, more strands are significantly more weight-efficient.
+    </p>
+    {% if strand_count_efficiency_graph_path %}
+    <iframe src="/graphs/{{ strand_count_efficiency_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for structural efficiency scaling graph.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

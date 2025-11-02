@@ -84,14 +84,70 @@ def experiments_page(experiment_series_name):
 def aggregated_charts_page():
     # Graph paths
     load_capacity_graph_path = "load_capacity_ratio_y.html"
-    material_thickness_graph_path = "material_thickness_vs_weight.html"
-    material_thickness_force_graph_path = "material_thickness_vs_force.html"
 
     return render_template(
         "aggregatedChartsPage/aggregatedChartsPage.html",
-        load_capacity_graph_path=load_capacity_graph_path,
+        load_capacity_graph_path=load_capacity_graph_path
+    )
+
+@app.route("/thickness_analysis", methods=["GET"])
+def thickness_analysis_page():
+    # Graph paths
+    material_thickness_graph_path = "material_thickness_vs_weight.html"
+    material_thickness_force_graph_path = "material_thickness_vs_force.html"
+    material_thickness_efficiency_graph_path = "material_thickness_vs_efficiency.html"
+
+    return render_template(
+        "thicknessAnalysisPage/thicknessAnalysisPage.html",
         material_thickness_graph_path=material_thickness_graph_path,
-        material_thickness_force_graph_path=material_thickness_force_graph_path
+        material_thickness_force_graph_path=material_thickness_force_graph_path,
+        material_thickness_efficiency_graph_path=material_thickness_efficiency_graph_path
+    )
+
+@app.route("/layer_analysis", methods=["GET"])
+def layer_analysis_page():
+    # Graph paths
+    layer_height_graph_path = "layer_count_vs_height.html"
+    layer_force_graph_path = "layer_count_vs_force.html"
+    layer_efficiency_graph_path = "layer_count_vs_efficiency.html"
+
+    return render_template(
+        "layerAnalysisPage/layerAnalysisPage.html",
+        layer_height_graph_path=layer_height_graph_path,
+        layer_force_graph_path=layer_force_graph_path,
+        layer_efficiency_graph_path=layer_efficiency_graph_path
+    )
+
+@app.route("/strands_analysis", methods=["GET"])
+def strands_analysis_page():
+    # Graph paths
+    strand_count_weight_graph_path = "strand_count_vs_weight.html"
+    strand_count_force_graph_path = "strand_count_vs_force.html"
+    strand_count_efficiency_graph_path = "strand_count_vs_efficiency.html"
+
+    return render_template(
+        "strandsAnalysisPage/strandsAnalysisPage.html",
+        strand_count_weight_graph_path=strand_count_weight_graph_path,
+        strand_count_force_graph_path=strand_count_force_graph_path,
+        strand_count_efficiency_graph_path=strand_count_efficiency_graph_path
+    )
+
+@app.route("/force_no_force_analysis", methods=["GET"])
+def force_no_force_analysis_page():
+    # Graph paths
+    recovery_by_thickness_graph_path = "recovery_by_thickness.html"
+    recovery_by_layers_graph_path = "recovery_by_layers.html"
+    recovery_by_strands_graph_path = "recovery_by_strands.html"
+    recovery_heatmap_thickness_layers_path = "recovery_heatmap_thickness_layers.html"
+    parameter_importance_graph_path = "recovery_parameter_importance.html"
+
+    return render_template(
+        "forceNoForceAnalysisPage/forceNoForceAnalysisPage.html",
+        recovery_by_thickness_graph_path=recovery_by_thickness_graph_path,
+        recovery_by_layers_graph_path=recovery_by_layers_graph_path,
+        recovery_by_strands_graph_path=recovery_by_strands_graph_path,
+        recovery_heatmap_thickness_layers_path=recovery_heatmap_thickness_layers_path,
+        parameter_importance_graph_path=parameter_importance_graph_path
     )
 
 @app.route('/assets/<path:filename>')

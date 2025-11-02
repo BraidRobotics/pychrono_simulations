@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block title %}Thickness Analysis{% endblock %}
+{% block body %}
+
+<h1>Material Thickness Analysis</h1>
+
+<p>
+    This analysis explores how strand thickness affects structural performance.
+    All measurements are taken at <strong>10% height compression</strong> for consistent comparison.
+</p>
+
+<div>
+    <h2>Weight Scaling Validation</h2>
+    <p>
+        <strong>Purpose:</strong> Validates simulation physics by confirming weight scales linearly with material thickness.<br>
+        <strong>Theory:</strong> Weight = Density × Volume ∝ thickness (for constant geometry)<br>
+        <strong>Expected:</strong> Data points should align with theoretical linear scaling line.
+    </p>
+    {% if material_thickness_graph_path %}
+    <iframe src="/graphs/{{ material_thickness_graph_path }}" width="100%" height="550" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for weight scaling graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Force Capacity Scaling Laws</h2>
+    <p>
+        <strong>Purpose:</strong> Identifies the dominant structural mechanics governing load capacity.<br>
+        <strong>Theoretical Models:</strong>
+    </p>
+    <ul>
+        <li><strong>Linear (F ∝ t):</strong> Pure axial compression failure</li>
+        <li><strong>Quadratic (F ∝ t²):</strong> Bending-dominated failure</li>
+        <li><strong>Quartic (F ∝ t⁴):</strong> Euler buckling from beam theory (Pcr = π²EI/(KL)², where I ∝ r⁴)</li>
+    </ul>
+    <p>
+        <strong>Interpretation:</strong> The theoretical curve that best fits experimental data reveals the primary failure mechanism.
+    </p>
+    {% if material_thickness_force_graph_path %}
+    <iframe src="/graphs/{{ material_thickness_force_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for force capacity scaling graph.</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>Structural Efficiency Scaling</h2>
+    <p>
+        <strong>Purpose:</strong> Shows how efficiently structures support load relative to their weight as thickness increases.<br>
+        <strong>Question Answered:</strong> Should you use thicker strands or more strands to maximize load per unit weight?<br>
+        <strong>Theoretical Models:</strong>
+    </p>
+    <ul>
+        <li><strong>Constant (E ∝ t⁰):</strong> Efficiency unchanged with thickness (axial-dominated)</li>
+        <li><strong>Linear (E ∝ t):</strong> Efficiency increases linearly (bending-dominated, F ∝ t², W ∝ t)</li>
+        <li><strong>Cubic (E ∝ t³):</strong> Efficiency increases rapidly (buckling-dominated, F ∝ t⁴, W ∝ t)</li>
+    </ul>
+    <p>
+        <strong>Interpretation:</strong> If data follows cubic scaling, thicker strands are significantly more weight-efficient than thinner ones.
+    </p>
+    {% if material_thickness_efficiency_graph_path %}
+    <iframe src="/graphs/{{ material_thickness_efficiency_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for structural efficiency scaling graph.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
