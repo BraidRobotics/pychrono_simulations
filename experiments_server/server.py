@@ -11,6 +11,7 @@ from database.queries.graph_queries import get_material_thickness_vs_weight_char
 from database.session import SessionLocal
 
 from util import delete_experiment_series_folder
+from graphs.generate_after_experiments import delete_relevant_graphs
 
 
 
@@ -202,6 +203,9 @@ def delete_experiment_series_route(experiment_series_name):
     delete_experiment_series(g.db, experiment_series_name)
 
     delete_experiment_series_folder(experiment_series_name)
+
+    safe_name = experiment_series_name.replace('/', '_').replace(' ', '_')
+    delete_relevant_graphs(safe_name)
 
     flash(f"Experiment series with name {experiment_series_name} has been deleted.", "success")
 

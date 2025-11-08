@@ -15,7 +15,7 @@ def generate_nodes(braid_mesh, config):
 	num_intersections = config.num_strands  # strands assumed to be even
 	twist_per_layer = (2 * math.pi) / (2 * num_intersections)
 
-	for layer_no in range(config.num_layers):
+	for layer_no in range(int(config.num_layers)):
 		layer_nodes = []
 		for point_no in range(num_intersections):
 			angle = layer_no * twist_per_layer + (point_no / num_intersections) * 2 * math.pi

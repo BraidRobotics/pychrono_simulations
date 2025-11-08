@@ -5,14 +5,16 @@ from database.session import SessionLocal
 
 num_experiment_series = 6
 num_experiments = 48
-interlaced_experiment_series_name = "number_of_strands_"
-group_name = "number_of_strands"
+interlaced_experiment_series_name = "number_of_layers_"
+group_name = "number_of_layers"
+
+# num layers = 2, 3, 4, 5, 6, 7, 8
 
 initial_model = ExperimentSeries(
     experiment_series_name=interlaced_experiment_series_name + "_00",
     group_name=group_name,
     num_experiments=num_experiments,
-    num_strands=4,
+    num_layers=2,
     initial_force_applied_in_y_direction=0.0,
     final_force_in_y_direction=-1.7,
 )
@@ -21,7 +23,7 @@ final_model = ExperimentSeries(
     experiment_series_name=f"{interlaced_experiment_series_name}_{num_experiment_series:02d}",
     group_name=group_name,
     num_experiments=num_experiments,
-    num_strands=8,
+    num_layers=8,
     initial_force_applied_in_y_direction=-0.0,
     final_force_in_y_direction=-1.7,
 )
@@ -54,7 +56,6 @@ for i in range(1, num_experiment_series):
         **values
     )
     insert_experiment_series(session, model)
-
 
 
 # Save final model
