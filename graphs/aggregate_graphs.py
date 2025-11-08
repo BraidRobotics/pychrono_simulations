@@ -1,6 +1,8 @@
 import plotly.express as px
 from pathlib import Path
 import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
 
 from database.queries.graph_queries import (
     get_material_thickness_vs_weight_chart_values,
@@ -15,6 +17,8 @@ from database.queries.graph_queries import (
     get_strand_count_vs_efficiency_chart_values,
     get_force_no_force_recovery_data
 )
+from database.queries.experiment_series_queries import select_experiment_series_by_name
+from experiments import run_non_experiment
 
 GRAPHS_DIR = Path(__file__).parent.parent / "experiments_server" / "assets" / "graphs"
 GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
@@ -92,8 +96,6 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
 
 
 def generate_material_thickness_weight_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_material_thickness_vs_weight_chart_values(session)
     if not data:
@@ -152,8 +154,6 @@ def generate_material_thickness_weight_graph(session):
 
 
 def generate_material_thickness_force_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_material_thickness_vs_force_chart_values(session)
     if not data:
@@ -234,8 +234,6 @@ def generate_material_thickness_force_graph(session):
 
 
 def generate_material_thickness_efficiency_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_material_thickness_vs_efficiency_chart_values(session)
     if not data:
@@ -317,8 +315,6 @@ def generate_material_thickness_efficiency_graph(session):
 
 
 def generate_layer_count_height_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_layer_count_vs_height_chart_values(session)
     if not data:
@@ -377,8 +373,6 @@ def generate_layer_count_height_graph(session):
 
 
 def generate_layer_count_force_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_layer_count_vs_force_chart_values(session)
     if not data:
@@ -458,8 +452,6 @@ def generate_layer_count_force_graph(session):
 
 
 def generate_layer_count_efficiency_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_layer_count_vs_efficiency_chart_values(session)
     if not data:
@@ -539,13 +531,21 @@ def generate_layer_count_efficiency_graph(session):
 
 
 def generate_strand_count_weight_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
-
     data = get_strand_count_vs_weight_chart_values(session)
     if not data:
         return None
 
+    df = pd.DataFrame(data)
+
+    # Check if any series are missing weight_kg and run non-experiment for them
+    for row in data:
+        if row['weight_kg'] is None:
+            experiment_series = select_experiment_series_by_name(session, row['experiment_series_name'])
+            if experiment_series:
+                run_non_experiment(experiment_series, will_visualize=False)
+
+    # Refresh data after running non-experiments
+    data = get_strand_count_vs_weight_chart_values(session)
     df = pd.DataFrame(data)
 
     fig = go.Figure()
@@ -598,8 +598,6 @@ def generate_strand_count_weight_graph(session):
 
 
 def generate_strand_count_force_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_strand_count_vs_force_chart_values(session)
     if not data:
@@ -668,8 +666,6 @@ def generate_strand_count_force_graph(session):
 
 
 def generate_strand_count_efficiency_graph(session):
-    import numpy as np
-    import plotly.graph_objects as go
 
     data = get_strand_count_vs_efficiency_chart_values(session)
     if not data:
@@ -738,7 +734,6 @@ def generate_strand_count_efficiency_graph(session):
 
 
 def generate_recovery_by_thickness_graph(session):
-    import plotly.graph_objects as go
 
     data = get_force_no_force_recovery_data(session)
     if not data:
@@ -773,7 +768,6 @@ def generate_recovery_by_thickness_graph(session):
 
 
 def generate_recovery_by_layers_graph(session):
-    import plotly.graph_objects as go
 
     data = get_force_no_force_recovery_data(session)
     if not data:
@@ -807,7 +801,6 @@ def generate_recovery_by_layers_graph(session):
 
 
 def generate_recovery_by_strands_graph(session):
-    import plotly.graph_objects as go
 
     data = get_force_no_force_recovery_data(session)
     if not data:
@@ -841,8 +834,6 @@ def generate_recovery_by_strands_graph(session):
 
 
 def generate_recovery_heatmap_thickness_layers(session):
-    import plotly.graph_objects as go
-    import numpy as np
 
     data = get_force_no_force_recovery_data(session)
     if not data:
@@ -884,8 +875,6 @@ def generate_recovery_heatmap_thickness_layers(session):
 
 
 def generate_recovery_parameter_importance_graph(session):
-    import plotly.graph_objects as go
-    import numpy as np
 
     data = get_force_no_force_recovery_data(session)
     if not data or len(data) < 3:
