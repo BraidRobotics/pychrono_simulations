@@ -18,7 +18,6 @@ from database.queries.graph_queries import (
     get_force_no_force_recovery_data
 )
 from database.queries.experiment_series_queries import select_experiment_series_by_name
-from experiments import run_non_experiment
 
 GRAPHS_DIR = Path(__file__).parent.parent / "experiments_server" / "assets" / "graphs"
 GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
@@ -540,6 +539,8 @@ def generate_strand_count_weight_graph(session):
     # Check if any series are missing weight_kg and run non-experiment for them
     for row in data:
         if row['weight_kg'] is None:
+            # Lazy import to avoid circular dependency
+            from experiments import run_non_experiment
             experiment_series = select_experiment_series_by_name(session, row['experiment_series_name'])
             if experiment_series:
                 run_non_experiment(experiment_series, will_visualize=False)
