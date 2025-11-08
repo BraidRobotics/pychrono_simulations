@@ -12,7 +12,7 @@ def create_braid_structure(braid_mesh, braid_material, tape_material, experiment
 
 def generate_nodes(braid_mesh, config):
 	nodes = []
-	num_intersections = config.num_strands  # strands assumed to be even
+	num_intersections = int(config.num_strands)  # strands assumed to be even
 	twist_per_layer = (2 * math.pi) / (2 * num_intersections)
 
 	for layer_no in range(int(config.num_layers)):
@@ -36,7 +36,7 @@ def generate_nodes(braid_mesh, config):
 
 def define_connectivity(nodes, config):
 	node_pairs = []
-	num_rods = config.num_strands
+	num_rods = int(config.num_strands)
 
 	for rod in range(num_rods):
 		# counter-clockwise
