@@ -5,8 +5,8 @@ from database.session import SessionLocal
 if __name__ == '__main__':
     session = SessionLocal()
     all_experiment_series = select_all_experiment_series(session)
-
-    for experiment_series in all_experiment_series:
-        run_non_experiment(experiment_series, will_visualize=False)
-
-    session.close()
+    try:
+        for experiment_series in all_experiment_series:
+            run_non_experiment(experiment_series, will_visualize=False)
+    finally:
+        session.close()

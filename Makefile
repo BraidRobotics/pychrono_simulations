@@ -1,4 +1,4 @@
-.PHONY: init_db migrate_db run_all_experiments create_experiment_series_interlaces generate_graphs
+.PHONY: init_db migrate_db run_all_experiments create_experiment_series_interlaces generate_graphs generate_aggregate_graphs
 
 init_db:
 	@rm -f database.db
@@ -17,3 +17,6 @@ create_experiment_series_interlaces:
 
 generate_graphs:
 	@python -m graphs
+
+generate_aggregate_graphs:
+	@python -m meta.generate_aggregate_graphs

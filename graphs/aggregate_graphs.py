@@ -23,37 +23,6 @@ GRAPHS_DIR = Path(__file__).parent.parent / "experiments_server" / "assets" / "g
 GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def _add_r_squared_annotation(fig):
-    try:
-        results = px.get_trendline_results(fig)
-        if hasattr(results, 'empty'):
-            if not results.empty:
-                r_squared = results.iloc[0]["px_fit_results"].rsquared
-                fig.add_annotation(
-                    text=f"R² = {r_squared:.3f}",
-                    xref="paper", yref="paper",
-                    x=0.05, y=0.95,
-                    showarrow=False,
-                    font=dict(size=12),
-                    bgcolor="rgba(255, 255, 255, 0.8)",
-                    bordercolor="gray",
-                    borderwidth=1
-                )
-        elif isinstance(results, list) and len(results) > 0:
-            r_squared = results[0].rsquared
-            fig.add_annotation(
-                text=f"R² = {r_squared:.3f}",
-                xref="paper", yref="paper",
-                x=0.05, y=0.95,
-                showarrow=False,
-                font=dict(size=12),
-                bgcolor="rgba(255, 255, 255, 0.8)",
-                bordercolor="gray",
-                borderwidth=1
-            )
-    except Exception as e:
-        print(f"Could not calculate R²: {e}")
-
 
 def generate_load_capacity_ratio_graph(session, force_direction='y'):
     data = get_load_capacity_ratio_y_chart_values(session)
@@ -73,18 +42,14 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
         hover_data=['experiment_series_name', 'force'],
         labels={
             'weight_kg': 'Structure Weight (kg)',
-            'specific_load_capacity': 'Specific Load Capacity (×own weight)',
+            'specific_load_capacity': 'Force / (Weight × g) where g=9.81 m/s²',
             'experiment_series_name': 'Experiment Series',
             'force': 'Force (N)'
         },
-        title='Structural Efficiency: Specific Load Capacity vs Weight',
-        trendline='ols',
-        trendline_color_override='red'
+        title='Structural Efficiency: Specific Load Capacity vs Weight'
     )
 
     fig.update_traces(marker=dict(size=10))
-
-    _add_r_squared_annotation(fig)
 
     fig.update_layout(height=500, hovermode='closest')
 
@@ -116,24 +81,23 @@ def generate_material_thickness_weight_graph(session):
         hovertemplate='<b>%{customdata}</b><br>Thickness: %{x:.2f} mm<br>Weight: %{y:.4f} kg<extra></extra>'
     ))
 
-    # Add theoretical linear scaling (Weight ∝ thickness)
+    # Add theoretical quadratic scaling (Weight ∝ thickness²)
     if len(df) > 1:
         t_min, t_max = df['material_thickness_mm'].min(), df['material_thickness_mm'].max()
         t_range = np.linspace(t_min, t_max, 100)
 
-        # Normalize to first data point
-        t0 = df['material_thickness_mm'].iloc[0]
-        w0 = df['weight_kg'].iloc[0]
+        # Fit a quadratic through the origin: W = k*t² (since W ∝ t² from cross-sectional area)
+        # Using least squares: k = sum(t²*w) / sum(t⁴)
+        k = np.sum(df['material_thickness_mm']**2 * df['weight_kg']) / np.sum(df['material_thickness_mm']**4)
+        w_quadratic = k * t_range**2
 
-        # Linear scaling: W ∝ t (expected from W = ρ × V ∝ t)
-        w_linear = w0 * (t_range / t0)
         fig.add_trace(go.Scatter(
             x=t_range,
-            y=w_linear,
+            y=w_quadratic,
             mode='lines',
-            name='Theoretical Linear (W ∝ t)',
+            name='Theoretical Quadratic (W ∝ t²)',
             line=dict(dash='dash', color='red', width=2),
-            hovertemplate='Expected linear scaling<extra></extra>'
+            hovertemplate='Expected quadratic scaling (cross-sectional area)<extra></extra>'
         ))
 
     fig.update_layout(
@@ -313,6 +277,8 @@ def generate_material_thickness_efficiency_graph(session):
     return "material_thickness_vs_efficiency.html"
 
 
+
+
 def generate_layer_count_height_graph(session):
 
     data = get_layer_count_vs_height_chart_values(session)
@@ -339,20 +305,19 @@ def generate_layer_count_height_graph(session):
         n_min, n_max = df['num_layers'].min(), df['num_layers'].max()
         n_range = np.linspace(n_min, n_max, 100)
 
-        # Calculate pitch from first data point
-        n0 = df['num_layers'].iloc[0]
-        h0 = df['height_m'].iloc[0]
-        pitch = h0 / n0
+        # Fit linear through all data points: H = pitch × n + offset
+        # Using least squares to find best fit
+        slope = np.sum((df['num_layers'] - df['num_layers'].mean()) * (df['height_m'] - df['height_m'].mean())) / np.sum((df['num_layers'] - df['num_layers'].mean())**2)
+        intercept = df['height_m'].mean() - slope * df['num_layers'].mean()
 
-        # Linear scaling: H = pitch × n
-        h_linear = pitch * n_range
+        h_linear = slope * n_range + intercept
         fig.add_trace(go.Scatter(
             x=n_range,
             y=h_linear,
             mode='lines',
-            name=f'Theoretical Linear (pitch={pitch:.3f}m)',
+            name=f'Linear Fit (slope={slope:.4f}m/layer)',
             line=dict(dash='dash', color='red', width=2),
-            hovertemplate=f'Expected: pitch × layers<extra></extra>'
+            hovertemplate=f'Linear fit through data<extra></extra>'
         ))
 
     fig.update_layout(

@@ -13,9 +13,9 @@
 <div>
     <h2>Height vs Layer Count Validation</h2>
     <p>
-        <strong>Purpose:</strong> Confirms that height scales linearly with layer count in the simulation.<br>
-        <strong>Theory:</strong> Height = num_layers × pitch<br>
-        <strong>Expected:</strong> Perfect linear relationship.
+        <strong>Purpose:</strong> Validates that the simulated structure height follows the geometric construction.<br>
+        <strong>Theory:</strong> Height should scale linearly with layer count: H = num_layers × pitch. Each layer adds a fixed vertical spacing (pitch) between connection points.<br>
+        <strong>Expected:</strong> Near-linear relationship with slight compression due to the structure settling under its own weight. Data points should closely follow the linear fit.
     </p>
     {% if layer_height_graph_path %}
     <iframe src="/graphs/{{ layer_height_graph_path }}" width="100%" height="550" frameborder="0"></iframe>

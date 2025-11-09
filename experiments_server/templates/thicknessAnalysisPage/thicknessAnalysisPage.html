@@ -12,9 +12,9 @@
 <div>
     <h2>Weight Scaling Validation</h2>
     <p>
-        <strong>Purpose:</strong> Validates simulation physics by confirming weight scales linearly with material thickness.<br>
-        <strong>Theory:</strong> Weight = Density × Volume ∝ thickness (for constant geometry)<br>
-        <strong>Expected:</strong> Data points should align with theoretical linear scaling line.
+        <strong>Purpose:</strong> Validates simulation physics by confirming weight scales with material thickness.<br>
+        <strong>Theory:</strong> Weight scales quadratically with material thickness (W ∝ t²) because increasing strand thickness increases the cross-sectional area (which is proportional to t²), and thus the volume and weight of material.<br>
+        <strong>Expected:</strong> Data points should align with the theoretical quadratic curve.
     </p>
     {% if material_thickness_graph_path %}
     <iframe src="/graphs/{{ material_thickness_graph_path }}" width="100%" height="550" frameborder="0"></iframe>
