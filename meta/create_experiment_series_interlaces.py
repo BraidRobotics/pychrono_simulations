@@ -49,7 +49,8 @@ for i in range(1, num_experiment_series):
         final_value = getattr(final_model, column)
 
         if isinstance(initial_value, (int, float)) and isinstance(final_value, (int, float)):
-            values[column] = initial_value + (final_value - initial_value) * i / num_experiment_series
+            interpolated = initial_value + (final_value - initial_value) * i / num_experiment_series
+            values[column] = int(interpolated / 2) * 2 if column == 'num_strands' else interpolated
         elif initial_value is not None and final_value is not None and initial_value == final_value:
             values[column] = initial_value
         elif initial_value is not None and final_value is not None:
