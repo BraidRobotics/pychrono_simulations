@@ -14,6 +14,8 @@ from graphs.aggregate_graphs import (
     generate_recovery_by_layers_graph,
     generate_recovery_by_strands_graph,
     generate_recovery_heatmap_thickness_layers,
+    generate_recovery_heatmap_strands_layers,
+    generate_recovery_heatmap_strands_thickness,
     generate_recovery_parameter_importance_graph
 )
 
@@ -63,6 +65,12 @@ if __name__ == '__main__':
 
         print("  - Recovery heatmap (thickness × layers)...")
         generate_recovery_heatmap_thickness_layers(session)
+
+        print("  - Recovery heatmap (strands × layers)...")
+        generate_recovery_heatmap_strands_layers(session)
+
+        print("  - Recovery heatmap (strands × thickness)...")
+        generate_recovery_heatmap_strands_thickness(session)
 
         print("  - Recovery parameter importance...")
         generate_recovery_parameter_importance_graph(session)

@@ -700,7 +700,7 @@ def generate_strand_count_efficiency_graph(session):
 
 
 def generate_recovery_by_thickness_graph(session):
-
+    """3D scatter plot showing recovery as a function of all three parameters"""
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
@@ -708,22 +708,32 @@ def generate_recovery_by_thickness_graph(session):
     df = pd.DataFrame(data)
     df['material_thickness_mm'] = df['material_thickness'] * 1000
 
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
+    # 3D scatter with recovery as color
+    fig = go.Figure(data=[go.Scatter3d(
         x=df['material_thickness_mm'],
-        y=df['recovery_percent'],
+        y=df['num_layers'],
+        z=df['num_strands'],
         mode='markers',
-        marker=dict(size=10, color='blue'),
-        customdata=df['experiment_series_name'],
-        hovertemplate='<b>%{customdata}</b><br>Thickness: %{x:.2f} mm<br>Recovery: %{y:.1f}%<extra></extra>'
-    ))
+        marker=dict(
+            size=8,
+            color=df['recovery_percent'],
+            colorscale='Viridis',
+            showscale=True,
+            colorbar=dict(title="Recovery (%)"),
+            line=dict(width=0.5, color='DarkSlateGrey')
+        ),
+        text=df['experiment_series_name'],
+        hovertemplate='<b>%{text}</b><br>Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Strands: %{z}<br>Recovery: %{marker.color:.1f}%<extra></extra>'
+    )])
 
     fig.update_layout(
-        title='Elastic Recovery vs Material Thickness',
-        xaxis_title='Material Thickness (mm)',
-        yaxis_title='Recovery (%)',
-        height=550,
+        title='3D Recovery Analysis: Thickness × Layers × Strands',
+        scene=dict(
+            xaxis_title='Material Thickness (mm)',
+            yaxis_title='Number of Layers',
+            zaxis_title='Number of Strands'
+        ),
+        height=700,
         hovermode='closest'
     )
 
@@ -734,31 +744,34 @@ def generate_recovery_by_thickness_graph(session):
 
 
 def generate_recovery_by_layers_graph(session):
-
+    """Faceted plot showing recovery vs layers, grouped by strand count"""
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
 
     df = pd.DataFrame(data)
+    df['material_thickness_mm'] = df['material_thickness'] * 1000
 
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-        x=df['num_layers'],
-        y=df['recovery_percent'],
-        mode='markers',
-        marker=dict(size=10, color='green'),
-        customdata=df['experiment_series_name'],
-        hovertemplate='<b>%{customdata}</b><br>Layers: %{x}<br>Recovery: %{y:.1f}%<extra></extra>'
-    ))
-
-    fig.update_layout(
-        title='Elastic Recovery vs Layer Count',
-        xaxis_title='Number of Layers',
-        yaxis_title='Recovery (%)',
-        height=550,
-        hovermode='closest'
+    # Create scatter plot with color by strands
+    fig = px.scatter(
+        df,
+        x='num_layers',
+        y='recovery_percent',
+        color='num_strands',
+        size='material_thickness_mm',
+        hover_data=['experiment_series_name', 'material_thickness_mm'],
+        labels={
+            'num_layers': 'Number of Layers',
+            'recovery_percent': 'Recovery (%)',
+            'num_strands': 'Strands',
+            'material_thickness_mm': 'Thickness (mm)'
+        },
+        title='Recovery vs Layers (colored by Strands, sized by Thickness)',
+        color_continuous_scale='Viridis'
     )
+
+    fig.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
+    fig.update_layout(height=600, hovermode='closest')
 
     output_path = GRAPHS_DIR / "recovery_by_layers.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -767,31 +780,34 @@ def generate_recovery_by_layers_graph(session):
 
 
 def generate_recovery_by_strands_graph(session):
-
+    """Scatter plot showing recovery vs strands, colored by layers"""
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
 
     df = pd.DataFrame(data)
+    df['material_thickness_mm'] = df['material_thickness'] * 1000
 
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-        x=df['num_strands'],
-        y=df['recovery_percent'],
-        mode='markers',
-        marker=dict(size=10, color='orange'),
-        customdata=df['experiment_series_name'],
-        hovertemplate='<b>%{customdata}</b><br>Strands: %{x}<br>Recovery: %{y:.1f}%<extra></extra>'
-    ))
-
-    fig.update_layout(
-        title='Elastic Recovery vs Strand Count',
-        xaxis_title='Number of Strands',
-        yaxis_title='Recovery (%)',
-        height=550,
-        hovermode='closest'
+    # Create scatter plot with color by layers
+    fig = px.scatter(
+        df,
+        x='num_strands',
+        y='recovery_percent',
+        color='num_layers',
+        size='material_thickness_mm',
+        hover_data=['experiment_series_name', 'material_thickness_mm'],
+        labels={
+            'num_strands': 'Number of Strands',
+            'recovery_percent': 'Recovery (%)',
+            'num_layers': 'Layers',
+            'material_thickness_mm': 'Thickness (mm)'
+        },
+        title='Recovery vs Strands (colored by Layers, sized by Thickness)',
+        color_continuous_scale='Plasma'
     )
+
+    fig.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
+    fig.update_layout(height=600, hovermode='closest')
 
     output_path = GRAPHS_DIR / "recovery_by_strands.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -841,7 +857,7 @@ def generate_recovery_heatmap_thickness_layers(session):
 
 
 def generate_recovery_parameter_importance_graph(session):
-
+    """Multi-variable regression analysis with prediction surface"""
     data = get_force_no_force_recovery_data(session)
     if not data or len(data) < 3:
         return None
@@ -872,12 +888,14 @@ def generate_recovery_parameter_importance_graph(session):
             x=list(params),
             y=list(values),
             marker_color=['#1f77b4', '#ff7f0e', '#2ca02c'][:len(params)],
+            text=[f'{v:.3f}' for v in values],
+            textposition='auto',
             hovertemplate='%{x}<br>Correlation: %{y:.3f}<extra></extra>'
         )
     ])
 
     fig.update_layout(
-        title='Parameter Importance for Elastic Recovery',
+        title='Parameter Importance for Elastic Recovery (Linear Correlation)',
         xaxis_title='Parameter',
         yaxis_title='Absolute Correlation with Recovery',
         yaxis=dict(range=[0, 1]),
@@ -888,3 +906,86 @@ def generate_recovery_parameter_importance_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "recovery_parameter_importance.html"
+
+
+def generate_recovery_heatmap_strands_layers(session):
+    """Heatmap showing recovery quality across strands and layers"""
+    data = get_force_no_force_recovery_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+
+    # Create pivot table for heatmap
+    pivot = df.pivot_table(
+        values='recovery_percent',
+        index='num_layers',
+        columns='num_strands',
+        aggfunc='mean'
+    )
+
+    if pivot.empty:
+        return None
+
+    fig = go.Figure(data=go.Heatmap(
+        z=pivot.values,
+        x=pivot.columns,
+        y=pivot.index,
+        colorscale='RdYlGn',
+        hovertemplate='Strands: %{x}<br>Layers: %{y}<br>Recovery: %{z:.1f}%<extra></extra>',
+        colorbar=dict(title="Recovery (%)")
+    ))
+
+    fig.update_layout(
+        title='Recovery Heatmap: Strands vs Layers',
+        xaxis_title='Number of Strands',
+        yaxis_title='Number of Layers',
+        height=600
+    )
+
+    output_path = GRAPHS_DIR / "recovery_heatmap_strands_layers.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "recovery_heatmap_strands_layers.html"
+
+
+def generate_recovery_heatmap_strands_thickness(session):
+    """Heatmap showing recovery quality across strands and thickness"""
+    data = get_force_no_force_recovery_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    df['material_thickness_mm'] = df['material_thickness'] * 1000
+
+    # Create pivot table for heatmap
+    pivot = df.pivot_table(
+        values='recovery_percent',
+        index='num_strands',
+        columns='material_thickness_mm',
+        aggfunc='mean'
+    )
+
+    if pivot.empty:
+        return None
+
+    fig = go.Figure(data=go.Heatmap(
+        z=pivot.values,
+        x=pivot.columns,
+        y=pivot.index,
+        colorscale='RdYlGn',
+        hovertemplate='Thickness: %{x:.2f} mm<br>Strands: %{y}<br>Recovery: %{z:.1f}%<extra></extra>',
+        colorbar=dict(title="Recovery (%)")
+    ))
+
+    fig.update_layout(
+        title='Recovery Heatmap: Strands vs Thickness',
+        xaxis_title='Material Thickness (mm)',
+        yaxis_title='Number of Strands',
+        height=600
+    )
+
+    output_path = GRAPHS_DIR / "recovery_heatmap_strands_thickness.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "recovery_heatmap_strands_thickness.html"
