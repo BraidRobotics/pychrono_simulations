@@ -87,7 +87,7 @@ def aggregated_charts_page():
     load_capacity_graph_path = "load_capacity_ratio_y.html"
 
     return render_template(
-        "aggregatedChartsPage/aggregatedChartsPage.html",
+        "analysis/aggregatedCharts.html",
         load_capacity_graph_path=load_capacity_graph_path
     )
 
@@ -99,7 +99,7 @@ def thickness_analysis_page():
     material_thickness_efficiency_graph_path = "material_thickness_vs_efficiency.html"
 
     return render_template(
-        "thicknessAnalysisPage/thicknessAnalysisPage.html",
+        "analysis/thicknessAnalysis.html",
         material_thickness_graph_path=material_thickness_graph_path,
         material_thickness_force_graph_path=material_thickness_force_graph_path,
         material_thickness_efficiency_graph_path=material_thickness_efficiency_graph_path
@@ -113,7 +113,7 @@ def layer_analysis_page():
     layer_efficiency_graph_path = "layer_count_vs_efficiency.html"
 
     return render_template(
-        "layerAnalysisPage/layerAnalysisPage.html",
+        "analysis/layerAnalysis.html",
         layer_height_graph_path=layer_height_graph_path,
         layer_force_graph_path=layer_force_graph_path,
         layer_efficiency_graph_path=layer_efficiency_graph_path
@@ -127,7 +127,7 @@ def strands_analysis_page():
     strand_count_efficiency_graph_path = "strand_count_vs_efficiency.html"
 
     return render_template(
-        "strandsAnalysisPage/strandsAnalysisPage.html",
+        "analysis/strandsAnalysis.html",
         strand_count_weight_graph_path=strand_count_weight_graph_path,
         strand_count_force_graph_path=strand_count_force_graph_path,
         strand_count_efficiency_graph_path=strand_count_efficiency_graph_path
@@ -143,7 +143,7 @@ def force_no_force_analysis_page():
     parameter_importance_graph_path = "recovery_parameter_importance.html"
 
     return render_template(
-        "forceNoForceAnalysisPage/forceNoForceAnalysisPage.html",
+        "analysis/forceNoForceAnalysis.html",
         recovery_by_thickness_graph_path=recovery_by_thickness_graph_path,
         recovery_by_layers_graph_path=recovery_by_layers_graph_path,
         recovery_by_strands_graph_path=recovery_by_strands_graph_path,
