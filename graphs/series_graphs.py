@@ -10,6 +10,33 @@ from graphs.graph_constants import TARGET_HEIGHT_REDUCTION_PERCENT
 GRAPHS_DIR = Path(__file__).parent.parent / "experiments_server" / "assets" / "graphs"
 GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
+# Font configuration for LaTeX compatibility
+LATEX_FONT_CONFIG = {
+    'family': 'Computer Modern, serif',
+    'size': 18,
+    'color': 'black'
+}
+
+TITLE_FONT_SIZE = 22
+AXIS_TITLE_FONT_SIZE = 20
+AXIS_TICK_FONT_SIZE = 16
+LEGEND_FONT_SIZE = 16
+
+def apply_latex_font_theme(fig):
+    """Apply LaTeX-compatible font settings to a plotly figure"""
+    fig.update_layout(
+        font=LATEX_FONT_CONFIG,
+        title_font_size=TITLE_FONT_SIZE,
+        legend=dict(font_size=LEGEND_FONT_SIZE)
+    )
+
+    # Update all axes (works for both 2D plots)
+    if hasattr(fig, 'update_xaxes'):
+        fig.update_xaxes(title_font_size=AXIS_TITLE_FONT_SIZE, tickfont_size=AXIS_TICK_FONT_SIZE)
+        fig.update_yaxes(title_font_size=AXIS_TITLE_FONT_SIZE, tickfont_size=AXIS_TICK_FONT_SIZE)
+
+    return fig
+
 
 def _prepare_experiments_dataframe(experiments):
     experiments_dicts = [{k: v for k, v in exp.__dict__.items() if k != "_sa_instance_state"} for exp in experiments]
@@ -59,6 +86,7 @@ def generate_experiment_series_force_graph(session, safe_name, experiments):
         hovermode='closest',
         showlegend=True
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / f"series_{safe_name}_force.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -143,6 +171,7 @@ def generate_experiment_series_height_graph(session, safe_name, experiments, ini
         hovermode='closest',
         showlegend=True
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / f"series_{safe_name}_height.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -226,6 +255,7 @@ def generate_experiment_series_elastic_recovery_graph(session, safe_name, experi
         hovermode='closest',
         showlegend=True
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / f"series_{safe_name}_elastic_recovery.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})

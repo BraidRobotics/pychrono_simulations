@@ -22,6 +22,43 @@ from database.queries.experiment_series_queries import select_experiment_series_
 GRAPHS_DIR = Path(__file__).parent.parent / "experiments_server" / "assets" / "graphs"
 GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
+# Font configuration for LaTeX compatibility
+LATEX_FONT_CONFIG = {
+    'family': 'Computer Modern, serif',
+    'size': 18,
+    'color': 'black'
+}
+
+TITLE_FONT_SIZE = 22
+AXIS_TITLE_FONT_SIZE = 20
+AXIS_TICK_FONT_SIZE = 16
+LEGEND_FONT_SIZE = 16
+
+def apply_latex_font_theme(fig):
+    """Apply LaTeX-compatible font settings to a plotly figure"""
+    fig.update_layout(
+        font=LATEX_FONT_CONFIG,
+        title_font_size=TITLE_FONT_SIZE,
+        legend=dict(font_size=LEGEND_FONT_SIZE)
+    )
+
+    # Update all axes (works for both 2D plots)
+    if hasattr(fig, 'update_xaxes'):
+        fig.update_xaxes(title_font_size=AXIS_TITLE_FONT_SIZE, tickfont_size=AXIS_TICK_FONT_SIZE)
+        fig.update_yaxes(title_font_size=AXIS_TITLE_FONT_SIZE, tickfont_size=AXIS_TICK_FONT_SIZE)
+
+    # For 3D plots - update scene axes
+    if 'scene' in fig.layout:
+        fig.update_layout(
+            scene=dict(
+                xaxis=dict(title_font_size=AXIS_TITLE_FONT_SIZE, tickfont_size=AXIS_TICK_FONT_SIZE),
+                yaxis=dict(title_font_size=AXIS_TITLE_FONT_SIZE, tickfont_size=AXIS_TICK_FONT_SIZE),
+                zaxis=dict(title_font_size=AXIS_TITLE_FONT_SIZE, tickfont_size=AXIS_TICK_FONT_SIZE)
+            )
+        )
+
+    return fig
+
 
 
 def generate_load_capacity_ratio_graph(session, force_direction='y'):
@@ -52,6 +89,7 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
     fig.update_traces(marker=dict(size=10))
 
     fig.update_layout(height=500, hovermode='closest')
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / f"load_capacity_ratio_{force_direction}.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -109,6 +147,7 @@ def generate_material_thickness_weight_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "material_thickness_vs_weight.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -189,6 +228,7 @@ def generate_material_thickness_force_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "material_thickness_vs_force.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -270,6 +310,7 @@ def generate_material_thickness_efficiency_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "material_thickness_vs_efficiency.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -329,6 +370,7 @@ def generate_layer_count_height_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "layer_count_vs_height.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -408,6 +450,7 @@ def generate_layer_count_force_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "layer_count_vs_force.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -487,6 +530,7 @@ def generate_layer_count_efficiency_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "layer_count_vs_efficiency.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -556,6 +600,7 @@ def generate_strand_count_weight_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "strand_count_vs_weight.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -624,6 +669,7 @@ def generate_strand_count_force_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "strand_count_vs_force.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -692,6 +738,7 @@ def generate_strand_count_efficiency_graph(session):
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "strand_count_vs_efficiency.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -733,9 +780,10 @@ def generate_recovery_by_thickness_graph(session):
             yaxis_title='Number of Layers',
             zaxis_title='Number of Strands'
         ),
-        height=700,
+        height=600,
         hovermode='closest'
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_by_thickness.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -772,6 +820,7 @@ def generate_recovery_by_layers_graph(session):
 
     fig.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
     fig.update_layout(height=600, hovermode='closest')
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_by_layers.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -808,6 +857,7 @@ def generate_recovery_by_strands_graph(session):
 
     fig.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
     fig.update_layout(height=600, hovermode='closest')
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_by_strands.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -849,6 +899,7 @@ def generate_recovery_heatmap_thickness_layers(session):
         yaxis_title='Number of Layers',
         height=600
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_heatmap_thickness_layers.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -901,6 +952,7 @@ def generate_recovery_parameter_importance_graph(session):
         yaxis=dict(range=[0, 1]),
         height=550
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_parameter_importance.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -942,6 +994,7 @@ def generate_recovery_heatmap_strands_layers(session):
         yaxis_title='Number of Layers',
         height=600
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_heatmap_strands_layers.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
@@ -984,6 +1037,7 @@ def generate_recovery_heatmap_strands_thickness(session):
         yaxis_title='Number of Strands',
         height=600
     )
+    apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_heatmap_strands_thickness.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
