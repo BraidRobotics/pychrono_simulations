@@ -9,8 +9,8 @@
     Unlike single-parameter experiments, this reveals their <strong>relative importance</strong> and interactions.
 </p>
 
-<div>
-    <h2>Recovery Quality by Thickness</h2>
+<div id="recovery-thickness">
+    <h2><a href="#recovery-thickness">Recovery Quality by Thickness</a></h2>
     <p>
         <strong>Purpose:</strong> Shows how material thickness affects elastic recovery.<br>
         <strong>Metric:</strong> Recovery % = (final_height - height_under_load) / (original_height - height_under_load) × 100<br>
@@ -23,8 +23,8 @@
     {% endif %}
 </div>
 
-<div>
-    <h2>Recovery Quality by Layer Count</h2>
+<div id="recovery-layers">
+    <h2><a href="#recovery-layers">Recovery Quality by Layer Count</a></h2>
     <p>
         <strong>Purpose:</strong> Shows how layer count affects elastic recovery.<br>
         <strong>Expected:</strong> More layers may improve recovery (more structure) or worsen it (more buckling from height).
@@ -36,8 +36,8 @@
     {% endif %}
 </div>
 
-<div>
-    <h2>Recovery Quality by Strand Count</h2>
+<div id="recovery-strands">
+    <h2><a href="#recovery-strands">Recovery Quality by Strand Count</a></h2>
     <p>
         <strong>Purpose:</strong> Shows how strand count affects elastic recovery.<br>
         <strong>Expected:</strong> More strands add material but may change braid geometry, with complex effects on recovery.
@@ -49,8 +49,8 @@
     {% endif %}
 </div>
 
-<div>
-    <h2>Multi-Parameter Heatmap: Thickness vs. Layers</h2>
+<div id="heatmap-thickness-layers">
+    <h2><a href="#heatmap-thickness-layers">Multi-Parameter Heatmap: Thickness vs. Layers</a></h2>
     <p>
         <strong>Purpose:</strong> 2D visualization showing recovery quality across thickness and layer combinations.<br>
         <strong>Use:</strong> Identifies optimal parameter combinations and interaction effects.<br>
@@ -63,8 +63,8 @@
     {% endif %}
 </div>
 
-<div>
-    <h2>Parameter Importance Analysis</h2>
+<div id="parameter-importance">
+    <h2><a href="#parameter-importance">Parameter Importance Analysis</a></h2>
     <p>
         <strong>Purpose:</strong> Bar chart showing which parameter (thickness, layers, strands) has the strongest correlation with recovery quality.<br>
         <strong>Interpretation:</strong> Taller bar = that parameter is more important for optimizing elastic recovery.<br>

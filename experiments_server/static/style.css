@@ -181,3 +181,18 @@ td select:focus {
 	font-weight: bold;
 	cursor: pointer;
 }
+
+/* Anchor links for charts and graphs */
+h2 a, h3 a {
+	text-decoration: none;
+	color: inherit;
+}
+
+.chart-section {
+	margin-bottom: 40px;
+}
+
+.chart-section iframe {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}

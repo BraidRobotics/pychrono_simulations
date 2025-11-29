@@ -179,7 +179,7 @@ def generate_experiment_series_height_graph(session, safe_name, experiments, ini
     return f"series_{safe_name}_height.html"
 
 
-def generate_experiment_series_elastic_recovery_graph(session, safe_name, experiments, reset_force_after_seconds):
+def generate_experiment_series_elastic_recovery_graph(session, safe_name, experiments, reset_force_after_seconds, initial_height):
     if not experiments or reset_force_after_seconds is None:
         return None
 
@@ -235,17 +235,15 @@ def generate_experiment_series_elastic_recovery_graph(session, safe_name, experi
             hovertemplate='<b>Height Under Load: %{x:.4f} m</b><br>Final Height: %{y:.4f} m<br>(Exploded)<extra></extra>'
         ))
 
-    if not df.empty:
-        min_val = min(df['height_under_load'].min(), df['final_height'].min())
-        max_val = max(df['height_under_load'].max(), df['final_height'].max())
-        fig.add_trace(go.Scatter(
-            x=[min_val, max_val],
-            y=[min_val, max_val],
-            mode='lines',
-            name='Perfect Recovery (y=x)',
-            line=dict(color='gray', dash='dot', width=1),
-            hovertemplate='Perfect Recovery Line<extra></extra>'
-        ))
+    # Add horizontal line at initial height (perfect recovery)
+    if not df.empty and initial_height:
+        fig.add_hline(
+            y=initial_height,
+            line_dash="dot",
+            line_color="gray",
+            annotation_text=f"Perfect Recovery (y={initial_height:.4f}m)",
+            annotation_position="right"
+        )
 
     fig.update_layout(
         title=f'Elastic Recovery - {safe_name}',
