@@ -29,7 +29,7 @@ def main():
         # Sleep between series (except after the last one)
         if i < len(series_list):
             print(f"\n⏸️  Sleeping for 90 seconds before next series...\n")
-            time.sleep(90)
+            time.sleep(40)
 
     session.close()
     print(f"\n✅ All {len(series_list)} force_no_force series completed!")
