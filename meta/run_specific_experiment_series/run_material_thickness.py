@@ -29,7 +29,7 @@ def main():
         # Sleep between series (except after the last one)
         if i < len(series_list):
             print(f"\n⏸️  Sleeping for 90 seconds before next series...\n")
-            time.sleep(40)
+            time.sleep(90)
 
     session.close()
     print(f"\n✅ All {len(series_list)} material_thickness series completed!")
