@@ -1,17 +1,7 @@
 #!/usr/bin/env python3
 """Run all number_of_strands experiment series with 90-second sleep between each."""
 
-import os
-import sys
 import time
-from pathlib import Path
-
-# Change to project root directory (two levels up from this script)
-script_dir = Path(__file__).resolve().parent
-project_root = script_dir.parent.parent
-os.chdir(project_root)
-sys.path.insert(0, str(project_root))
-
 from database.session import SessionLocal
 from database.models import ExperimentSeries
 from experiments.run_experiments import run_experiments
