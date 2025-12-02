@@ -270,6 +270,75 @@ def get_layer_count_vs_efficiency_chart_values(session):
 	return results
 
 
+def get_layer_height_reduction_vs_force_data(session):
+	"""Get all experiments from layer series for height reduction vs force graph"""
+	layer_series = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%number_of_layers%')
+	).all()
+
+	series_map = {s.experiment_series_name: s for s in layer_series}
+
+	experiments = session.query(Experiment).filter(
+		Experiment.experiment_series_name.in_([s.experiment_series_name for s in layer_series])
+	).all()
+
+	results = []
+	for experiment in experiments:
+		series = series_map.get(experiment.experiment_series_name)
+		if not series or not series.height_m:
+			continue
+
+		if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+			continue
+
+		height_reduction_pct = ((series.height_m - experiment.height_under_load) / series.height_m) * 100
+
+		results.append({
+			"experiment_series_name": experiment.experiment_series_name,
+			"num_layers": series.num_layers,
+			"force": abs(experiment.force_in_y_direction),
+			"height_reduction_pct": height_reduction_pct,
+			"exploded": experiment.time_to_bounding_box_explosion is not None
+		})
+
+	return results
+
+
+def get_strand_height_reduction_vs_force_data(session):
+	"""Get all experiments from strand series for height reduction vs force graph"""
+	strand_series = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%number_of_strands%')
+	).all()
+
+	series_map = {s.experiment_series_name: s for s in strand_series}
+
+	experiments = session.query(Experiment).filter(
+		Experiment.experiment_series_name.in_([s.experiment_series_name for s in strand_series])
+	).all()
+
+	results = []
+	for experiment in experiments:
+		series = series_map.get(experiment.experiment_series_name)
+		if not series or not series.height_m:
+			continue
+
+		if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+			continue
+
+		height_reduction_pct = ((series.height_m - experiment.height_under_load) / series.height_m) * 100
+
+		results.append({
+			"experiment_series_name": experiment.experiment_series_name,
+			"num_strands": series.num_strands,
+			"num_layers": series.num_layers,
+			"force": abs(experiment.force_in_y_direction),
+			"height_reduction_pct": height_reduction_pct,
+			"exploded": experiment.time_to_bounding_box_explosion is not None
+		})
+
+	return results
+
+
 def get_strand_count_vs_weight_chart_values(session):
 	"""Get strand count vs weight for validation"""
 	values = session.query(

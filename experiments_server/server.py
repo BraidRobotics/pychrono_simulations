@@ -107,13 +107,14 @@ def thickness_analysis_page():
 
 @app.route("/layer_analysis", methods=["GET"])
 def layer_analysis_page():
-    # Graph paths
+    layer_height_reduction_vs_force_path = "layer_height_reduction_vs_force.html"
     layer_height_graph_path = "layer_count_vs_height.html"
     layer_force_graph_path = "layer_count_vs_force.html"
     layer_efficiency_graph_path = "layer_count_vs_efficiency.html"
 
     return render_template(
         "analysis/layerAnalysis.html",
+        layer_height_reduction_vs_force_path=layer_height_reduction_vs_force_path,
         layer_height_graph_path=layer_height_graph_path,
         layer_force_graph_path=layer_force_graph_path,
         layer_efficiency_graph_path=layer_efficiency_graph_path
@@ -121,13 +122,14 @@ def layer_analysis_page():
 
 @app.route("/strands_analysis", methods=["GET"])
 def strands_analysis_page():
-    # Graph paths
+    strand_height_reduction_vs_force_path = "strand_height_reduction_vs_force.html"
     strand_count_weight_graph_path = "strand_count_vs_weight.html"
     strand_count_force_graph_path = "strand_count_vs_force.html"
     strand_count_efficiency_graph_path = "strand_count_vs_efficiency.html"
 
     return render_template(
         "analysis/strandsAnalysis.html",
+        strand_height_reduction_vs_force_path=strand_height_reduction_vs_force_path,
         strand_count_weight_graph_path=strand_count_weight_graph_path,
         strand_count_force_graph_path=strand_count_force_graph_path,
         strand_count_efficiency_graph_path=strand_count_efficiency_graph_path

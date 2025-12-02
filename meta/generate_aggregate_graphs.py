@@ -7,9 +7,11 @@ from graphs.aggregate_graphs import (
     generate_layer_count_height_graph,
     generate_layer_count_force_graph,
     generate_layer_count_efficiency_graph,
+    generate_layer_height_reduction_vs_force_graph,
     generate_strand_count_weight_graph,
     generate_strand_count_force_graph,
     generate_strand_count_efficiency_graph,
+    generate_strand_height_reduction_vs_force_graph,
     generate_recovery_by_thickness_graph,
     generate_recovery_by_layers_graph,
     generate_recovery_by_strands_graph,
@@ -45,6 +47,9 @@ if __name__ == '__main__':
         print("  - Layer count vs efficiency...")
         generate_layer_count_efficiency_graph(session)
 
+        print("  - Layer height reduction vs force...")
+        generate_layer_height_reduction_vs_force_graph(session)
+
         print("  - Strand count vs weight...")
         generate_strand_count_weight_graph(session)
 
@@ -53,6 +58,9 @@ if __name__ == '__main__':
 
         print("  - Strand count vs efficiency...")
         generate_strand_count_efficiency_graph(session)
+
+        print("  - Strand height reduction vs force...")
+        generate_strand_height_reduction_vs_force_graph(session)
 
         print("  - Recovery by thickness...")
         generate_recovery_by_thickness_graph(session)

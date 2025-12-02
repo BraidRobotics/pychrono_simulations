@@ -12,9 +12,11 @@ from database.queries.graph_queries import (
     get_layer_count_vs_height_chart_values,
     get_layer_count_vs_force_chart_values,
     get_layer_count_vs_efficiency_chart_values,
+    get_layer_height_reduction_vs_force_data,
     get_strand_count_vs_weight_chart_values,
     get_strand_count_vs_force_chart_values,
     get_strand_count_vs_efficiency_chart_values,
+    get_strand_height_reduction_vs_force_data,
     get_force_no_force_recovery_data
 )
 from database.queries.experiment_series_queries import select_experiment_series_by_name
@@ -538,6 +540,76 @@ def generate_layer_count_efficiency_graph(session):
     return "layer_count_vs_efficiency.html"
 
 
+def generate_layer_height_reduction_vs_force_graph(session):
+    data = get_layer_height_reduction_vs_force_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+
+    fig = go.Figure()
+
+    layer_counts = sorted(df['num_layers'].unique())
+    colors = px.colors.qualitative.Plotly
+
+    df_no_explosion = df[df['exploded'] == False]
+    df_exploded = df[df['exploded'] == True]
+
+    for i, num_layers in enumerate(layer_counts):
+        color = colors[i % len(colors)]
+
+        df_layer_no_exp = df_no_explosion[df_no_explosion['num_layers'] == num_layers]
+        if not df_layer_no_exp.empty:
+            fig.add_trace(go.Scatter(
+                x=df_layer_no_exp['force'],
+                y=df_layer_no_exp['height_reduction_pct'],
+                mode='markers',
+                name=f'{num_layers} layers',
+                marker=dict(size=8, color=color),
+                legendgroup=f'{num_layers}',
+                hovertemplate=f'<b>{num_layers} layers</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'
+            ))
+
+        df_layer_exp = df_exploded[df_exploded['num_layers'] == num_layers]
+        if not df_layer_exp.empty:
+            fig.add_trace(go.Scatter(
+                x=df_layer_exp['force'],
+                y=df_layer_exp['height_reduction_pct'],
+                mode='markers',
+                name=f'{num_layers} layers (exploded)',
+                marker=dict(size=10, color=color, symbol='x', line=dict(width=2)),
+                legendgroup=f'{num_layers}',
+                showlegend=False,
+                hovertemplate=f'<b>{num_layers} layers</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'
+            ))
+
+    from graphs.graph_constants import TARGET_HEIGHT_REDUCTION_PERCENT
+    if not df.empty:
+        fig.add_hline(
+            y=TARGET_HEIGHT_REDUCTION_PERCENT,
+            line_dash="dash",
+            line_color="orange",
+            annotation_text=f"{TARGET_HEIGHT_REDUCTION_PERCENT:.0f}% Target",
+            annotation_position="right"
+        )
+
+    fig.update_layout(
+        title='Height Reduction vs Force - All Layer Configurations',
+        xaxis_title='Force in Y Direction (N)',
+        yaxis_title='Height Reduction (%)',
+        height=600,
+        hovermode='closest',
+        showlegend=True,
+        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99)
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "layer_height_reduction_vs_force.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "layer_height_reduction_vs_force.html"
+
+
 def generate_strand_count_weight_graph(session):
     data = get_strand_count_vs_weight_chart_values(session)
     if not data:
@@ -558,6 +630,12 @@ def generate_strand_count_weight_graph(session):
     data = get_strand_count_vs_weight_chart_values(session)
     df = pd.DataFrame(data)
 
+    # Filter out rows with None/NaN weight values
+    df = df.dropna(subset=['weight_kg'])
+
+    if df.empty:
+        return None
+
     fig = go.Figure()
 
     # Add actual data points
@@ -576,12 +654,12 @@ def generate_strand_count_weight_graph(session):
         n_min, n_max = df['num_strands'].min(), df['num_strands'].max()
         n_range = np.linspace(n_min, n_max, 100)
 
-        # Normalize to first data point
-        n0 = df['num_strands'].iloc[0]
-        w0 = df['weight_kg'].iloc[0]
+        # Fit linear with intercept: W = slope*n + intercept
+        # Using least squares linear regression
+        slope = np.sum((df['num_strands'] - df['num_strands'].mean()) * (df['weight_kg'] - df['weight_kg'].mean())) / np.sum((df['num_strands'] - df['num_strands'].mean())**2)
+        intercept = df['weight_kg'].mean() - slope * df['num_strands'].mean()
+        w_linear = slope * n_range + intercept
 
-        # Linear scaling: W ∝ n (expected from W = ρ × V ∝ n)
-        w_linear = w0 * (n_range / n0)
         fig.add_trace(go.Scatter(
             x=n_range,
             y=w_linear,
@@ -744,6 +822,78 @@ def generate_strand_count_efficiency_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "strand_count_vs_efficiency.html"
+
+
+def generate_strand_height_reduction_vs_force_graph(session):
+    data = get_strand_height_reduction_vs_force_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+
+    fig = go.Figure()
+
+    strand_counts = sorted(df['num_strands'].unique())
+    colors = px.colors.qualitative.Plotly
+
+    df_no_explosion = df[df['exploded'] == False]
+    df_exploded = df[df['exploded'] == True]
+
+    for i, num_strands in enumerate(strand_counts):
+        color = colors[i % len(colors)]
+
+        df_strand_no_exp = df_no_explosion[df_no_explosion['num_strands'] == num_strands]
+        if not df_strand_no_exp.empty:
+            fig.add_trace(go.Scatter(
+                x=df_strand_no_exp['force'],
+                y=df_strand_no_exp['height_reduction_pct'],
+                mode='markers',
+                name=f'{num_strands} strands',
+                marker=dict(size=8, color=color),
+                legendgroup=f'{num_strands}',
+                customdata=df_strand_no_exp['num_layers'],
+                hovertemplate=f'<b>{num_strands} strands</b><br>Layers: %{{customdata}}<br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'
+            ))
+
+        df_strand_exp = df_exploded[df_exploded['num_strands'] == num_strands]
+        if not df_strand_exp.empty:
+            fig.add_trace(go.Scatter(
+                x=df_strand_exp['force'],
+                y=df_strand_exp['height_reduction_pct'],
+                mode='markers',
+                name=f'{num_strands} strands (exploded)',
+                marker=dict(size=10, color=color, symbol='x', line=dict(width=2)),
+                legendgroup=f'{num_strands}',
+                showlegend=False,
+                customdata=df_strand_exp['num_layers'],
+                hovertemplate=f'<b>{num_strands} strands</b><br>Layers: %{{customdata}}<br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'
+            ))
+
+    from graphs.graph_constants import TARGET_HEIGHT_REDUCTION_PERCENT
+    if not df.empty:
+        fig.add_hline(
+            y=TARGET_HEIGHT_REDUCTION_PERCENT,
+            line_dash="dash",
+            line_color="orange",
+            annotation_text=f"{TARGET_HEIGHT_REDUCTION_PERCENT:.0f}% Target",
+            annotation_position="right"
+        )
+
+    fig.update_layout(
+        title='Height Reduction vs Force - All Strand Configurations',
+        xaxis_title='Force in Y Direction (N)',
+        yaxis_title='Height Reduction (%)',
+        height=600,
+        hovermode='closest',
+        showlegend=True,
+        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99)
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "strand_height_reduction_vs_force.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "strand_height_reduction_vs_force.html"
 
 
 def generate_recovery_by_thickness_graph(session):
