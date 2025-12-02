@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Run all number_of_layers experiment series with 90-second sleep between each."""
 
+import sys
 import time
+sys.path.insert(0, '.')
+
 from database.session import SessionLocal
 from database.models import ExperimentSeries
 from experiments.run_experiments import run_experiments
