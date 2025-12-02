@@ -97,12 +97,14 @@ def thickness_analysis_page():
     material_thickness_graph_path = "material_thickness_vs_weight.html"
     material_thickness_force_graph_path = "material_thickness_vs_force.html"
     material_thickness_efficiency_graph_path = "material_thickness_vs_efficiency.html"
+    thickness_height_reduction_graph_path = "thickness_height_reduction_vs_force.html"
 
     return render_template(
         "analysis/thicknessAnalysis.html",
         material_thickness_graph_path=material_thickness_graph_path,
         material_thickness_force_graph_path=material_thickness_force_graph_path,
-        material_thickness_efficiency_graph_path=material_thickness_efficiency_graph_path
+        material_thickness_efficiency_graph_path=material_thickness_efficiency_graph_path,
+        thickness_height_reduction_graph_path=thickness_height_reduction_graph_path
     )
 
 @app.route("/layer_analysis", methods=["GET"])

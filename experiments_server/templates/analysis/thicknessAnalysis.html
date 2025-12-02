@@ -9,6 +9,20 @@
     All measurements are taken at <strong>10% height compression</strong> for consistent comparison.
 </p>
 
+
+<div id="height-reduction-vs-force">
+    <h2><a href="#height-reduction-vs-force">Height Reduction vs Force - All Thicknesses</a></h2>
+    <p>
+        <strong>Purpose:</strong> Shows compression behavior across all material thickness configurations.<br>
+        <strong>Interpretation:</strong> Each series represents a different material thickness. The graph shows how force relates to height reduction for all experiments.
+    </p>
+    {% if thickness_height_reduction_graph_path %}
+    <iframe src="/graphs/{{ thickness_height_reduction_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for height reduction vs force graph.</p>
+    {% endif %}
+</div>
+
 <div id="weight-scaling">
     <h2><a href="#weight-scaling">Weight Scaling Validation</a></h2>
     <p>

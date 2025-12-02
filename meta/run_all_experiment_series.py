@@ -8,8 +8,10 @@ if __name__ == "__main__":
     ###############################################
     # Config
 
-    experiments_not_to_run = [
-        "_default"
+    experiment_series_not_to_run = [
+        "_default",
+        "",
+        "conical_structures"
     ]
 
 
@@ -21,7 +23,7 @@ if __name__ == "__main__":
     all_experiment_series = select_all_experiment_series(session)
 
     for experiment_series in all_experiment_series:
-        if experiment_series.experiment_series_name in experiments_not_to_run:
+        if experiment_series.experiment_series_name in experiment_series_not_to_run:
             print("Skipping experiment series:", experiment_series.experiment_series_name)
             continue
 

@@ -4,6 +4,7 @@ from .aggregate_graphs import (
     generate_material_thickness_weight_graph,
     generate_material_thickness_force_graph,
     generate_material_thickness_efficiency_graph,
+    generate_thickness_height_reduction_vs_force_graph,
     generate_layer_count_height_graph,
     generate_layer_count_force_graph,
     generate_layer_count_efficiency_graph,

@@ -2,33 +2,36 @@ from database.models import ExperimentSeries
 from database.queries.experiment_series_queries import insert_experiment_series
 from database.session import SessionLocal
 
-# Factorial design: 3 strand values × 3 layer values = 9 experiment series
-num_experiments = 46
-interlaced_experiment_series_name = "force_no_force_"
-group_name = "force_no_force"
+num_experiment_series = 7
+num_experiments = 48
+base_name = "material_thickness_"
 
-# Define factorial grid
-strand_values = [4, 6, 8]  # All divisible by 2
-layer_values = [3, 5, 7]   # Low, medium, high
-material_thickness = 0.005  # Constant
+# Create all 7 series with evenly spaced thickness values
+initial_thickness = 0.002  # 2mm
+final_thickness = 0.008     # 8mm
 
 session = SessionLocal()
 
-# Create all combinations
-series_index = 0
-for num_strands in strand_values:
-    for num_layers in layer_values:
-        model = ExperimentSeries(
-            experiment_series_name=f"{interlaced_experiment_series_name}{series_index:02d}",
-            group_name=group_name,
-            num_experiments=num_experiments,
-            num_strands=num_strands,
-            num_layers=num_layers,
-            material_thickness=material_thickness,
-            initial_force_applied_in_y_direction=0.0,
-            final_force_in_y_direction=-3.0,
-            max_simulation_time=20.0,
-            reset_force_after_seconds=10.0
-        )
-        insert_experiment_series(session, model)
-        series_index += 1
+for i in range(num_experiment_series):
+    # Calculate thickness for this series
+    thickness = initial_thickness + (final_thickness - initial_thickness) * i / (num_experiment_series - 1)
+
+    # Create series name: material_thickness__002, material_thickness__003, etc.
+    thickness_mm = int(thickness * 1000)
+    series_name = f"{base_name}_{thickness_mm:03d}"
+
+    model = ExperimentSeries(
+        experiment_series_name=series_name,
+        group_name="material_thickness",
+        num_experiments=num_experiments,
+        material_thickness=thickness,
+        initial_force_applied_in_y_direction=0.0,
+        final_force_in_y_direction=-4.0,
+    )
+
+    insert_experiment_series(session, model)
+    print(f"Created: {series_name} with thickness {thickness*1000:.1f}mm")
+
+session.commit()
+session.close()
+print(f"\nSuccessfully created {num_experiment_series} material thickness experiment series!")

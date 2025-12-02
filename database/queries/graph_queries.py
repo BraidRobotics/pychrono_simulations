@@ -16,7 +16,7 @@ def get_material_thickness_vs_weight_chart_values(session):
         ExperimentSeries.experiment_series_name,
         ExperimentSeries.material_thickness,
         ExperimentSeries.weight_kg
-    ).filter(ExperimentSeries.group_name.like('%thickness_force%')).all()
+    ).filter(ExperimentSeries.group_name.like('%material_thickness%')).all()
 
     return [
         {
@@ -31,7 +31,7 @@ def get_material_thickness_vs_weight_chart_values(session):
 def get_material_thickness_vs_force_chart_values(session):
     series_map = {
         row.experiment_series_name: row
-        for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%thickness_force%')).all()
+        for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%material_thickness%')).all()
     }
 
     experiments = session.query(Experiment).order_by(
@@ -331,6 +331,40 @@ def get_strand_height_reduction_vs_force_data(session):
 			"experiment_series_name": experiment.experiment_series_name,
 			"num_strands": series.num_strands,
 			"num_layers": series.num_layers,
+			"force": abs(experiment.force_in_y_direction),
+			"height_reduction_pct": height_reduction_pct,
+			"exploded": experiment.time_to_bounding_box_explosion is not None
+		})
+
+	return results
+
+
+def get_thickness_height_reduction_vs_force_data(session):
+	"""Get all experiments from material thickness series for height reduction vs force graph"""
+	thickness_series = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%material_thickness%')
+	).all()
+
+	series_map = {s.experiment_series_name: s for s in thickness_series}
+
+	experiments = session.query(Experiment).filter(
+		Experiment.experiment_series_name.in_([s.experiment_series_name for s in thickness_series])
+	).all()
+
+	results = []
+	for experiment in experiments:
+		series = series_map.get(experiment.experiment_series_name)
+		if not series or not series.height_m:
+			continue
+
+		if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+			continue
+
+		height_reduction_pct = ((series.height_m - experiment.height_under_load) / series.height_m) * 100
+
+		results.append({
+			"experiment_series_name": experiment.experiment_series_name,
+			"material_thickness": series.material_thickness,
 			"force": abs(experiment.force_in_y_direction),
 			"height_reduction_pct": height_reduction_pct,
 			"exploded": experiment.time_to_bounding_box_explosion is not None

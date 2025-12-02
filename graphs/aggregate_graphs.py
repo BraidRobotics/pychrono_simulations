@@ -9,6 +9,7 @@ from database.queries.graph_queries import (
     get_material_thickness_vs_force_chart_values,
     get_load_capacity_ratio_y_chart_values,
     get_material_thickness_vs_efficiency_chart_values,
+    get_thickness_height_reduction_vs_force_data,
     get_layer_count_vs_height_chart_values,
     get_layer_count_vs_force_chart_values,
     get_layer_count_vs_efficiency_chart_values,
@@ -118,7 +119,7 @@ def generate_material_thickness_weight_graph(session):
         name='Experimental Data',
         marker=dict(size=10, color='green'),
         customdata=df['experiment_series_name'],
-        hovertemplate='<b>%{customdata}</b><br>Thickness: %{x:.2f} mm<br>Weight: %{y:.4f} kg<extra></extra>'
+        hovertemplate='<b>%{customdata}</b><br>Material Thickness: %{x:.2f} mm<br>Weight: %{y:.4f} kg<extra></extra>'
     ))
 
     # Add theoretical quadratic scaling (Weight ∝ thickness²)
@@ -176,7 +177,7 @@ def generate_material_thickness_force_graph(session):
         name='Experimental Data',
         marker=dict(size=10, color='blue'),
         customdata=df['experiment_series_name'],
-        hovertemplate='<b>%{customdata}</b><br>Thickness: %{x:.2f} mm<br>Force: %{y:.3f} N<extra></extra>'
+        hovertemplate='<b>%{customdata}</b><br>Material Thickness: %{x:.2f} mm<br>Force: %{y:.3f} N<extra></extra>'
     ))
 
     # Add theoretical scaling curves
@@ -257,7 +258,7 @@ def generate_material_thickness_efficiency_graph(session):
         name='Experimental Data',
         marker=dict(size=10, color='darkgreen'),
         customdata=df['experiment_series_name'],
-        hovertemplate='<b>%{customdata}</b><br>Thickness: %{x:.2f} mm<br>Efficiency: %{y:.2f}×<extra></extra>'
+        hovertemplate='<b>%{customdata}</b><br>Material Thickness: %{x:.2f} mm<br>Efficiency: %{y:.2f}×<extra></extra>'
     ))
 
     # Add theoretical cubic scaling (Efficiency ∝ t³)
@@ -320,6 +321,76 @@ def generate_material_thickness_efficiency_graph(session):
     return "material_thickness_vs_efficiency.html"
 
 
+def generate_thickness_height_reduction_vs_force_graph(session):
+    data = get_thickness_height_reduction_vs_force_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    df['material_thickness_mm'] = df['material_thickness'] * 1000
+
+    fig = go.Figure()
+
+    thickness_values = sorted(df['material_thickness_mm'].unique())
+    colors = px.colors.qualitative.Plotly
+
+    df_no_explosion = df[df['exploded'] == False]
+    df_exploded = df[df['exploded'] == True]
+
+    for i, thickness in enumerate(thickness_values):
+        color = colors[i % len(colors)]
+
+        df_thickness_no_exp = df_no_explosion[df_no_explosion['material_thickness_mm'] == thickness]
+        if not df_thickness_no_exp.empty:
+            fig.add_trace(go.Scatter(
+                x=df_thickness_no_exp['force'],
+                y=df_thickness_no_exp['height_reduction_pct'],
+                mode='markers',
+                name=f'{thickness:.1f} mm',
+                marker=dict(size=8, color=color),
+                legendgroup=f'{thickness}',
+                hovertemplate=f'<b>{thickness:.1f} mm</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'
+            ))
+
+        df_thickness_exp = df_exploded[df_exploded['material_thickness_mm'] == thickness]
+        if not df_thickness_exp.empty:
+            fig.add_trace(go.Scatter(
+                x=df_thickness_exp['force'],
+                y=df_thickness_exp['height_reduction_pct'],
+                mode='markers',
+                name=f'{thickness:.1f} mm (exploded)',
+                marker=dict(size=10, color=color, symbol='x', line=dict(width=2)),
+                legendgroup=f'{thickness}',
+                showlegend=False,
+                hovertemplate=f'<b>{thickness:.1f} mm</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'
+            ))
+
+    from graphs.graph_constants import TARGET_HEIGHT_REDUCTION_PERCENT
+    if not df.empty:
+        fig.add_hline(
+            y=TARGET_HEIGHT_REDUCTION_PERCENT,
+            line_dash="dash",
+            line_color="orange",
+            annotation_text=f"{TARGET_HEIGHT_REDUCTION_PERCENT:.0f}% Target",
+            annotation_position="right"
+        )
+
+    fig.update_layout(
+        title='Height Reduction vs Force - All Material Thickness Configurations',
+        xaxis_title='Force in Y Direction (N)',
+        yaxis_title='Height Reduction (%)',
+        height=600,
+        hovermode='closest',
+        showlegend=True,
+        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99),
+        margin=dict(r=120)  # Add right margin for annotation text
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "thickness_height_reduction_vs_force.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "thickness_height_reduction_vs_force.html"
 
 
 def generate_layer_count_height_graph(session):
@@ -600,7 +671,8 @@ def generate_layer_height_reduction_vs_force_graph(session):
         height=600,
         hovermode='closest',
         showlegend=True,
-        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99)
+        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99),
+        margin=dict(r=120)  # Add right margin for annotation text
     )
     apply_latex_font_theme(fig)
 
@@ -886,7 +958,8 @@ def generate_strand_height_reduction_vs_force_graph(session):
         height=600,
         hovermode='closest',
         showlegend=True,
-        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99)
+        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99),
+        margin=dict(r=120)  # Add right margin for annotation text
     )
     apply_latex_font_theme(fig)
 
@@ -920,7 +993,7 @@ def generate_recovery_by_thickness_graph(session):
             line=dict(width=0.5, color='DarkSlateGrey')
         ),
         text=df['experiment_series_name'],
-        hovertemplate='<b>%{text}</b><br>Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Strands: %{z}<br>Recovery: %{marker.color:.1f}%<extra></extra>'
+        hovertemplate='<b>%{text}</b><br>Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Strands: %{z}<br>Recovery: %{marker.color:.1f}%<extra></extra>'
     )])
 
     fig.update_layout(
@@ -1040,7 +1113,7 @@ def generate_recovery_heatmap_thickness_layers(session):
         x=pivot.columns,
         y=pivot.index,
         colorscale='Viridis',
-        hovertemplate='Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Recovery: %{z:.1f}%<extra></extra>'
+        hovertemplate='Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Recovery: %{z:.1f}%<extra></extra>'
     ))
 
     fig.update_layout(
@@ -1177,7 +1250,7 @@ def generate_recovery_heatmap_strands_thickness(session):
         x=pivot.columns,
         y=pivot.index,
         colorscale='RdYlGn',
-        hovertemplate='Thickness: %{x:.2f} mm<br>Strands: %{y}<br>Recovery: %{z:.1f}%<extra></extra>',
+        hovertemplate='Material Thickness: %{x:.2f} mm<br>Strands: %{y}<br>Recovery: %{z:.1f}%<extra></extra>',
         colorbar=dict(title="Recovery (%)")
     ))
 
