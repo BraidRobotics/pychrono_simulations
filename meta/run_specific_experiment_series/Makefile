@@ -1,5 +1,12 @@
 .PHONY: help force_no_force material_thickness layers strands all
 
+# Detect OS and set Python command
+ifeq ($(OS),Windows_NT)
+    PYTHON := python
+else
+    PYTHON := python3
+endif
+
 # Default target
 help:
 	@echo "Available targets:"
@@ -14,24 +21,24 @@ help:
 # Run force_no_force experiments
 force_no_force:
 	@echo "Running force_no_force experiment series..."
-	python3 run_force_no_force.py
+	$(PYTHON) run_force_no_force.py
 
 # Run material_thickness experiments
 material_thickness:
 	@echo "Running material_thickness experiment series..."
-	python3 run_material_thickness.py
+	$(PYTHON) run_material_thickness.py
 
 # Run number_of_layers experiments
 layers:
 	@echo "Running number_of_layers experiment series..."
-	python3 run_number_of_layers.py
+	$(PYTHON) run_number_of_layers.py
 
 # Run number_of_strands experiments
 strands:
 	@echo "Running number_of_strands experiment series..."
-	python3 run_number_of_strands.py
+	$(PYTHON) run_number_of_strands.py
 
 # Run all experiment series sequentially
 all: force_no_force material_thickness layers strands
 	@echo ""
-	@echo " All experiment series completed!"
+	@echo "All experiment series completed!"
