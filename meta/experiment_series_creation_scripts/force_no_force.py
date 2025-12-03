@@ -10,7 +10,7 @@ group_name = "force_no_force"
 # Define factorial grid
 strand_values = [4, 6, 8]  # All divisible by 2
 layer_values = [3, 5, 7]   # Low, medium, high
-material_thickness = 0.005  # Constant
+material_thickness = 0.007  # Constant
 
 session = SessionLocal()
 
