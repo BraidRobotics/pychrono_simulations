@@ -2,7 +2,7 @@
 {% block title %}Thickness Analysis{% endblock %}
 {% block body %}
 
-<h1>Material Thickness Analysis</h1>
+<h1>Strand Thickness Analysis</h1>
 
 <p>
     This analysis explores how strand thickness affects structural performance.
@@ -30,8 +30,8 @@
         <strong>Theory:</strong> Weight scales quadratically with material thickness (W ∝ t²) because increasing strand thickness increases the cross-sectional area (which is proportional to t²), and thus the volume and weight of material.<br>
         <strong>Expected:</strong> Data points should align with the theoretical quadratic curve.
     </p>
-    {% if material_thickness_graph_path %}
-    <iframe src="/graphs/{{ material_thickness_graph_path }}" width="100%" height="550" frameborder="0"></iframe>
+    {% if strand_thickness_graph_path %}
+    <iframe src="/graphs/{{ strand_thickness_graph_path }}" width="100%" height="550" frameborder="0"></iframe>
     {% else %}
     <p>No data available for weight scaling graph.</p>
     {% endif %}
@@ -51,8 +51,8 @@
     <p>
         <strong>Interpretation:</strong> The theoretical curve that best fits experimental data reveals the primary failure mechanism.
     </p>
-    {% if material_thickness_force_graph_path %}
-    <iframe src="/graphs/{{ material_thickness_force_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% if strand_thickness_force_graph_path %}
+    <iframe src="/graphs/{{ strand_thickness_force_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
     <p>No data available for force capacity scaling graph.</p>
     {% endif %}
@@ -73,8 +73,8 @@
     <p>
         <strong>Interpretation:</strong> If data follows cubic scaling, thicker strands are significantly more weight-efficient than thinner ones.
     </p>
-    {% if material_thickness_efficiency_graph_path %}
-    <iframe src="/graphs/{{ material_thickness_efficiency_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% if strand_thickness_efficiency_graph_path %}
+    <iframe src="/graphs/{{ strand_thickness_efficiency_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
     <p>No data available for structural efficiency scaling graph.</p>
     {% endif %}

@@ -10,7 +10,7 @@ group_name = "force_no_force"
 # Define factorial grid
 strand_values = [4, 6, 8]  # All divisible by 2
 layer_values = [3, 5, 7]   # Low, medium, high
-material_thickness = 0.007  # Constant
+strand_radius = 0.007  # Constant
 
 session = SessionLocal()
 
@@ -24,7 +24,7 @@ for num_strands in strand_values:
             num_experiments=num_experiments,
             num_strands=num_strands,
             num_layers=num_layers,
-            material_thickness=material_thickness,
+            strand_radius=strand_radius,
             initial_force_applied_in_y_direction=0.0,
             final_force_in_y_direction=-3.0,
             max_simulation_time=20.0,

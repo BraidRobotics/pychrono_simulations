@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run all material_thickness experiment series with 90-second sleep between each."""
+"""Run all strand_thickness experiment series with 90-second sleep between each."""
 
 import sys
 import time
@@ -12,12 +12,12 @@ from experiments.run_experiments import run_experiments
 def main():
     session = SessionLocal()
 
-    # Get all material_thickness series, ordered by name
+    # Get all strand_thickness series, ordered by name
     series_list = session.query(ExperimentSeries).filter(
-        ExperimentSeries.group_name == 'material_thickness'
+        ExperimentSeries.group_name == 'strand_thickness'
     ).order_by(ExperimentSeries.experiment_series_name).all()
 
-    print(f"Found {len(series_list)} material_thickness experiment series to run\n")
+    print(f"Found {len(series_list)} strand_thickness experiment series to run\n")
 
     for i, series in enumerate(series_list, 1):
         print(f"\n{'='*60}")
@@ -32,7 +32,7 @@ def main():
             time.sleep(90)
 
     session.close()
-    print(f"\n✅ All {len(series_list)} material_thickness series completed!")
+    print(f"\n✅ All {len(series_list)} strand_thickness series completed!")
 
 if __name__ == '__main__':
     main()

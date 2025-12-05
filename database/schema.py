@@ -49,7 +49,7 @@ def create_table():
             radius FLOAT,
             pitch FLOAT,
             radius_taper FLOAT DEFAULT 0.0, -- Conicity (how much it narrows towards the top)
-            material_thickness FLOAT DEFAULT 1.0,
+            strand_radius FLOAT DEFAULT 1.0,
             material_youngs_modulus FLOAT DEFAULT 1.72e10, -- Glass-reinforced polyester (GRP) https://en.wikipedia.org/wiki/Young%27s_modulus
             weight_kg FLOAT DEFAULT NULL,
             height_m FLOAT DEFAULT NULL,
@@ -102,7 +102,7 @@ def create_table():
         initial_force_applied_in_y_direction, final_force_in_y_direction,
         initial_force_applied_in_x_direction, final_force_in_x_direction,
         initial_force_applied_in_z_direction, final_force_in_z_direction, torsional_force,
-        num_strands, num_layers, radius, pitch, radius_taper, material_thickness, weight_kg, height_m) 
+        num_strands, num_layers, radius, pitch, radius_taper, strand_radius, weight_kg, height_m) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''',
         ("_default", "Default configuration", 3, 2.0, 1.8, 0.08, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5, 10, 0.1, 1.0, 0.0, 1.0, None, None))
 

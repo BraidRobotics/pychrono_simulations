@@ -5,10 +5,10 @@ import numpy as np
 import plotly.graph_objects as go
 
 from database.queries.graph_queries import (
-    get_material_thickness_vs_weight_chart_values,
-    get_material_thickness_vs_force_chart_values,
+    get_strand_radius_vs_weight_chart_values,
+    get_strand_radius_vs_force_chart_values,
     get_load_capacity_ratio_y_chart_values,
-    get_material_thickness_vs_efficiency_chart_values,
+    get_strand_radius_vs_efficiency_chart_values,
     get_thickness_height_reduction_vs_force_data,
     get_layer_count_vs_height_chart_values,
     get_layer_count_vs_force_chart_values,
@@ -100,20 +100,20 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
     return f"load_capacity_ratio_{force_direction}.html"
 
 
-def generate_material_thickness_weight_graph(session):
+def generate_strand_thickness_weight_graph(session):
 
-    data = get_material_thickness_vs_weight_chart_values(session)
+    data = get_strand_radius_vs_weight_chart_values(session)
     if not data:
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     fig = go.Figure()
 
     # Add actual data points
     fig.add_trace(go.Scatter(
-        x=df['material_thickness_mm'],
+        x=df['strand_thickness_mm'],
         y=df['weight_kg'],
         mode='markers',
         name='Experimental Data',
@@ -124,12 +124,12 @@ def generate_material_thickness_weight_graph(session):
 
     # Add theoretical quadratic scaling (Weight ∝ thickness²)
     if len(df) > 1:
-        t_min, t_max = df['material_thickness_mm'].min(), df['material_thickness_mm'].max()
+        t_min, t_max = df['strand_thickness_mm'].min(), df['strand_thickness_mm'].max()
         t_range = np.linspace(t_min, t_max, 100)
 
         # Fit a quadratic through the origin: W = k*t² (since W ∝ t² from cross-sectional area)
         # Using least squares: k = sum(t²*w) / sum(t⁴)
-        k = np.sum(df['material_thickness_mm']**2 * df['weight_kg']) / np.sum(df['material_thickness_mm']**4)
+        k = np.sum(df['strand_thickness_mm']**2 * df['weight_kg']) / np.sum(df['strand_thickness_mm']**4)
         w_quadratic = k * t_range**2
 
         fig.add_trace(go.Scatter(
@@ -152,26 +152,26 @@ def generate_material_thickness_weight_graph(session):
     )
     apply_latex_font_theme(fig)
 
-    output_path = GRAPHS_DIR / "material_thickness_vs_weight.html"
+    output_path = GRAPHS_DIR / "strand_thickness_vs_weight.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
-    return "material_thickness_vs_weight.html"
+    return "strand_thickness_vs_weight.html"
 
 
-def generate_material_thickness_force_graph(session):
+def generate_strand_thickness_force_graph(session):
 
-    data = get_material_thickness_vs_force_chart_values(session)
+    data = get_strand_radius_vs_force_chart_values(session)
     if not data:
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     fig = go.Figure()
 
     # Add actual data points
     fig.add_trace(go.Scatter(
-        x=df['material_thickness_mm'],
+        x=df['strand_thickness_mm'],
         y=df['force'],
         mode='markers',
         name='Experimental Data',
@@ -182,11 +182,11 @@ def generate_material_thickness_force_graph(session):
 
     # Add theoretical scaling curves
     if len(df) > 1:
-        t_min, t_max = df['material_thickness_mm'].min(), df['material_thickness_mm'].max()
+        t_min, t_max = df['strand_thickness_mm'].min(), df['strand_thickness_mm'].max()
         t_range = np.linspace(t_min, t_max, 100)
 
         # Normalize to first data point for comparison
-        t0 = df['material_thickness_mm'].iloc[0]
+        t0 = df['strand_thickness_mm'].iloc[0]
         f0 = df['force'].iloc[0]
 
         # Linear scaling: F ∝ t
@@ -233,26 +233,26 @@ def generate_material_thickness_force_graph(session):
     )
     apply_latex_font_theme(fig)
 
-    output_path = GRAPHS_DIR / "material_thickness_vs_force.html"
+    output_path = GRAPHS_DIR / "strand_thickness_vs_force.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
-    return "material_thickness_vs_force.html"
+    return "strand_thickness_vs_force.html"
 
 
-def generate_material_thickness_efficiency_graph(session):
+def generate_strand_thickness_efficiency_graph(session):
 
-    data = get_material_thickness_vs_efficiency_chart_values(session)
+    data = get_strand_radius_vs_efficiency_chart_values(session)
     if not data:
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     fig = go.Figure()
 
     # Add actual data points
     fig.add_trace(go.Scatter(
-        x=df['material_thickness_mm'],
+        x=df['strand_thickness_mm'],
         y=df['specific_load_capacity'],
         mode='markers',
         name='Experimental Data',
@@ -264,11 +264,11 @@ def generate_material_thickness_efficiency_graph(session):
     # Add theoretical cubic scaling (Efficiency ∝ t³)
     # If F ∝ t⁴ and W ∝ t, then F/W ∝ t³
     if len(df) > 1:
-        t_min, t_max = df['material_thickness_mm'].min(), df['material_thickness_mm'].max()
+        t_min, t_max = df['strand_thickness_mm'].min(), df['strand_thickness_mm'].max()
         t_range = np.linspace(t_min, t_max, 100)
 
         # Normalize to first data point
-        t0 = df['material_thickness_mm'].iloc[0]
+        t0 = df['strand_thickness_mm'].iloc[0]
         e0 = df['specific_load_capacity'].iloc[0]
 
         # Cubic scaling: Efficiency ∝ t³ (if buckling-dominated)
@@ -315,10 +315,10 @@ def generate_material_thickness_efficiency_graph(session):
     )
     apply_latex_font_theme(fig)
 
-    output_path = GRAPHS_DIR / "material_thickness_vs_efficiency.html"
+    output_path = GRAPHS_DIR / "strand_thickness_vs_efficiency.html"
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
-    return "material_thickness_vs_efficiency.html"
+    return "strand_thickness_vs_efficiency.html"
 
 
 def generate_thickness_height_reduction_vs_force_graph(session):
@@ -327,11 +327,11 @@ def generate_thickness_height_reduction_vs_force_graph(session):
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     fig = go.Figure()
 
-    thickness_values = sorted(df['material_thickness_mm'].unique())
+    thickness_values = sorted(df['strand_thickness_mm'].unique())
     colors = px.colors.qualitative.Plotly
 
     df_no_explosion = df[df['exploded'] == False]
@@ -340,7 +340,7 @@ def generate_thickness_height_reduction_vs_force_graph(session):
     for i, thickness in enumerate(thickness_values):
         color = colors[i % len(colors)]
 
-        df_thickness_no_exp = df_no_explosion[df_no_explosion['material_thickness_mm'] == thickness]
+        df_thickness_no_exp = df_no_explosion[df_no_explosion['strand_thickness_mm'] == thickness]
         if not df_thickness_no_exp.empty:
             fig.add_trace(go.Scatter(
                 x=df_thickness_no_exp['force'],
@@ -352,7 +352,7 @@ def generate_thickness_height_reduction_vs_force_graph(session):
                 hovertemplate=f'<b>{thickness:.1f} mm</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'
             ))
 
-        df_thickness_exp = df_exploded[df_exploded['material_thickness_mm'] == thickness]
+        df_thickness_exp = df_exploded[df_exploded['strand_thickness_mm'] == thickness]
         if not df_thickness_exp.empty:
             fig.add_trace(go.Scatter(
                 x=df_thickness_exp['force'],
@@ -976,11 +976,11 @@ def generate_recovery_by_thickness_graph(session):
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     # 3D scatter with recovery as color
     fig = go.Figure(data=[go.Scatter3d(
-        x=df['material_thickness_mm'],
+        x=df['strand_thickness_mm'],
         y=df['num_layers'],
         z=df['num_strands'],
         mode='markers',
@@ -1021,7 +1021,7 @@ def generate_recovery_by_layers_graph(session):
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     # Create scatter plot with color by strands
     fig = px.scatter(
@@ -1029,13 +1029,13 @@ def generate_recovery_by_layers_graph(session):
         x='num_layers',
         y='recovery_percent',
         color='num_strands',
-        size='material_thickness_mm',
-        hover_data=['experiment_series_name', 'material_thickness_mm'],
+        size='strand_thickness_mm',
+        hover_data=['experiment_series_name', 'strand_thickness_mm'],
         labels={
             'num_layers': 'Number of Layers',
             'recovery_percent': 'Recovery (%)',
             'num_strands': 'Strands',
-            'material_thickness_mm': 'Thickness (mm)'
+            'strand_thickness_mm': 'Thickness (mm)'
         },
         title='Recovery vs Layers (colored by Strands, sized by Thickness)',
         color_continuous_scale='Viridis'
@@ -1058,7 +1058,7 @@ def generate_recovery_by_strands_graph(session):
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     # Create scatter plot with color by layers
     fig = px.scatter(
@@ -1066,13 +1066,13 @@ def generate_recovery_by_strands_graph(session):
         x='num_strands',
         y='recovery_percent',
         color='num_layers',
-        size='material_thickness_mm',
-        hover_data=['experiment_series_name', 'material_thickness_mm'],
+        size='strand_thickness_mm',
+        hover_data=['experiment_series_name', 'strand_thickness_mm'],
         labels={
             'num_strands': 'Number of Strands',
             'recovery_percent': 'Recovery (%)',
             'num_layers': 'Layers',
-            'material_thickness_mm': 'Thickness (mm)'
+            'strand_thickness_mm': 'Thickness (mm)'
         },
         title='Recovery vs Strands (colored by Layers, sized by Thickness)',
         color_continuous_scale='Plasma'
@@ -1095,13 +1095,13 @@ def generate_recovery_heatmap_thickness_layers(session):
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     # Create pivot table for heatmap
     pivot = df.pivot_table(
         values='recovery_percent',
         index='num_layers',
-        columns='material_thickness_mm',
+        columns='strand_thickness_mm',
         aggfunc='mean'
     )
 
@@ -1141,8 +1141,8 @@ def generate_recovery_parameter_importance_graph(session):
     # Calculate correlation coefficients
     correlations = {}
 
-    if df['material_thickness'].std() > 0:
-        correlations['Thickness'] = abs(np.corrcoef(df['material_thickness'], df['recovery_percent'])[0, 1])
+    if df['strand_radius'].std() > 0:
+        correlations['Thickness'] = abs(np.corrcoef(df['strand_radius'], df['recovery_percent'])[0, 1])
 
     if df['num_layers'].std() > 0:
         correlations['Layers'] = abs(np.corrcoef(df['num_layers'], df['recovery_percent'])[0, 1])
@@ -1232,13 +1232,13 @@ def generate_recovery_heatmap_strands_thickness(session):
         return None
 
     df = pd.DataFrame(data)
-    df['material_thickness_mm'] = df['material_thickness'] * 1000
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
     # Create pivot table for heatmap
     pivot = df.pivot_table(
         values='recovery_percent',
         index='num_strands',
-        columns='material_thickness_mm',
+        columns='strand_thickness_mm',
         aggfunc='mean'
     )
 

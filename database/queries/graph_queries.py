@@ -11,27 +11,27 @@ def get_weight_for_series(session, experiment_series_name):
 	series = session.query(ExperimentSeries).filter_by(experiment_series_name=experiment_series_name).first()
 	return series.weight_kg if series else None
 
-def get_material_thickness_vs_weight_chart_values(session):
+def get_strand_radius_vs_weight_chart_values(session):
     values = session.query(
         ExperimentSeries.experiment_series_name,
-        ExperimentSeries.material_thickness,
+        ExperimentSeries.strand_radius,
         ExperimentSeries.weight_kg
-    ).filter(ExperimentSeries.group_name.like('%material_thickness%')).all()
+    ).filter(ExperimentSeries.group_name.like('%strand_thickness%')).all()
 
     return [
         {
             "experiment_series_name": row.experiment_series_name,
-            "material_thickness": row.material_thickness,
+            "strand_radius": row.strand_radius,
             "weight_kg": row.weight_kg
         }
         for row in values
     ]
 
 
-def get_material_thickness_vs_force_chart_values(session):
+def get_strand_radius_vs_force_chart_values(session):
     series_map = {
         row.experiment_series_name: row
-        for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%material_thickness%')).all()
+        for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%strand_thickness%')).all()
     }
 
     experiments = session.query(Experiment).order_by(
@@ -48,7 +48,7 @@ def get_material_thickness_vs_force_chart_values(session):
 
     for series_name, experiments in grouped.items():
         series = series_map.get(series_name)
-        if not series or not series.height_m or not series.material_thickness:
+        if not series or not series.height_m or not series.strand_radius:
             continue
 
         best_experiment = None
@@ -73,18 +73,18 @@ def get_material_thickness_vs_force_chart_values(session):
         if best_experiment:
             results.append({
                 "experiment_series_name": series_name,
-                "material_thickness": series.material_thickness,
+                "strand_radius": series.strand_radius,
                 "force": abs(best_experiment.force_in_y_direction)
             })
 
     return results
 
 
-def get_material_thickness_vs_efficiency_chart_values(session):
-	"""Get material thickness vs specific load capacity (structural efficiency)"""
+def get_strand_radius_vs_efficiency_chart_values(session):
+	"""Get strand thickness vs specific load capacity (structural efficiency)"""
 	series_map = {
 		row.experiment_series_name: row
-		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%thickness_force%')).all()
+		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%strand_thickness%')).all()
 	}
 
 	experiments = session.query(Experiment).order_by(
@@ -101,7 +101,7 @@ def get_material_thickness_vs_efficiency_chart_values(session):
 
 	for series_name, experiments in grouped.items():
 		series = series_map.get(series_name)
-		if not series or not series.height_m or not series.material_thickness or not series.weight_kg:
+		if not series or not series.height_m or not series.strand_radius or not series.weight_kg:
 			continue
 
 		best_experiment = None
@@ -131,7 +131,7 @@ def get_material_thickness_vs_efficiency_chart_values(session):
 			if specific_load_capacity is not None:
 				results.append({
 					"experiment_series_name": series_name,
-					"material_thickness": series.material_thickness,
+					"strand_radius": series.strand_radius,
 					"specific_load_capacity": specific_load_capacity
 				})
 
@@ -340,9 +340,9 @@ def get_strand_height_reduction_vs_force_data(session):
 
 
 def get_thickness_height_reduction_vs_force_data(session):
-	"""Get all experiments from material thickness series for height reduction vs force graph"""
+	"""Get all experiments from strand thickness series for height reduction vs force graph"""
 	thickness_series = session.query(ExperimentSeries).filter(
-		ExperimentSeries.group_name.like('%material_thickness%')
+		ExperimentSeries.group_name.like('%strand_thickness%')
 	).all()
 
 	series_map = {s.experiment_series_name: s for s in thickness_series}
@@ -364,7 +364,7 @@ def get_thickness_height_reduction_vs_force_data(session):
 
 		results.append({
 			"experiment_series_name": experiment.experiment_series_name,
-			"material_thickness": series.material_thickness,
+			"strand_radius": series.strand_radius,
 			"force": abs(experiment.force_in_y_direction),
 			"height_reduction_pct": height_reduction_pct,
 			"exploded": experiment.time_to_bounding_box_explosion is not None
@@ -536,7 +536,7 @@ def get_force_no_force_recovery_data(session):
 			avg_recovery = sum(recovery_percentages) / len(recovery_percentages)
 			results.append({
 				"experiment_series_name": series.experiment_series_name,
-				"material_thickness": series.material_thickness,
+				"strand_radius": series.strand_radius,
 				"num_layers": series.num_layers,
 				"num_strands": series.num_strands,
 				"recovery_percent": avg_recovery,

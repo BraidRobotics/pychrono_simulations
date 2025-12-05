@@ -36,7 +36,7 @@ class ExperimentSeries(Base):
 	radius = Column(Float, default=0.1)
 	pitch = Column(Float, default=0.1)  # The distance between two consecutive strands in the same layer
 	radius_taper = Column(Float, default=0.0)  # Conicity (how much it narrows towards the top)
-	material_thickness = Column(Float, default=0.007)
+	strand_radius = Column(Float, default=0.007)
 	material_youngs_modulus = Column(Float, default=1.72e10)  # Glass-reinforced polyester (GRP) https://en.wikipedia.org/wiki/Young%27s_modulus
 	weight_kg = Column(Float, default=None)
 	height_m = Column(Float, default=None)
@@ -58,8 +58,8 @@ class ExperimentSeries(Base):
 			errors.append("Radius taper times number of layers must not exceed radius.")
 		if self.num_strands % 2 != 0:
 			errors.append("Number of strands should be divisible by 2 for symmetry.")
-		if self.material_thickness <= 0:
-			errors.append("Material thickness must be greater than 0.")
+		if self.strand_radius <= 0:
+			errors.append("Strand radius must be greater than 0.")
 		if self.material_youngs_modulus <= 0:
 			errors.append("Material Young's modulus must be greater than 0.")
 		forces_vary = (

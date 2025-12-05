@@ -28,7 +28,7 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
     ####################################################################################################
     
     braid_mesh = create_braid_mesh()
-    strand_material = create_strand_material(experiment_series.material_youngs_modulus, experiment_series.material_thickness)
+    strand_material = create_strand_material(experiment_series.material_youngs_modulus, experiment_series.strand_radius)
     tape_material = create_tape_material()
     floor_material = create_floor_material()
 

@@ -10,18 +10,18 @@ interlaced_experiment_series_name = "strand_thickness_experiment_"
 
 initial_model = ExperimentSeries(
     experiment_series_name=interlaced_experiment_series_name + "_01",
-    group_name="material_thickness",
+    group_name="strand_thickness",
     num_experiments=num_experiments,
-    material_thickness=0.003,
+    strand_radius=0.003,
     initial_force_applied_in_y_direction=0.0,
     final_force_in_y_direction=-4.0,
 )
 
 final_model = ExperimentSeries(
     experiment_series_name=f"{interlaced_experiment_series_name}_{num_experiment_series:02d}",
-    group_name="material_thickness",
+    group_name="strand_thickness",
     num_experiments=num_experiments,
-    material_thickness=0.008,
+    strand_radius=0.008,
     initial_force_applied_in_y_direction=0.0,
     final_force_in_y_direction=-4.0,
 )

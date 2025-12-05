@@ -7,7 +7,7 @@ from experiments import run_experiments, run_non_experiment, run_visual_simulati
 from database.queries.experiment_series_queries import select_all_experiment_series, select_all_experiment_series_grouped, select_experiment_series_by_name, is_experiment_series_name_unique, \
     insert_experiment_series_default, update_experiment_series, delete_experiment_series
 from database.queries.experiments_queries import select_all_experiments_by_series_name, delete_experiments_by_series_name, select_experiment_by_series_name_and_id
-from database.queries.graph_queries import get_material_thickness_vs_weight_chart_values, get_load_capacity_ratio_y_chart_values
+from database.queries.graph_queries import get_strand_radius_vs_weight_chart_values, get_load_capacity_ratio_y_chart_values
 from database.session import SessionLocal
 
 from util import delete_experiment_series_folder
@@ -94,16 +94,16 @@ def aggregated_charts_page():
 @app.route("/thickness_analysis", methods=["GET"])
 def thickness_analysis_page():
     # Graph paths
-    material_thickness_graph_path = "material_thickness_vs_weight.html"
-    material_thickness_force_graph_path = "material_thickness_vs_force.html"
-    material_thickness_efficiency_graph_path = "material_thickness_vs_efficiency.html"
+    strand_thickness_graph_path = "strand_thickness_vs_weight.html"
+    strand_thickness_force_graph_path = "strand_thickness_vs_force.html"
+    strand_thickness_efficiency_graph_path = "strand_thickness_vs_efficiency.html"
     thickness_height_reduction_graph_path = "thickness_height_reduction_vs_force.html"
 
     return render_template(
         "analysis/thicknessAnalysis.html",
-        material_thickness_graph_path=material_thickness_graph_path,
-        material_thickness_force_graph_path=material_thickness_force_graph_path,
-        material_thickness_efficiency_graph_path=material_thickness_efficiency_graph_path,
+        strand_thickness_graph_path=strand_thickness_graph_path,
+        strand_thickness_force_graph_path=strand_thickness_force_graph_path,
+        strand_thickness_efficiency_graph_path=strand_thickness_efficiency_graph_path,
         thickness_height_reduction_graph_path=thickness_height_reduction_graph_path
     )
 

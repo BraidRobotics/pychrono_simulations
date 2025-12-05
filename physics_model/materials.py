@@ -8,9 +8,9 @@ def create_braid_mesh():
     return mesh
 
 
-def create_strand_material(young_modulus, material_thickness):
+def create_strand_material(young_modulus, strand_radius):
     braid_material = fea.ChBeamSectionEulerSimple()
-    braid_material.SetAsCircularSection(material_thickness)
+    braid_material.SetAsCircularSection(strand_radius)
 
     # braid_material.SetYoungModulus(young_modulus) # Glass-reinforced polyester (GRP) - https://en.wikipedia.org/wiki/Young%27s_modulus
     braid_material.SetYoungModulus(1e8) # Nylon
