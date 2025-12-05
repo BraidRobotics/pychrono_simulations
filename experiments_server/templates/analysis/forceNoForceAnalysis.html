@@ -23,6 +23,21 @@
     {% endif %}
 </div>
 
+<div id="equilibrium-time">
+    <h2><a href="#equilibrium-time">Equilibrium Time Analysis</a></h2>
+    <p>
+        <strong>Purpose:</strong> 3D visualization showing how long structures take to reach equilibrium after force removal.<br>
+        <strong>Metric:</strong> Average time (seconds) for the system to stabilize after releasing applied force.<br>
+        <strong>Interpretation:</strong> Shorter equilibrium times indicate faster structural response and better damping characteristics.<br>
+        <strong>Use:</strong> Identifies parameter combinations that lead to faster settling behavior.
+    </p>
+    {% if equilibrium_time_graph_path %}
+    <iframe src="/graphs/{{ equilibrium_time_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for equilibrium time analysis.</p>
+    {% endif %}
+</div>
+
 <div id="recovery-layers">
     <h2><a href="#recovery-layers">Recovery Quality by Layer Count</a></h2>
     <p>

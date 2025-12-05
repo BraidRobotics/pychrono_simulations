@@ -145,6 +145,7 @@ def force_no_force_analysis_page():
     recovery_by_strands_graph_path = "recovery_by_strands.html"
     recovery_heatmap_thickness_layers_path = "recovery_heatmap_thickness_layers.html"
     parameter_importance_graph_path = "recovery_parameter_importance.html"
+    equilibrium_time_graph_path = "equilibrium_time.html"
 
     return render_template(
         "analysis/forceNoForceAnalysis.html",
@@ -152,7 +153,8 @@ def force_no_force_analysis_page():
         recovery_by_layers_graph_path=recovery_by_layers_graph_path,
         recovery_by_strands_graph_path=recovery_by_strands_graph_path,
         recovery_heatmap_thickness_layers_path=recovery_heatmap_thickness_layers_path,
-        parameter_importance_graph_path=parameter_importance_graph_path
+        parameter_importance_graph_path=parameter_importance_graph_path,
+        equilibrium_time_graph_path=equilibrium_time_graph_path
     )
 
 @app.route('/assets/<path:filename>')

@@ -18,7 +18,8 @@ from database.queries.graph_queries import (
     get_strand_count_vs_force_chart_values,
     get_strand_count_vs_efficiency_chart_values,
     get_strand_height_reduction_vs_force_data,
-    get_force_no_force_recovery_data
+    get_force_no_force_recovery_data,
+    get_force_no_force_equilibrium_data
 )
 from database.queries.experiment_series_queries import select_experiment_series_by_name
 
@@ -1266,3 +1267,48 @@ def generate_recovery_heatmap_strands_thickness(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "recovery_heatmap_strands_thickness.html"
+
+
+def generate_equilibrium_time_graph(session):
+    """3D scatter plot showing equilibrium time as a function of all three parameters"""
+    data = get_force_no_force_equilibrium_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
+
+    # 3D scatter with equilibrium time as color
+    fig = go.Figure(data=[go.Scatter3d(
+        x=df['strand_thickness_mm'],
+        y=df['num_layers'],
+        z=df['num_strands'],
+        mode='markers',
+        marker=dict(
+            size=8,
+            color=df['avg_equilibrium_time'],
+            colorscale='Viridis',
+            showscale=True,
+            colorbar=dict(title="Equilibrium Time (s)"),
+            line=dict(width=0.5, color='DarkSlateGrey')
+        ),
+        text=df['experiment_series_name'],
+        hovertemplate='<b>%{text}</b><br>Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Strands: %{z}<br>Equilibrium Time: %{marker.color:.1f}s<extra></extra>'
+    )])
+
+    fig.update_layout(
+        title='Equilibrium Time Analysis: Thickness × Layers × Strands',
+        scene=dict(
+            xaxis_title='Material Thickness (mm)',
+            yaxis_title='Number of Layers',
+            zaxis_title='Number of Strands'
+        ),
+        height=600,
+        hovermode='closest'
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "equilibrium_time.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "equilibrium_time.html"

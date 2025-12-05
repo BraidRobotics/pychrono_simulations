@@ -19,7 +19,8 @@ from graphs.aggregate_graphs import (
     generate_recovery_heatmap_thickness_layers,
     generate_recovery_heatmap_strands_layers,
     generate_recovery_heatmap_strands_thickness,
-    generate_recovery_parameter_importance_graph
+    generate_recovery_parameter_importance_graph,
+    generate_equilibrium_time_graph
 )
 
 if __name__ == '__main__':
@@ -86,6 +87,9 @@ if __name__ == '__main__':
 
         print("  - Recovery parameter importance...")
         generate_recovery_parameter_importance_graph(session)
+
+        print("  - Equilibrium time...")
+        generate_equilibrium_time_graph(session)
 
         print("\nAll aggregate graphs generated successfully!")
 

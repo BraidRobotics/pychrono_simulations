@@ -546,6 +546,44 @@ def get_force_no_force_recovery_data(session):
 	return results
 
 
+def get_force_no_force_equilibrium_data(session):
+	"""Get equilibrium time data for force_no_force experiments with all parameters"""
+	series_list = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%force_no_force%')
+	).all()
+
+	results = []
+
+	for series in series_list:
+		if not series.height_m or not series.reset_force_after_seconds:
+			continue
+
+		experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name,
+			Experiment.time_to_bounding_box_explosion.is_(None),
+			Experiment.equilibrium_after_seconds.isnot(None)
+		).all()
+
+		if not experiments:
+			continue
+
+		# Calculate average equilibrium time for this series
+		equilibrium_times = [exp.equilibrium_after_seconds for exp in experiments]
+
+		if equilibrium_times:
+			avg_equilibrium_time = sum(equilibrium_times) / len(equilibrium_times)
+			results.append({
+				"experiment_series_name": series.experiment_series_name,
+				"strand_radius": series.strand_radius,
+				"num_layers": series.num_layers,
+				"num_strands": series.num_strands,
+				"avg_equilibrium_time": avg_equilibrium_time,
+				"weight_kg": series.weight_kg
+			})
+
+	return results
+
+
 def get_load_capacity_ratio_y_chart_values(session):
 	return _get_load_capacity_ratio_chart_values(session, "force_in_y_direction")
 
