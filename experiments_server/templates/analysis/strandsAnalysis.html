@@ -22,6 +22,53 @@
     {% endif %}
 </div>
 
+<div id="stiffness-vs-compression">
+    <h2><a href="#stiffness-vs-compression">Stiffness vs Compression</a></h2>
+    <p>
+        <strong>Purpose:</strong> Reveals the non-linear spring behavior of braided structures.<br>
+        <strong>Key Insight:</strong> Unlike linear springs (F = kΔx with constant k), braided structures show varying stiffness:<br>
+    </p>
+    <ul>
+        <li><strong>Progressive Stiffening:</strong> Stiffness increases at low-to-medium compression (braid geometry locks up)</li>
+        <li><strong>Softening Phase:</strong> Stiffness decreases at high compression (approaching buckling)</li>
+    </ul>
+    <p>
+        <strong>Interpretation:</strong> The peak stiffness point indicates optimal operating range before structural degradation begins.
+    </p>
+    {% if strand_stiffness_vs_compression_path %}
+    <iframe src="/graphs/{{ strand_stiffness_vs_compression_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for stiffness vs compression graph.</p>
+    {% endif %}
+</div>
+
+<div id="force-vs-displacement">
+    <h2><a href="#force-vs-displacement">Force vs Displacement (Non-Linear Spring Comparison)</a></h2>
+    <p>
+        <strong>Purpose:</strong> Directly compares experimental behavior to ideal linear springs (Hooke's Law: F = kΔx).<br>
+        <strong>Visualization:</strong>
+    </p>
+    <ul>
+        <li><strong>Solid lines:</strong> Experimental data from simulations</li>
+        <li><strong>Dashed lines:</strong> Hypothetical linear spring with initial stiffness k₀</li>
+    </ul>
+    <p>
+        <strong>Key Observation:</strong> Experimental curves deviate from linear (dashed) lines, showing:
+    </p>
+    <ul>
+        <li>Concave up (stiffening) in early compression</li>
+        <li>Concave down (softening) in late compression</li>
+    </ul>
+    <p>
+        <strong>Conclusion:</strong> These structures behave as <strong>non-linear springs</strong> with variable stiffness k(x), not simple Hooke's Law springs.
+    </p>
+    {% if strand_force_vs_displacement_path %}
+    <iframe src="/graphs/{{ strand_force_vs_displacement_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for force vs displacement graph.</p>
+    {% endif %}
+</div>
+
 <div id="weight-scaling">
     <h2><a href="#weight-scaling">Weight Scaling Validation</a></h2>
     <p>

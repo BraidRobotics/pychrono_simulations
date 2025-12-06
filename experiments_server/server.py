@@ -125,6 +125,8 @@ def layer_analysis_page():
 @app.route("/strands_analysis", methods=["GET"])
 def strands_analysis_page():
     strand_height_reduction_vs_force_path = "strand_height_reduction_vs_force.html"
+    strand_stiffness_vs_compression_path = "strand_stiffness_vs_compression.html"
+    strand_force_vs_displacement_path = "strand_force_vs_displacement.html"
     strand_count_weight_graph_path = "strand_count_vs_weight.html"
     strand_count_force_graph_path = "strand_count_vs_force.html"
     strand_count_efficiency_graph_path = "strand_count_vs_efficiency.html"
@@ -132,6 +134,8 @@ def strands_analysis_page():
     return render_template(
         "analysis/strandsAnalysis.html",
         strand_height_reduction_vs_force_path=strand_height_reduction_vs_force_path,
+        strand_stiffness_vs_compression_path=strand_stiffness_vs_compression_path,
+        strand_force_vs_displacement_path=strand_force_vs_displacement_path,
         strand_count_weight_graph_path=strand_count_weight_graph_path,
         strand_count_force_graph_path=strand_count_force_graph_path,
         strand_count_efficiency_graph_path=strand_count_efficiency_graph_path

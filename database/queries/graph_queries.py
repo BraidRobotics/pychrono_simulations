@@ -584,6 +584,101 @@ def get_force_no_force_equilibrium_data(session):
 	return results
 
 
+def get_strand_count_stiffness_vs_compression_data(session):
+	"""Get stiffness vs compression data for all strand count series"""
+	strand_series = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%number_of_strands%')
+	).all()
+
+	# Filter out 2-strand series (unstable)
+	strand_series = [s for s in strand_series if s.num_strands >= 4]
+
+	series_map = {s.experiment_series_name: s for s in strand_series}
+
+	experiments = session.query(Experiment).filter(
+		Experiment.experiment_series_name.in_([s.experiment_series_name for s in strand_series])
+	).order_by(
+		Experiment.experiment_series_name,
+		Experiment.experiment_id
+	).all()
+
+	results = []
+	for experiment in experiments:
+		series = series_map.get(experiment.experiment_series_name)
+		if not series or not series.height_m:
+			continue
+
+		if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+			continue
+
+		# Skip the first experiment (zero force)
+		if experiment.experiment_id == 1:
+			continue
+
+		displacement = series.height_m - experiment.height_under_load
+		if displacement <= 0:
+			continue
+
+		compression_pct = (displacement / series.height_m) * 100
+		force = abs(experiment.force_in_y_direction)
+		stiffness = force / displacement  # k = F/Δx in N/m
+
+		results.append({
+			"experiment_series_name": experiment.experiment_series_name,
+			"num_strands": series.num_strands,
+			"experiment_id": experiment.experiment_id,
+			"force": force,
+			"displacement": displacement,
+			"compression_pct": compression_pct,
+			"stiffness": stiffness
+		})
+
+	return results
+
+
+def get_strand_count_force_vs_displacement_data(session):
+	"""Get force vs displacement data for all strand count series"""
+	strand_series = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%number_of_strands%')
+	).all()
+
+	# Filter out 2-strand series (unstable)
+	strand_series = [s for s in strand_series if s.num_strands >= 4]
+
+	series_map = {s.experiment_series_name: s for s in strand_series}
+
+	experiments = session.query(Experiment).filter(
+		Experiment.experiment_series_name.in_([s.experiment_series_name for s in strand_series])
+	).order_by(
+		Experiment.experiment_series_name,
+		Experiment.experiment_id
+	).all()
+
+	results = []
+	for experiment in experiments:
+		series = series_map.get(experiment.experiment_series_name)
+		if not series or not series.height_m:
+			continue
+
+		if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+			continue
+
+		displacement = series.height_m - experiment.height_under_load
+		force = abs(experiment.force_in_y_direction)
+		compression_pct = (displacement / series.height_m) * 100
+
+		results.append({
+			"experiment_series_name": experiment.experiment_series_name,
+			"num_strands": series.num_strands,
+			"experiment_id": experiment.experiment_id,
+			"force": force,
+			"displacement": displacement,
+			"compression_pct": compression_pct
+		})
+
+	return results
+
+
 def get_load_capacity_ratio_y_chart_values(session):
 	return _get_load_capacity_ratio_chart_values(session, "force_in_y_direction")
 

@@ -19,7 +19,9 @@ from database.queries.graph_queries import (
     get_strand_count_vs_efficiency_chart_values,
     get_strand_height_reduction_vs_force_data,
     get_force_no_force_recovery_data,
-    get_force_no_force_equilibrium_data
+    get_force_no_force_equilibrium_data,
+    get_strand_count_stiffness_vs_compression_data,
+    get_strand_count_force_vs_displacement_data
 )
 from database.queries.experiment_series_queries import select_experiment_series_by_name
 
@@ -1312,3 +1314,122 @@ def generate_equilibrium_time_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "equilibrium_time.html"
+
+
+def generate_strand_stiffness_vs_compression_graph(session):
+    """Stiffness vs compression percentage for different strand counts"""
+    data = get_strand_count_stiffness_vs_compression_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+
+    fig = go.Figure()
+
+    strand_counts = sorted(df['num_strands'].unique())
+    colors = px.colors.qualitative.Plotly
+
+    for i, num_strands in enumerate(strand_counts):
+        color = colors[i % len(colors)]
+        df_strand = df[df['num_strands'] == num_strands]
+
+        fig.add_trace(go.Scatter(
+            x=df_strand['compression_pct'],
+            y=df_strand['stiffness'],
+            mode='lines+markers',
+            name=f'{num_strands} strands',
+            line=dict(color=color, width=2),
+            marker=dict(size=6, color=color),
+            hovertemplate=f'<b>{num_strands} strands</b><br>Compression: %{{x:.1f}}%<br>Stiffness: %{{y:.1f}} N/m<extra></extra>'
+        ))
+
+    fig.update_layout(
+        title='Apparent Stiffness vs Compression (Non-Linear Spring Behavior)',
+        xaxis_title='Compression (%)',
+        yaxis_title='Apparent Stiffness k (N/m)',
+        height=600,
+        hovermode='closest',
+        showlegend=True,
+        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99)
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "strand_stiffness_vs_compression.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "strand_stiffness_vs_compression.html"
+
+
+def generate_strand_force_vs_displacement_graph(session):
+    """Force vs displacement for different strand counts with linear spring comparison"""
+    data = get_strand_count_force_vs_displacement_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+
+    fig = go.Figure()
+
+    strand_counts = sorted(df['num_strands'].unique())
+    colors = px.colors.qualitative.Plotly
+
+    # Plot experimental data for each strand count
+    for i, num_strands in enumerate(strand_counts):
+        color = colors[i % len(colors)]
+        df_strand = df[df['num_strands'] == num_strands]
+
+        fig.add_trace(go.Scatter(
+            x=df_strand['displacement'] * 1000,  # Convert to mm
+            y=df_strand['force'],
+            mode='lines+markers',
+            name=f'{num_strands} strands',
+            line=dict(color=color, width=2),
+            marker=dict(size=6, color=color),
+            hovertemplate=f'<b>{num_strands} strands</b><br>Displacement: %{{x:.2f}} mm<br>Force: %{{y:.3f}} N<extra></extra>'
+        ))
+
+    # Add linear spring reference lines for comparison
+    for i, num_strands in enumerate(strand_counts):
+        color = colors[i % len(colors)]
+        df_strand = df[df['num_strands'] == num_strands].copy()
+
+        if len(df_strand) < 2:
+            continue
+
+        # Calculate initial stiffness from first few points (linear approximation)
+        df_early = df_strand.nsmallest(5, 'displacement')
+        if len(df_early) >= 2:
+            # Linear fit: k = F/x (average of early data points)
+            k_initial = (df_early['force'] / df_early['displacement']).mean()
+
+            # Create linear spring line
+            max_displacement = df_strand['displacement'].max()
+            x_linear = np.linspace(0, max_displacement, 50)
+            y_linear = k_initial * x_linear
+
+            fig.add_trace(go.Scatter(
+                x=x_linear * 1000,  # Convert to mm
+                y=y_linear,
+                mode='lines',
+                name=f'{num_strands} strands (linear)',
+                line=dict(color=color, width=1, dash='dash'),
+                opacity=0.5,
+                showlegend=False,
+                hovertemplate=f'<b>{num_strands} strands (linear spring)</b><br>Displacement: %{{x:.2f}} mm<br>Force: %{{y:.3f}} N<br>k={k_initial:.1f} N/m<extra></extra>'
+            ))
+
+    fig.update_layout(
+        title='Force vs Displacement (Solid: Experimental, Dashed: Linear Spring)',
+        xaxis_title='Displacement Δx (mm)',
+        yaxis_title='Force F (N)',
+        height=600,
+        hovermode='closest',
+        showlegend=True,
+        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.99)
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "strand_force_vs_displacement.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "strand_force_vs_displacement.html"

@@ -13,6 +13,8 @@ from graphs.aggregate_graphs import (
     generate_strand_count_force_graph,
     generate_strand_count_efficiency_graph,
     generate_strand_height_reduction_vs_force_graph,
+    generate_strand_stiffness_vs_compression_graph,
+    generate_strand_force_vs_displacement_graph,
     generate_recovery_by_thickness_graph,
     generate_recovery_by_layers_graph,
     generate_recovery_by_strands_graph,
@@ -65,6 +67,12 @@ if __name__ == '__main__':
 
         print("  - Strand height reduction vs force...")
         generate_strand_height_reduction_vs_force_graph(session)
+
+        print("  - Strand stiffness vs compression...")
+        generate_strand_stiffness_vs_compression_graph(session)
+
+        print("  - Strand force vs displacement...")
+        generate_strand_force_vs_displacement_graph(session)
 
         print("  - Recovery by thickness...")
         generate_recovery_by_thickness_graph(session)
