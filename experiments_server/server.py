@@ -188,7 +188,8 @@ def create_experiment_series_route():
         return redirect(url_for('index_page'))
     
     experiment_series = insert_experiment_series_default(g.db, experiment_series_name)
-    run_non_experiment(experiment_series)
+    g.db.commit()  # Ensure commit before passing to subprocess
+    run_non_experiment(experiment_series_name)
 
     return redirect(url_for("experiments_page", experiment_series_name=experiment_series_name))
 
@@ -203,7 +204,8 @@ def update_experiment_series_route(experiment_series_name):
             flash(message, "error")
         return {"status": "error", "message": errors[0]}, 400
 
-    run_non_experiment(experiment_series)
+    g.db.commit()  # Ensure commit before passing to subprocess
+    run_non_experiment(experiment_series_name)
 
     return {"status": "success", "message": f"Updated experiment series {experiment_series_name}"}, 200
 

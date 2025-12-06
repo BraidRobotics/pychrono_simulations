@@ -10,6 +10,9 @@ from database.session import get_session, close_global_session
 
 def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
 
+    # Cache experiment series name to avoid session issues
+    experiment_series_name = experiment_series.experiment_series_name
+
     ####################################################################################################
     # Physics Engine
     ####################################################################################################
@@ -90,14 +93,15 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
             weight_kg = calculate_model_weight(beam_elements, strand_material)
             height_m = calculate_model_height(beam_elements)
 
-            update_experiment_series(session, experiment_series.experiment_series_name, {
+            dimensions = {
                 "weight_kg": weight_kg,
                 "height_m": height_m,
-            })
+            }
+            update_experiment_series(session, experiment_series_name, dimensions)
             session.commit()
             close_global_session()
 
-            take_model_screenshot(visualization, experiment_series.experiment_series_name)
+            take_model_screenshot(visualization, experiment_series_name)
         
             return
 
@@ -162,7 +166,7 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
             visualization.BeginScene()
             visualization.Render()
             if experiment_config.will_record_video:
-                take_video_screenshot(visualization, experiment_series.experiment_series_name)
+                take_video_screenshot(visualization, experiment_series_name)
             visualization.EndScene()
 
         structure_exploded = time_to_bounding_box_explosion is not None
@@ -188,12 +192,12 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
                     visualization.EndScene()
             
 
-            take_final_screenshot(visualization, experiment_series.experiment_series_name, experiment_config.experiment_id)
+            take_final_screenshot(visualization, experiment_series_name, experiment_config.experiment_id)
 
             insert_experiment(
                 session,
                 experiment_config.experiment_id,
-                experiment_series.experiment_series_name,
+                experiment_series_name,
                 experiment_config.force_in_y_direction,
                 experiment_config.force_top_nodes_in_y_direction,
                 experiment_config.force_in_x_direction,
@@ -213,7 +217,7 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
             close_global_session()
 
             if experiment_config.will_record_video:
-                make_video_from_frames(experiment_series.experiment_series_name)
+                make_video_from_frames(experiment_series_name)
 
             if visualization is not None:
                 device = visualization.GetDevice()

@@ -95,6 +95,6 @@ with scoped_session() as session:
         series = session.query(ExperimentSeries).filter_by(experiment_series_name=series_name).first()
         if series:
             print(f"Running non-experiment for: {series_name}")
-            run_non_experiment(series, will_visualize=False)
+            run_non_experiment(series_name, will_visualize=False)
 
 print("\nAll experiment series created and non-experiments completed!")

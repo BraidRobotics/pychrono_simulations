@@ -6,4 +6,4 @@ if __name__ == '__main__':
     with scoped_session() as session:
         all_experiment_series = select_all_experiment_series(session)
         for experiment_series in all_experiment_series:
-            run_non_experiment(experiment_series, will_visualize=False)
+            run_non_experiment(experiment_series.experiment_series_name, will_visualize=False)

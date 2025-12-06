@@ -21,7 +21,7 @@ if __name__ == '__main__':
             print(f"[{i}/{total}] Generating model image for '{series_name}'...")
 
             try:
-                run_non_experiment(experiment_series, will_visualize=False)
+                run_non_experiment(series_name, will_visualize=False)
                 print(f"  Success: assets/{series_name}/model.jpg")
                 success_count += 1
             except Exception as e:

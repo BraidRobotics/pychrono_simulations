@@ -46,21 +46,21 @@ class ExperimentSeries(Base):
 
 	def validate(self):
 		errors = []
-		if self.num_layers < 2:
+		if self.num_layers is not None and self.num_layers < 2:
 			errors.append("Number of layers must be at least 2.")
-		if self.num_strands < 2:
+		if self.num_strands is not None and self.num_strands < 2:
 			errors.append("Number of strands must be at least 2.")
-		if self.radius <= 0:
+		if self.radius is not None and self.radius <= 0:
 			errors.append("Radius must be greater than 0.")
-		if self.pitch <= 0:
+		if self.pitch is not None and self.pitch <= 0:
 			errors.append("Pitch must be greater than 0.")
-		if self.radius_taper * self.num_layers > self.radius:
+		if self.radius_taper is not None and self.num_layers is not None and self.radius is not None and self.radius_taper * self.num_layers > self.radius:
 			errors.append("Radius taper times number of layers must not exceed radius.")
-		if self.num_strands % 2 != 0:
+		if self.num_strands is not None and self.num_strands % 2 != 0:
 			errors.append("Number of strands should be divisible by 2 for symmetry.")
-		if self.strand_radius <= 0:
+		if self.strand_radius is not None and self.strand_radius <= 0:
 			errors.append("Strand radius must be greater than 0.")
-		if self.material_youngs_modulus <= 0:
+		if self.material_youngs_modulus is not None and self.material_youngs_modulus <= 0:
 			errors.append("Material Young's modulus must be greater than 0.")
 		forces_vary = (
 			self.initial_force_applied_in_y_direction != self.final_force_in_y_direction or

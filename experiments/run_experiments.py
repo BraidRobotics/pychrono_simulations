@@ -60,11 +60,14 @@ def run_experiments(experiment_series):
     generate_graphs_after_experiments(experiment_series)
 
 
-def run_non_experiment(experiment_series, will_visualize=True, will_record_video=False, is_non_experiment_run=True):
+def run_non_experiment(experiment_series_name, will_visualize=True, will_record_video=False, is_non_experiment_run=True):
     """
     This function sets up the experiment series to not run any force applied
     It will be used to take a screenshot and calculate the properties of the structure
     """
+    # Load experiment_series in a local session to get attributes
+    session = get_session()
+    experiment_series = select_experiment_series_by_name(session, experiment_series_name)
 
     experiment_config = ExperimentConfig(
         experiment_id=1,
@@ -78,9 +81,10 @@ def run_non_experiment(experiment_series, will_visualize=True, will_record_video
         is_non_experiment_run=is_non_experiment_run,
         max_simulation_time=experiment_series.max_simulation_time
     )
+    close_global_session()
 
     with Pool(processes=1) as pool:
-        pool.apply(run_a_single_experiment, (experiment_series.experiment_series_name, experiment_config))
+        pool.apply(run_a_single_experiment, (experiment_series_name, experiment_config))
 
 
 def run_visual_simulation_experiment(experiment_series, experiment):

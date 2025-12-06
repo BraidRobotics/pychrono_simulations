@@ -697,9 +697,7 @@ def generate_strand_count_weight_graph(session):
         if row['weight_kg'] is None:
             # Lazy import to avoid circular dependency
             from experiments import run_non_experiment
-            experiment_series = select_experiment_series_by_name(session, row['experiment_series_name'])
-            if experiment_series:
-                run_non_experiment(experiment_series, will_visualize=False)
+            run_non_experiment(row['experiment_series_name'], will_visualize=False)
 
     # Refresh data after running non-experiments
     data = get_strand_count_vs_weight_chart_values(session)

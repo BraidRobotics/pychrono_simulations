@@ -17,7 +17,7 @@ def select_all_experiment_series_grouped(session):
 	
 	grouped_experiment_series = {}
 	for series in experiment_series:
-		group_name = series.group_name or "Ungrouped"
+		group_name = series.group_name or "Default"
 		if group_name not in grouped_experiment_series:
 			grouped_experiment_series[group_name] = []
 		grouped_experiment_series[group_name].append(series)
