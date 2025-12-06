@@ -1,4 +1,4 @@
-from database.session import SessionLocal
+from database.session import scoped_session
 from graphs.aggregate_graphs import (
     generate_load_capacity_ratio_graph,
     generate_strand_thickness_weight_graph,
@@ -24,8 +24,7 @@ from graphs.aggregate_graphs import (
 )
 
 if __name__ == '__main__':
-    session = SessionLocal()
-    try:
+    with scoped_session() as session:
         print("Generating aggregate graphs...")
 
         print("  - Load capacity ratio (y)...")
@@ -92,6 +91,3 @@ if __name__ == '__main__':
         generate_equilibrium_time_graph(session)
 
         print("\nAll aggregate graphs generated successfully!")
-
-    finally:
-        session.close()

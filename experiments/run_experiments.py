@@ -3,16 +3,16 @@ from multiprocessing import Pool
 from experiments.experiment import experiment_loop
 from tqdm import tqdm
 from database.queries.experiment_series_queries import select_experiment_series_by_name
-from database.session import SessionLocal
+from database.session import get_session, close_global_session
 from config import ExperimentConfig
 from graphs import generate_graphs_after_experiments
 
 
-def run_a_single_experiment(experiment_series_name, experiment_config: ExperimentConfig):  
-    session = SessionLocal()
+def run_a_single_experiment(experiment_series_name, experiment_config: ExperimentConfig):
+    session = get_session()
     experiment_series = select_experiment_series_by_name(session, experiment_series_name)
     experiment_loop(experiment_series, experiment_config)
-    session.close()
+    close_global_session()
 
 
 def run_experiments(experiment_series):

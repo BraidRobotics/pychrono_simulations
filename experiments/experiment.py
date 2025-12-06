@@ -6,7 +6,7 @@ from util import  take_model_screenshot, take_final_screenshot, take_video_scree
 
 from database.queries.experiment_series_queries import update_experiment_series
 from database.queries.experiments_queries import insert_experiment
-from database.session import SessionLocal
+from database.session import get_session, close_global_session
 
 def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
 
@@ -67,7 +67,7 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
     # Database session
     ####################################################################################################
 
-    session = SessionLocal()
+    session = get_session()
 
     ####################################################################################################
     # Without Simulation loop
@@ -94,7 +94,8 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
                 "weight_kg": weight_kg,
                 "height_m": height_m,
             })
-            session.close()
+            session.commit()
+            close_global_session()
 
             take_model_screenshot(visualization, experiment_series.experiment_series_name)
         
@@ -150,7 +151,10 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
         structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
 
         if structure_is_in_equilibrium and equilibrium_after_seconds is None:
-            equilibrium_after_seconds = time_passed
+            if experiment_series.reset_force_after_seconds is not None:
+                equilibrium_after_seconds = time_passed - experiment_series.reset_force_after_seconds
+            else:
+                equilibrium_after_seconds = time_passed
             if height_under_load is None:
                 height_under_load = calculate_model_height(beam_elements)
 
@@ -205,7 +209,8 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
                 height_under_load,
                 final_height
             )
-            session.close()
+            session.commit()
+            close_global_session()
 
             if experiment_config.will_record_video:
                 make_video_from_frames(experiment_series.experiment_series_name)
