@@ -763,3 +763,61 @@ def _get_load_capacity_ratio_chart_values(session, force_column):
 				})
 
 	return [dict(r) for r in results]
+
+def get_models_meeting_target_count(session):
+	"""
+	Count how many experiment series have at least one experiment that met the target
+	(achieved >= 10% height reduction without exploding).
+
+	Returns:
+		dict with 'met_target' count and 'total' count
+	"""
+	from graphs import TARGET_HEIGHT_REDUCTION_PERCENT
+
+	series_map = {
+		row.experiment_series_name: row
+		for row in session.query(ExperimentSeries).all()
+	}
+
+	experiments = session.query(Experiment).all()
+
+	grouped = defaultdict(list)
+	for experiment in experiments:
+		grouped[experiment.experiment_series_name].append(experiment)
+
+	met_target_count = 0
+	total_count = len(series_map)
+	target_height_reduction = TARGET_HEIGHT_REDUCTION_PERCENT / 100
+
+	for series_name, experiments in grouped.items():
+		series = series_map.get(series_name)
+		if not series or not series.height_m:
+			continue
+
+		# Check if any experiment in this series met the target
+		series_met_target = False
+		for experiment in experiments:
+			# Skip experiments that exploded
+			if experiment.time_to_bounding_box_explosion is not None:
+				continue
+
+			# Skip experiments without height data
+			if experiment.height_under_load is None:
+				continue
+
+			# Calculate height reduction percentage
+			height_reduction = (series.height_m - experiment.height_under_load) / series.height_m
+
+			# Check if met target
+			if height_reduction >= target_height_reduction:
+				series_met_target = True
+				break
+
+		if series_met_target:
+			met_target_count += 1
+
+	return {
+		'met_target': met_target_count,
+		'total': total_count,
+		'target_percent': TARGET_HEIGHT_REDUCTION_PERCENT
+	}

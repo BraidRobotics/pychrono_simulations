@@ -11,7 +11,16 @@
 </p>
 
 <div>
-    <h2 id="structural-efficiency-vs-weight">Structural Efficiency vs. Weight</h2>
+    <h2 id="models-meeting-target"><a href="#models-meeting-target" style="color: inherit; text-decoration: none;">Models Meeting Target</a></h2>
+    <p>
+        <strong>Target:</strong> Achieve {{ target_stats.target_percent }}% height compression without structural failure (explosion).<br>
+        <strong>Results:</strong> <span style="font-size: 1.2em; font-weight: bold; color: #2c5aa0;">{{ target_stats.met_target }} out of {{ target_stats.total }}</span> experiment series successfully met the target.<br>
+        <strong>Success Rate:</strong> {{ "%.1f"|format((target_stats.met_target / target_stats.total * 100) if target_stats.total > 0 else 0) }}%
+    </p>
+</div>
+
+<div>
+    <h2 id="structural-efficiency-vs-weight"><a href="#structural-efficiency-vs-weight" style="color: inherit; text-decoration: none;">Structural Efficiency vs. Weight</a></h2>
     <p>
         <strong>Purpose:</strong> Compares the structural efficiency of different designs by measuring how much force each can support relative to its own weight.<br>
         <strong>Calculation:</strong> Specific Load Capacity = Force at 10% compression / (Weight × g) where g = 9.81 m/s²<br>

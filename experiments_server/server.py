@@ -83,12 +83,20 @@ def experiments_page(experiment_series_name):
 
 @app.route("/aggregated_charts", methods=["GET"])
 def aggregated_charts_page():
+    from database.session import get_session
+    from database.queries.graph_queries import get_models_meeting_target_count
+
     # Graph paths
     load_capacity_graph_path = "load_capacity_ratio_y.html"
 
+    # Get target achievement statistics
+    session = get_session()
+    target_stats = get_models_meeting_target_count(session)
+
     return render_template(
         "analysis/aggregatedCharts.html",
-        load_capacity_graph_path=load_capacity_graph_path
+        load_capacity_graph_path=load_capacity_graph_path,
+        target_stats=target_stats
     )
 
 @app.route("/thickness_analysis", methods=["GET"])
