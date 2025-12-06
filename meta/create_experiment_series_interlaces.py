@@ -26,6 +26,7 @@ with scoped_session() as session:
             strand_radius=thickness,
             initial_force_applied_in_y_direction=0.0,
             final_force_in_y_direction=-4.0,
+            is_experiments_outdated=False,
         )
 
         insert_experiment_series(session, model)

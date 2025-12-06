@@ -37,6 +37,11 @@ def is_experiment_series_name_unique(session, experiment_series_name):
 
 def insert_experiment_series(session, experiment_series):
 	try:
+		# Validate before inserting
+		errors = experiment_series.validate() if hasattr(experiment_series, 'validate') else None
+		if errors:
+			raise ValueError(f"Validation failed: {errors}")
+
 		session.add(experiment_series)
 		session.commit()
 		return experiment_series
@@ -48,6 +53,12 @@ def insert_experiment_series(session, experiment_series):
 def insert_experiment_series_default(session, experiment_series_name):
 	try:
 		instance = ExperimentSeries(experiment_series_name=experiment_series_name)
+
+		# Validate before inserting
+		errors = instance.validate() if hasattr(instance, 'validate') else None
+		if errors:
+			raise ValueError(f"Validation failed: {errors}")
+
 		session.add(instance)
 		session.commit()
 		return instance
