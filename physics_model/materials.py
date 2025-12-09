@@ -13,7 +13,7 @@ def create_strand_material(young_modulus, strand_radius):
     braid_material.SetAsCircularSection(strand_radius)
 
     # braid_material.SetYoungModulus(young_modulus) # Glass-reinforced polyester (GRP) - https://en.wikipedia.org/wiki/Young%27s_modulus
-    braid_material.SetYoungModulus(1e8) # Nylon
+    braid_material.SetYoungModulus(1e8) # Rubber-like material
     braid_material.SetDensity(1200)  # 1.2 g/cm^3 = 1200kg/m^3  
     braid_material.SetRayleighDamping(0.15)
     
