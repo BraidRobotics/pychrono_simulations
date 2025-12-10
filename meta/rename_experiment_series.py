@@ -7,13 +7,13 @@ from sqlalchemy.exc import SQLAlchemyError
 
 # "old_experiment_series_name": "new_experiment_series_name",
 RENAME_MAPPINGS = {
-    "material_thickness__002": "strand_thickness__002",
-    "material_thickness__003": "strand_thickness__003",
-    "material_thickness__004": "strand_thickness__004",
-    "material_thickness__005": "strand_thickness__005",
-    "material_thickness__006": "strand_thickness__006",
-    "material_thickness__007": "strand_thickness__007",
-    "material_thickness__008": "strand_thickness__008",
+    # "material_thickness__002": "strand_thickness__002",
+    # "material_thickness__003": "strand_thickness__003",
+    # "material_thickness__004": "strand_thickness__004",
+    # "material_thickness__005": "strand_thickness__005",
+    # "material_thickness__006": "strand_thickness__006",
+    # "material_thickness__007": "strand_thickness__007",
+    # "material_thickness__008": "strand_thickness__008",
     # "test_mac_results": "mac_force_no_force_08"
     # "strand_thickness_experiment__00": "strand_thickness_experiment__01",
     # "strand_thickness_experiment__01": "strand_thickness_experiment__02",
