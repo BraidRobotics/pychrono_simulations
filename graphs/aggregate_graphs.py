@@ -89,7 +89,7 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
             'experiment_series_name': 'Experiment Series',
             'force': 'Force (N)'
         },
-        title='Structural Efficiency: Specific Load Capacity vs Weight'
+        title='Structural Efficiency: Specific Load Capacity vs. Weight'
     )
 
     fig.update_traces(marker=dict(size=10))
@@ -226,7 +226,7 @@ def generate_strand_thickness_force_graph(session):
         ))
 
     fig.update_layout(
-        title='Load-Bearing Capacity vs Material Thickness (with Theoretical Scaling)',
+        title='Load-Bearing Capacity vs. Material Thickness (with Theoretical Scaling)',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Force at 10% Height Reduction (N)',
         height=600,
@@ -308,7 +308,7 @@ def generate_strand_thickness_efficiency_graph(session):
         ))
 
     fig.update_layout(
-        title='Structural Efficiency vs Material Thickness',
+        title='Structural Efficiency vs. Material Thickness',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Specific Load Capacity (×own weight)',
         height=600,
@@ -379,7 +379,7 @@ def generate_thickness_height_reduction_vs_force_graph(session):
         )
 
     fig.update_layout(
-        title='Height Reduction vs Force - All Material Thickness Configurations',
+        title='Height Reduction vs. Force - All Material Thickness Configurations',
         xaxis_title='Force in Y Direction (N)',
         yaxis_title='Height Reduction (%)',
         height=600,
@@ -463,7 +463,7 @@ def generate_strand_thickness_max_survivable_force_graph(session):
         ))
 
     fig.update_layout(
-        title='Maximum Survivable Load vs Material Thickness (Before Structural Failure)',
+        title='Maximum Survivable Load vs. Material Thickness (Before Structural Failure)',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Maximum Force Survived (N)',
         height=600,
@@ -521,7 +521,7 @@ def generate_layer_count_height_graph(session):
         ))
 
     fig.update_layout(
-        title='Height vs Layer Count Validation',
+        title='Height vs. Layer Count Validation',
         xaxis_title='Number of Layers',
         yaxis_title='Height (m)',
         height=500,
@@ -601,7 +601,7 @@ def generate_layer_count_force_graph(session):
         ))
 
     fig.update_layout(
-        title='Load-Bearing Capacity vs Layer Count',
+        title='Load-Bearing Capacity vs. Layer Count',
         xaxis_title='Number of Layers',
         yaxis_title='Force at 10% Height Reduction (N)',
         height=600,
@@ -681,7 +681,7 @@ def generate_layer_count_efficiency_graph(session):
         ))
 
     fig.update_layout(
-        title='Structural Efficiency vs Layer Count',
+        title='Structural Efficiency vs. Layer Count',
         xaxis_title='Number of Layers',
         yaxis_title='Specific Load Capacity (×own weight)',
         height=600,
@@ -751,7 +751,7 @@ def generate_layer_height_reduction_vs_force_graph(session):
         )
 
     fig.update_layout(
-        title='Height Reduction vs Force - All Layer Configurations',
+        title='Height Reduction vs. Force - All Layer Configurations',
         xaxis_title='Force in Y Direction (N)',
         yaxis_title='Height Reduction (%)',
         height=600,
@@ -863,39 +863,10 @@ def generate_strand_count_force_graph(session):
         hovertemplate='<b>%{customdata}</b><br>Strands: %{x}<br>Force: %{y:.3f} N<extra></extra>'
     ))
 
-    # Add theoretical scaling curves
-    if len(df) > 1:
-        n_min, n_max = df['num_strands'].min(), df['num_strands'].max()
-        n_range = np.linspace(n_min, n_max, 100)
-
-        # Normalize to first data point
-        n0 = df['num_strands'].iloc[0]
-        f0 = df['force'].iloc[0]
-
-        # Linear scaling: F ∝ n (material quantity dominates)
-        f_linear = f0 * (n_range / n0)
-        fig.add_trace(go.Scatter(
-            x=n_range,
-            y=f_linear,
-            mode='lines',
-            name='Linear (F ∝ n)',
-            line=dict(dash='dot', color='gray', width=1),
-            hovertemplate='Linear scaling<extra></extra>'
-        ))
-
-        # Quadratic scaling: F ∝ n² (structural stiffness dominates)
-        f_quadratic = f0 * (n_range / n0) ** 2
-        fig.add_trace(go.Scatter(
-            x=n_range,
-            y=f_quadratic,
-            mode='lines',
-            name='Quadratic (F ∝ n²)',
-            line=dict(dash='dash', color='orange', width=2),
-            hovertemplate='Quadratic scaling<extra></extra>'
-        ))
+    # Theoretical scaling curves removed per user request
 
     fig.update_layout(
-        title='Load-Bearing Capacity vs Strand Count',
+        title='Load-Bearing Capacity vs. Strand Count',
         xaxis_title='Number of Strands',
         yaxis_title='Force at 10% Height Reduction (N)',
         height=600,
@@ -932,39 +903,10 @@ def generate_strand_count_efficiency_graph(session):
         hovertemplate='<b>%{customdata}</b><br>Strands: %{x}<br>Efficiency: %{y:.2f}×<extra></extra>'
     ))
 
-    # Add theoretical scaling curves
-    if len(df) > 1:
-        n_min, n_max = df['num_strands'].min(), df['num_strands'].max()
-        n_range = np.linspace(n_min, n_max, 100)
-
-        # Normalize to first data point
-        n0 = df['num_strands'].iloc[0]
-        e0 = df['specific_load_capacity'].iloc[0]
-
-        # Constant efficiency (F ∝ W ∝ n)
-        e_constant = np.full_like(n_range, e0)
-        fig.add_trace(go.Scatter(
-            x=n_range,
-            y=e_constant,
-            mode='lines',
-            name='Constant (E ∝ n⁰)',
-            line=dict(dash='dot', color='gray', width=1),
-            hovertemplate='Constant efficiency<extra></extra>'
-        ))
-
-        # Linear efficiency: E ∝ n (if F ∝ n², W ∝ n)
-        e_linear = e0 * (n_range / n0)
-        fig.add_trace(go.Scatter(
-            x=n_range,
-            y=e_linear,
-            mode='lines',
-            name='Linear (E ∝ n)',
-            line=dict(dash='dash', color='purple', width=2),
-            hovertemplate='Linear scaling<extra></extra>'
-        ))
+    # Theoretical scaling curves removed per user request
 
     fig.update_layout(
-        title='Structural Efficiency vs Strand Count',
+        title='Structural Efficiency vs. Strand Count',
         xaxis_title='Number of Strands',
         yaxis_title='Specific Load Capacity (×own weight)',
         height=600,
@@ -1036,7 +978,7 @@ def generate_strand_height_reduction_vs_force_graph(session):
         )
 
     fig.update_layout(
-        title='Height Reduction vs Force - All Strand Configurations',
+        title='Height Reduction vs. Force - All Strand Configurations',
         xaxis_title='Force in Y Direction (N)',
         yaxis_title='Height Reduction (%)',
         height=600,
@@ -1099,7 +1041,7 @@ def generate_recovery_by_thickness_graph(session):
 
 
 def generate_recovery_by_layers_graph(session):
-    """Faceted plot showing recovery vs layers, grouped by strand count"""
+    """Faceted plot showing recovery vs. layers, grouped by strand count"""
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
@@ -1121,7 +1063,7 @@ def generate_recovery_by_layers_graph(session):
             'num_strands': 'Strands',
             'strand_thickness_mm': 'Thickness (mm)'
         },
-        title='Recovery vs Layers (colored by Strands, sized by Thickness)',
+        title='Recovery vs. Layers (colored by Strands, sized by Thickness)',
         color_continuous_scale='Viridis'
     )
 
@@ -1136,7 +1078,7 @@ def generate_recovery_by_layers_graph(session):
 
 
 def generate_recovery_by_strands_graph(session):
-    """Scatter plot showing recovery vs strands, colored by layers"""
+    """Scatter plot showing recovery vs. strands, colored by layers"""
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
@@ -1158,7 +1100,7 @@ def generate_recovery_by_strands_graph(session):
             'num_layers': 'Layers',
             'strand_thickness_mm': 'Thickness (mm)'
         },
-        title='Recovery vs Strands (colored by Layers, sized by Thickness)',
+        title='Recovery vs. Strands (colored by Layers, sized by Thickness)',
         color_continuous_scale='Plasma'
     )
 
@@ -1201,7 +1143,7 @@ def generate_recovery_heatmap_thickness_layers(session):
     ))
 
     fig.update_layout(
-        title='Recovery Heatmap: Thickness vs Layers',
+        title='Recovery Heatmap: Thickness vs. Layers',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Number of Layers',
         height=600
@@ -1296,7 +1238,7 @@ def generate_recovery_heatmap_strands_layers(session):
     ))
 
     fig.update_layout(
-        title='Recovery Heatmap: Strands vs Layers',
+        title='Recovery Heatmap: Strands vs. Layers',
         xaxis_title='Number of Strands',
         yaxis_title='Number of Layers',
         height=600
@@ -1339,7 +1281,7 @@ def generate_recovery_heatmap_strands_thickness(session):
     ))
 
     fig.update_layout(
-        title='Recovery Heatmap: Strands vs Thickness',
+        title='Recovery Heatmap: Strands vs. Thickness',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Number of Strands',
         height=600
@@ -1398,7 +1340,7 @@ def generate_equilibrium_time_graph(session):
 
 
 def generate_strand_stiffness_vs_compression_graph(session):
-    """Stiffness vs compression percentage for different strand counts"""
+    """Stiffness vs. compression percentage for different strand counts"""
     data = get_strand_count_stiffness_vs_compression_data(session)
     if not data:
         return None
@@ -1425,7 +1367,7 @@ def generate_strand_stiffness_vs_compression_graph(session):
         ))
 
     fig.update_layout(
-        title='Apparent Stiffness vs Compression (Non-Linear Spring Behavior)',
+        title='Apparent Stiffness vs. Compression (Non-Linear Spring Behavior)',
         xaxis_title='Compression (%)',
         yaxis_title='Apparent Stiffness k (N/m)',
         height=600,
@@ -1442,7 +1384,7 @@ def generate_strand_stiffness_vs_compression_graph(session):
 
 
 def generate_strand_force_vs_displacement_graph(session):
-    """Force vs displacement for different strand counts with linear spring comparison"""
+    """Force vs. displacement for different strand counts with linear spring comparison"""
     data = get_strand_count_force_vs_displacement_data(session)
     if not data:
         return None
@@ -1500,7 +1442,7 @@ def generate_strand_force_vs_displacement_graph(session):
             ))
 
     fig.update_layout(
-        title='Force vs Displacement (Solid: Experimental, Dashed: Linear Spring)',
+        title='Force vs. Displacement (Solid: Experimental, Dashed: Linear Spring)',
         xaxis_title='Displacement Δx (mm)',
         yaxis_title='Force F (N)',
         height=600,

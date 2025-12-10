@@ -79,7 +79,7 @@ def generate_experiment_series_force_graph(session, safe_name, experiments):
         ))
 
     fig.update_layout(
-        title=f'Force vs Experiment ID - {safe_name}',
+        title=f'Force vs. Experiment ID - {safe_name}',
         xaxis_title='Experiment ID',
         yaxis_title='Force in Y Direction (N)',
         height=500,
@@ -164,7 +164,7 @@ def generate_experiment_series_height_graph(session, safe_name, experiments, ini
         )
 
     fig.update_layout(
-        title=f'Height Reduction vs Force - {safe_name}',
+        title=f'Height Reduction vs. Force - {safe_name}',
         xaxis_title='Force in Y Direction (N)',
         yaxis_title='Height Reduction (%)',
         height=500,

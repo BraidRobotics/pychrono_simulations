@@ -33,49 +33,49 @@ if __name__ == '__main__':
         print("  - Load capacity ratio (y)...")
         generate_load_capacity_ratio_graph(session, force_direction='y')
 
-        print("  - Material thickness vs weight...")
+        print("  - Material thickness vs. weight...")
         generate_strand_thickness_weight_graph(session)
 
-        print("  - Material thickness vs force...")
+        print("  - Material thickness vs. force...")
         generate_strand_thickness_force_graph(session)
 
-        print("  - Material thickness vs efficiency...")
+        print("  - Material thickness vs. efficiency...")
         generate_strand_thickness_efficiency_graph(session)
 
-        print("  - Thickness height reduction vs force...")
+        print("  - Thickness height reduction vs. force...")
         generate_thickness_height_reduction_vs_force_graph(session)
 
-        print("  - Maximum survivable force vs thickness...")
+        print("  - Maximum survivable force vs. thickness...")
         generate_strand_thickness_max_survivable_force_graph(session)
 
-        print("  - Layer count vs height...")
+        print("  - Layer count vs. height...")
         generate_layer_count_height_graph(session)
 
-        print("  - Layer count vs force...")
+        print("  - Layer count vs. force...")
         generate_layer_count_force_graph(session)
 
-        print("  - Layer count vs efficiency...")
+        print("  - Layer count vs. efficiency...")
         generate_layer_count_efficiency_graph(session)
 
-        print("  - Layer height reduction vs force...")
+        print("  - Layer height reduction vs. force...")
         generate_layer_height_reduction_vs_force_graph(session)
 
-        print("  - Strand count vs weight...")
+        print("  - Strand count vs. weight...")
         generate_strand_count_weight_graph(session)
 
-        print("  - Strand count vs force...")
+        print("  - Strand count vs. force...")
         generate_strand_count_force_graph(session)
 
-        print("  - Strand count vs efficiency...")
+        print("  - Strand count vs. efficiency...")
         generate_strand_count_efficiency_graph(session)
 
-        print("  - Strand height reduction vs force...")
+        print("  - Strand height reduction vs. force...")
         generate_strand_height_reduction_vs_force_graph(session)
 
-        print("  - Strand stiffness vs compression...")
+        print("  - Strand stiffness vs. compression...")
         generate_strand_stiffness_vs_compression_graph(session)
 
-        print("  - Strand force vs displacement...")
+        print("  - Strand force vs. displacement...")
         generate_strand_force_vs_displacement_graph(session)
 
         print("  - Recovery by thickness...")

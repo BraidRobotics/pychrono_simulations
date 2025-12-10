@@ -81,7 +81,7 @@ def get_strand_radius_vs_force_chart_values(session):
 
 
 def get_strand_radius_vs_efficiency_chart_values(session):
-	"""Get strand thickness vs specific load capacity (structural efficiency)"""
+	"""Get strand thickness vs. specific load capacity (structural efficiency)"""
 	series_map = {
 		row.experiment_series_name: row
 		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%strand_thickness%')).all()
@@ -139,7 +139,7 @@ def get_strand_radius_vs_efficiency_chart_values(session):
 
 
 def get_layer_count_vs_height_chart_values(session):
-	"""Get layer count vs height for validation"""
+	"""Get layer count vs. height for validation"""
 	values = session.query(
 		ExperimentSeries.experiment_series_name,
 		ExperimentSeries.num_layers,
@@ -160,7 +160,7 @@ def get_layer_count_vs_height_chart_values(session):
 
 
 def get_layer_count_vs_force_chart_values(session):
-	"""Get layer count vs load-bearing capacity"""
+	"""Get layer count vs. load-bearing capacity"""
 	series_map = {
 		row.experiment_series_name: row
 		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%number_of_layers%')).all()
@@ -213,7 +213,7 @@ def get_layer_count_vs_force_chart_values(session):
 
 
 def get_layer_count_vs_efficiency_chart_values(session):
-	"""Get layer count vs specific load capacity (structural efficiency)"""
+	"""Get layer count vs. specific load capacity (structural efficiency)"""
 	series_map = {
 		row.experiment_series_name: row
 		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%number_of_layers%')).all()
@@ -271,7 +271,7 @@ def get_layer_count_vs_efficiency_chart_values(session):
 
 
 def get_layer_height_reduction_vs_force_data(session):
-	"""Get all experiments from layer series for height reduction vs force graph"""
+	"""Get all experiments from layer series for height reduction vs. force graph"""
 	layer_series = session.query(ExperimentSeries).filter(
 		ExperimentSeries.group_name.like('%number_of_layers%')
 	).all()
@@ -305,7 +305,7 @@ def get_layer_height_reduction_vs_force_data(session):
 
 
 def get_strand_height_reduction_vs_force_data(session):
-	"""Get all experiments from strand series for height reduction vs force graph"""
+	"""Get all experiments from strand series for height reduction vs. force graph"""
 	strand_series = session.query(ExperimentSeries).filter(
 		ExperimentSeries.group_name.like('%number_of_strands%')
 	).all()
@@ -340,7 +340,7 @@ def get_strand_height_reduction_vs_force_data(session):
 
 
 def get_thickness_height_reduction_vs_force_data(session):
-	"""Get all experiments from strand thickness series for height reduction vs force graph"""
+	"""Get all experiments from strand thickness series for height reduction vs. force graph"""
 	thickness_series = session.query(ExperimentSeries).filter(
 		ExperimentSeries.group_name.like('%strand_thickness%')
 	).all()
@@ -427,7 +427,7 @@ def get_strand_thickness_max_survivable_force_data(session):
 
 
 def get_strand_count_vs_weight_chart_values(session):
-	"""Get strand count vs weight for validation"""
+	"""Get strand count vs. weight for validation"""
 	values = session.query(
 		ExperimentSeries.experiment_series_name,
 		ExperimentSeries.num_strands,
@@ -445,7 +445,7 @@ def get_strand_count_vs_weight_chart_values(session):
 
 
 def get_strand_count_vs_force_chart_values(session):
-	"""Get strand count vs load-bearing capacity"""
+	"""Get strand count vs. load-bearing capacity"""
 	series_map = {
 		row.experiment_series_name: row
 		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%number_of_strands%')).all()
@@ -498,7 +498,7 @@ def get_strand_count_vs_force_chart_values(session):
 
 
 def get_strand_count_vs_efficiency_chart_values(session):
-	"""Get strand count vs specific load capacity (structural efficiency)"""
+	"""Get strand count vs. specific load capacity (structural efficiency)"""
 	series_map = {
 		row.experiment_series_name: row
 		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%number_of_strands%')).all()
@@ -638,13 +638,13 @@ def get_force_no_force_equilibrium_data(session):
 
 
 def get_strand_count_stiffness_vs_compression_data(session):
-	"""Get stiffness vs compression data for all strand count series"""
+	"""Get stiffness vs. compression data for all strand count series"""
 	strand_series = session.query(ExperimentSeries).filter(
 		ExperimentSeries.group_name.like('%number_of_strands%')
 	).all()
 
-	# Filter out 2-strand series (unstable)
-	strand_series = [s for s in strand_series if s.num_strands >= 4]
+	# Include all strand counts
+	strand_series = [s for s in strand_series if s.num_strands >= 2]
 
 	series_map = {s.experiment_series_name: s for s in strand_series}
 
@@ -690,7 +690,7 @@ def get_strand_count_stiffness_vs_compression_data(session):
 
 
 def get_strand_count_force_vs_displacement_data(session):
-	"""Get force vs displacement data for all strand count series"""
+	"""Get force vs. displacement data for all strand count series"""
 	strand_series = session.query(ExperimentSeries).filter(
 		ExperimentSeries.group_name.like('%number_of_strands%')
 	).all()
