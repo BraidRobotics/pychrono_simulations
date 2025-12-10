@@ -5,6 +5,7 @@ from .aggregate_graphs import (
     generate_strand_thickness_force_graph,
     generate_strand_thickness_efficiency_graph,
     generate_thickness_height_reduction_vs_force_graph,
+    generate_strand_thickness_max_survivable_force_graph,
     generate_layer_count_height_graph,
     generate_layer_count_force_graph,
     generate_layer_count_efficiency_graph,

@@ -45,7 +45,7 @@ final_model = ExperimentSeries(
     num_experiments=num_experiments,
     num_layers=8,
     initial_force_applied_in_y_direction=-0.0,
-    final_force_in_y_direction=-1.7,
+    final_force_in_y_direction=-2.2,
     is_experiments_outdated=False,
 )
 

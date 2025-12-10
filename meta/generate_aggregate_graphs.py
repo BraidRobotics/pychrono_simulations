@@ -5,6 +5,7 @@ from graphs.aggregate_graphs import (
     generate_strand_thickness_force_graph,
     generate_strand_thickness_efficiency_graph,
     generate_thickness_height_reduction_vs_force_graph,
+    generate_strand_thickness_max_survivable_force_graph,
     generate_layer_count_height_graph,
     generate_layer_count_force_graph,
     generate_layer_count_efficiency_graph,
@@ -43,6 +44,9 @@ if __name__ == '__main__':
 
         print("  - Thickness height reduction vs force...")
         generate_thickness_height_reduction_vs_force_graph(session)
+
+        print("  - Maximum survivable force vs thickness...")
+        generate_strand_thickness_max_survivable_force_graph(session)
 
         print("  - Layer count vs height...")
         generate_layer_count_height_graph(session)

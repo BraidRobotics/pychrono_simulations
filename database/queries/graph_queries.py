@@ -160,7 +160,7 @@ def get_layer_count_vs_height_chart_values(session):
 
 
 def get_layer_count_vs_force_chart_values(session):
-	"""Get layer count vs force capacity"""
+	"""Get layer count vs load-bearing capacity"""
 	series_map = {
 		row.experiment_series_name: row
 		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%number_of_layers%')).all()
@@ -373,6 +373,59 @@ def get_thickness_height_reduction_vs_force_data(session):
 	return results
 
 
+def get_strand_thickness_max_survivable_force_data(session):
+	"""Get maximum force survived before explosion for each strand thickness"""
+	thickness_series = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%strand_thickness%')
+	).all()
+
+	series_map = {s.experiment_series_name: s for s in thickness_series}
+
+	experiments = session.query(Experiment).filter(
+		Experiment.experiment_series_name.in_([s.experiment_series_name for s in thickness_series])
+	).order_by(
+		Experiment.experiment_series_name,
+		Experiment.experiment_id
+	).all()
+
+	grouped = defaultdict(list)
+	for experiment in experiments:
+		grouped[experiment.experiment_series_name].append(experiment)
+
+	results = []
+	for series_name, experiments in grouped.items():
+		series = series_map.get(series_name)
+		if not series or not series.height_m:
+			continue
+
+		max_force = 0
+		max_compression_pct = 0
+
+		for experiment in experiments:
+			# Only consider experiments that did NOT explode
+			if experiment.time_to_bounding_box_explosion is not None:
+				continue
+
+			if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+				continue
+
+			force = abs(experiment.force_in_y_direction)
+			compression_pct = ((series.height_m - experiment.height_under_load) / series.height_m) * 100
+
+			if force > max_force:
+				max_force = force
+				max_compression_pct = compression_pct
+
+		results.append({
+			"experiment_series_name": series_name,
+			"strand_radius": series.strand_radius,
+			"max_force_survived": max_force,
+			"max_compression_pct": max_compression_pct
+		})
+
+	return results
+
+
 def get_strand_count_vs_weight_chart_values(session):
 	"""Get strand count vs weight for validation"""
 	values = session.query(
@@ -392,7 +445,7 @@ def get_strand_count_vs_weight_chart_values(session):
 
 
 def get_strand_count_vs_force_chart_values(session):
-	"""Get strand count vs force capacity"""
+	"""Get strand count vs load-bearing capacity"""
 	series_map = {
 		row.experiment_series_name: row
 		for row in session.query(ExperimentSeries).filter(ExperimentSeries.group_name.like('%number_of_strands%')).all()

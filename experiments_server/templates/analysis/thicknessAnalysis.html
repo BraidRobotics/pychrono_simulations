@@ -37,16 +37,45 @@
     {% endif %}
 </div>
 
-<div id="force-scaling">
-    <h2><a href="#force-scaling">Force Capacity Scaling Laws</a></h2>
+<div id="max-survivable-force">
+    <h2><a href="#max-survivable-force">Maximum Survivable Load vs Thickness (All Data)</a></h2>
     <p>
-        <strong>Purpose:</strong> Identifies the dominant structural mechanics governing load capacity.<br>
+        <strong>Purpose:</strong> Shows the complete structural strength envelope across all thicknesses.<br>
+        <strong>Data:</strong> Maximum force each thickness configuration survived before structural failure (explosion).<br>
+        <strong>Key Insight:</strong> This uses ALL experiment data (not just those reaching 10% compression), revealing the full scaling relationship.
+    </p>
+    <p>
+        <strong>Theoretical Models:</strong>
+    </p>
+    <ul>
+        <li><strong>Linear (F ∝ t):</strong> Pure axial compression failure</li>
+        <li><strong>Quadratic (F ∝ t²):</strong> Bending-dominated failure, cross-sectional area scaling</li>
+        <li><strong>Quartic (F ∝ t⁴):</strong> Euler buckling from beam theory (P<sub>cr</sub> = π²EI/(KL)², where I ∝ r⁴)</li>
+    </ul>
+    <p>
+        <strong>Interpretation:</strong> The data closely follows quartic scaling, indicating your braided structure behaves as a classic Euler column with buckling-dominated failure.
+    </p>
+    {% if strand_thickness_max_survivable_force_graph_path %}
+    <iframe src="/graphs/{{ strand_thickness_max_survivable_force_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for maximum survivable force graph.</p>
+    {% endif %}
+</div>
+
+<div id="force-scaling">
+    <h2><a href="#force-scaling">Load-Bearing Capacity at 10% Compression Target</a></h2>
+    <p>
+        <strong>Purpose:</strong> Compares force required to achieve exactly 10% height reduction across different thicknesses.<br>
+        <strong>Data:</strong> Only includes thicknesses that successfully reached the 10% compression target without exploding.<br>
+        <strong>Limitation:</strong> This graph has limited data points (only 7mm and 8mm reached the target).
+    </p>
+    <p>
         <strong>Theoretical Models:</strong>
     </p>
     <ul>
         <li><strong>Linear (F ∝ t):</strong> Pure axial compression failure</li>
         <li><strong>Quadratic (F ∝ t²):</strong> Bending-dominated failure</li>
-        <li><strong>Quartic (F ∝ t⁴):</strong> Euler buckling from beam theory (Pcr = π²EI/(KL)², where I ∝ r⁴)</li>
+        <li><strong>Quartic (F ∝ t⁴):</strong> Euler buckling from beam theory (P<sub>cr</sub> = π²EI/(KL)², where I ∝ r⁴)</li>
     </ul>
     <p>
         <strong>Interpretation:</strong> The theoretical curve that best fits experimental data reveals the primary failure mechanism.
@@ -54,7 +83,7 @@
     {% if strand_thickness_force_graph_path %}
     <iframe src="/graphs/{{ strand_thickness_force_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
-    <p>No data available for force capacity scaling graph.</p>
+    <p>No data available for load-bearing capacity scaling graph.</p>
     {% endif %}
 </div>
 

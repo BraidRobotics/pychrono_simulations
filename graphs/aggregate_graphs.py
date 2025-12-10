@@ -226,7 +226,7 @@ def generate_strand_thickness_force_graph(session):
         ))
 
     fig.update_layout(
-        title='Force Capacity vs Material Thickness (with Theoretical Scaling)',
+        title='Load-Bearing Capacity vs Material Thickness (with Theoretical Scaling)',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Force at 10% Height Reduction (N)',
         height=600,
@@ -396,6 +396,89 @@ def generate_thickness_height_reduction_vs_force_graph(session):
     return "thickness_height_reduction_vs_force.html"
 
 
+def generate_strand_thickness_max_survivable_force_graph(session):
+    """Graph showing maximum force survived before explosion for each thickness"""
+    from database.queries.graph_queries import get_strand_thickness_max_survivable_force_data
+
+    data = get_strand_thickness_max_survivable_force_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
+
+    fig = go.Figure()
+
+    # Add actual data points
+    fig.add_trace(go.Scatter(
+        x=df['strand_thickness_mm'],
+        y=df['max_force_survived'],
+        mode='markers',
+        name='Experimental Data',
+        marker=dict(size=10, color='darkblue'),
+        customdata=df[['experiment_series_name', 'max_compression_pct']],
+        hovertemplate='<b>%{customdata[0]}</b><br>Material Thickness: %{x:.2f} mm<br>Max Force Survived: %{y:.3f} N<br>Max Compression: %{customdata[1]:.1f}%<extra></extra>'
+    ))
+
+    # Add theoretical scaling curves
+    if len(df) > 1:
+        t_min, t_max = df['strand_thickness_mm'].min(), df['strand_thickness_mm'].max()
+        t_range = np.linspace(t_min, t_max, 100)
+
+        # Use the thickest strand as reference for best fit
+        t_ref = df['strand_thickness_mm'].iloc[-1]
+        f_ref = df['max_force_survived'].iloc[-1]
+
+        # Quartic scaling: F ∝ t⁴ (Euler buckling)
+        f_quartic = f_ref * (t_range / t_ref) ** 4
+        fig.add_trace(go.Scatter(
+            x=t_range,
+            y=f_quartic,
+            mode='lines',
+            name='Quartic (F ∝ t⁴)',
+            line=dict(dash='solid', color='red', width=2),
+            hovertemplate='Euler buckling theory<extra></extra>'
+        ))
+
+        # Quadratic scaling: F ∝ t²
+        f_quadratic = f_ref * (t_range / t_ref) ** 2
+        fig.add_trace(go.Scatter(
+            x=t_range,
+            y=f_quadratic,
+            mode='lines',
+            name='Quadratic (F ∝ t²)',
+            line=dict(dash='dash', color='orange', width=2),
+            hovertemplate='Quadratic scaling<extra></extra>'
+        ))
+
+        # Linear scaling: F ∝ t
+        f_linear = f_ref * (t_range / t_ref)
+        fig.add_trace(go.Scatter(
+            x=t_range,
+            y=f_linear,
+            mode='lines',
+            name='Linear (F ∝ t)',
+            line=dict(dash='dot', color='gray', width=1),
+            hovertemplate='Linear scaling<extra></extra>'
+        ))
+
+    fig.update_layout(
+        title='Maximum Survivable Load vs Material Thickness (Before Structural Failure)',
+        xaxis_title='Material Thickness (mm)',
+        yaxis_title='Maximum Force Survived (N)',
+        height=600,
+        hovermode='closest',
+        showlegend=True,
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "strand_thickness_max_survivable_force.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "strand_thickness_max_survivable_force.html"
+
+
 def generate_layer_count_height_graph(session):
 
     data = get_layer_count_vs_height_chart_values(session)
@@ -518,7 +601,7 @@ def generate_layer_count_force_graph(session):
         ))
 
     fig.update_layout(
-        title='Force Capacity vs Layer Count',
+        title='Load-Bearing Capacity vs Layer Count',
         xaxis_title='Number of Layers',
         yaxis_title='Force at 10% Height Reduction (N)',
         height=600,
@@ -812,7 +895,7 @@ def generate_strand_count_force_graph(session):
         ))
 
     fig.update_layout(
-        title='Force Capacity vs Strand Count',
+        title='Load-Bearing Capacity vs Strand Count',
         xaxis_title='Number of Strands',
         yaxis_title='Force at 10% Height Reduction (N)',
         height=600,
