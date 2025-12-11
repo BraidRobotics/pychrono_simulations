@@ -160,7 +160,8 @@ def force_no_force_analysis_page():
     recovery_by_layers_graph_path = "recovery_by_layers.html"
     recovery_by_strands_graph_path = "recovery_by_strands.html"
     recovery_heatmap_strands_layers_path = "recovery_heatmap_strands_layers.html"
-    parameter_importance_graph_path = "recovery_parameter_importance.html"
+    recovery_parameter_importance_graph_path = "recovery_parameter_importance.html"
+    load_bearing_parameter_importance_graph_path = "load_bearing_parameter_importance.html"
     equilibrium_time_graph_path = "equilibrium_time.html"
 
     return render_template(
@@ -171,7 +172,8 @@ def force_no_force_analysis_page():
         recovery_by_layers_graph_path=recovery_by_layers_graph_path,
         recovery_by_strands_graph_path=recovery_by_strands_graph_path,
         recovery_heatmap_strands_layers_path=recovery_heatmap_strands_layers_path,
-        parameter_importance_graph_path=parameter_importance_graph_path,
+        recovery_parameter_importance_graph_path=recovery_parameter_importance_graph_path,
+        load_bearing_parameter_importance_graph_path=load_bearing_parameter_importance_graph_path,
         equilibrium_time_graph_path=equilibrium_time_graph_path
     )
 

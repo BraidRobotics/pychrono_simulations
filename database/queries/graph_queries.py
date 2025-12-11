@@ -1014,3 +1014,58 @@ def get_models_meeting_target_count(session):
 		'total': total_count,
 		'target_percent': TARGET_HEIGHT_REDUCTION_PERCENT
 	}
+
+
+def get_load_bearing_parameter_importance_data(session):
+	"""Get load capacity data from force_no_force experiments for parameter importance analysis"""
+	# Query force_no_force experiment series where both strands and layers vary
+	force_no_force_series = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name == 'force_no_force'
+	).all()
+
+	series_map = {s.experiment_series_name: s for s in force_no_force_series}
+
+	# Query all experiments from these series
+	experiments = session.query(Experiment).filter(
+		Experiment.experiment_series_name.in_([s.experiment_series_name for s in force_no_force_series])
+	).all()
+
+	grouped = defaultdict(list)
+	for experiment in experiments:
+		grouped[experiment.experiment_series_name].append(experiment)
+
+	results = []
+
+	for series_name, experiments in grouped.items():
+		series = series_map.get(series_name)
+		if not series or not series.height_m or not series.weight_kg:
+			continue
+
+		# Find the maximum force achieved under load (before release)
+		max_force = None
+
+		for experiment in experiments:
+			if experiment.time_to_bounding_box_explosion is not None:
+				continue
+
+			if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+				continue
+
+			force_value = abs(experiment.force_in_y_direction)
+
+			if max_force is None or force_value > max_force:
+				max_force = force_value
+
+		if max_force is not None:
+			weight_force = series.weight_kg * 9.81
+			specific_load_capacity = max_force / weight_force if weight_force else None
+
+			if specific_load_capacity is not None:
+				results.append({
+					"experiment_series_name": series_name,
+					"num_layers": series.num_layers,
+					"num_strands": series.num_strands,
+					"specific_load_capacity": specific_load_capacity
+				})
+
+	return results

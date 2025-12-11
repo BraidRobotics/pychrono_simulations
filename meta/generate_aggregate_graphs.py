@@ -23,7 +23,8 @@ from graphs.aggregate_graphs import (
     generate_equilibrium_time_graph,
     generate_compression_validation_graph,
     generate_stiffness_comparison_graph,
-    generate_recovery_consistency_graph
+    generate_recovery_consistency_graph,
+    generate_load_bearing_parameter_importance_graph
 )
 
 if __name__ == '__main__':
@@ -101,5 +102,8 @@ if __name__ == '__main__':
 
         print("  - Recovery consistency...")
         generate_recovery_consistency_graph(session)
+
+        print("  - Load bearing parameter importance...")
+        generate_load_bearing_parameter_importance_graph(session)
 
         print("\nAll aggregate graphs generated successfully!")

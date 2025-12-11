@@ -24,7 +24,8 @@ from database.queries.graph_queries import (
     get_force_no_force_stiffness_data,
     get_force_no_force_recovery_consistency_data,
     get_strand_count_stiffness_vs_compression_data,
-    get_strand_count_force_vs_displacement_data
+    get_strand_count_force_vs_displacement_data,
+    get_load_bearing_parameter_importance_data
 )
 from database.queries.experiment_series_queries import select_experiment_series_by_name
 
@@ -1195,9 +1196,9 @@ def generate_recovery_parameter_importance_graph(session):
     ])
 
     fig.update_layout(
-        title='Parameter Importance for Elastic Recovery (Linear Correlation)',
+        title='Parameter Importance: Elastic Recovery Quality (Linear Correlation)',
         xaxis_title='Parameter',
-        yaxis_title='Absolute Correlation with Recovery',
+        yaxis_title='Absolute Correlation with Recovery %',
         yaxis=dict(range=[0, 1]),
         height=550
     )
@@ -1603,3 +1604,53 @@ def generate_strand_force_vs_displacement_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "strand_force_vs_displacement.html"
+
+
+def generate_load_bearing_parameter_importance_graph(session):
+    """Parameter importance analysis for load bearing capability"""
+    data = get_load_bearing_parameter_importance_data(session)
+    if not data or len(data) < 3:
+        return None
+
+    df = pd.DataFrame(data)
+
+    # Calculate correlation coefficients for load capacity
+    correlations = {}
+
+    if 'num_layers' in df.columns and df['num_layers'].std() > 0:
+        correlations['Layers'] = abs(np.corrcoef(df['num_layers'], df['specific_load_capacity'])[0, 1])
+
+    if 'num_strands' in df.columns and df['num_strands'].std() > 0:
+        correlations['Strands'] = abs(np.corrcoef(df['num_strands'], df['specific_load_capacity'])[0, 1])
+
+    if not correlations:
+        return None
+
+    # Sort by importance
+    sorted_params = sorted(correlations.items(), key=lambda x: x[1], reverse=True)
+    params, values = zip(*sorted_params)
+
+    fig = go.Figure(data=[
+        go.Bar(
+            x=list(params),
+            y=list(values),
+            marker_color=['#d62728', '#ff7f0e'][:len(params)],
+            text=[f'{v:.3f}' for v in values],
+            textposition='auto',
+            hovertemplate='%{x}<br>Correlation: %{y:.3f}<extra></extra>'
+        )
+    ])
+
+    fig.update_layout(
+        title='Parameter Importance: Load Bearing Capability (Linear Correlation)',
+        xaxis_title='Parameter',
+        yaxis_title='Absolute Correlation with Specific Load Capacity',
+        yaxis=dict(range=[0, 1]),
+        height=550
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "load_bearing_parameter_importance.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "load_bearing_parameter_importance.html"

@@ -98,18 +98,40 @@
     {% endif %}
 </div>
 
-<div id="parameter-importance">
-    <h2><a href="#parameter-importance">Parameter Importance Analysis</a></h2>
+<div id="recovery-parameter-importance">
+    <h2><a href="#recovery-parameter-importance">Elastic Recovery: Parameter Importance</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows which parameter (layers or strands) has the strongest correlation with recovery quality.<br>
-        <strong>Interpretation:</strong> Taller bar = that parameter is more important for optimizing elastic recovery.<br>
-        <strong>Use:</strong> Focus optimization efforts on the most influential parameter.<br>
-        <strong>Note:</strong> Thickness is constant (0.007m) across all experiments, so it won't show as important.
+        <strong>Purpose:</strong> Shows which parameter (layers or strands) has the strongest correlation with elastic recovery quality.<br>
+        <strong>Formula:</strong> Correlation = |Pearson(parameter, recovery_percent)|<br>
+        <strong>Where:</strong> recovery_percent = ((final_height - height_under_load) / (original_height - height_under_load)) × 100<br>
+        <strong>Analysis:</strong> Uses Pearson linear correlation coefficients (numpy.corrcoef) between each parameter and recovery percentage.<br>
+        <strong>Interpretation:</strong> Taller bar = that parameter is more important for optimizing elastic recovery after force removal.<br>
+        <strong>Use:</strong> Focus recovery optimization efforts on the most influential parameter.<br>
+        <strong>Note:</strong> Material thickness is constant (0.007m) across all force/no-force experiments.
     </p>
-    {% if parameter_importance_graph_path %}
-    <iframe src="/graphs/{{ parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% if recovery_parameter_importance_graph_path %}
+    <iframe src="/graphs/{{ recovery_parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
     {% else %}
-    <p>No data available for parameter importance analysis.</p>
+    <p>No data available for elastic recovery parameter importance analysis.</p>
+    {% endif %}
+</div>
+
+<div id="load-bearing-parameter-importance">
+    <h2><a href="#load-bearing-parameter-importance">Load Bearing Capability: Parameter Importance</a></h2>
+    <p>
+        <strong>Purpose:</strong> Shows which parameter (layers or strands) has the strongest correlation with load bearing capability.<br>
+        <strong>Formula:</strong> Correlation = |Pearson(parameter, specific_load_capacity)|<br>
+        <strong>Where:</strong> specific_load_capacity = max_force / (weight_kg × 9.81)<br>
+        <strong>Analysis:</strong> Uses Pearson linear correlation coefficients (numpy.corrcoef) between each parameter and specific load capacity.<br>
+        <strong>Interpretation:</strong> Taller bar = that parameter is more important for maximizing structural strength.<br>
+        <strong>Use:</strong> Focus structural optimization efforts on the most influential parameter.<br>
+        <strong>Data:</strong> Analyzes the maximum force each configuration can support during compression phase of force/no-force experiments.<br>
+        <strong>Note:</strong> Material thickness is constant (0.007m) across all experiments.
+    </p>
+    {% if load_bearing_parameter_importance_graph_path %}
+    <iframe src="/graphs/{{ load_bearing_parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for load bearing parameter importance analysis.</p>
     {% endif %}
 </div>
 
