@@ -2,60 +2,65 @@
 {% block title %}Elastic Recovery Analysis{% endblock %}
 {% block body %}
 
-<h1>Elastic Recovery Multi-Parameter Analysis</h1>
+<h1>Elastic Recovery Analysis (Force/No-Force Experiments)</h1>
 
 <p>
-    This analysis explores how <strong>multiple structural parameters</strong> (thickness, layers, strands) affect elastic recovery after removing applied force.
-    Unlike single-parameter experiments, this reveals their <strong>relative importance</strong> and interactions.
+    This analysis explores how <strong>strand count and layer count</strong> affect elastic recovery after removing applied force.
+    All experiments use <strong>0.007m material thickness</strong> with forces optimized per configuration to achieve comparable compression levels.
 </p>
 
-<div id="recovery-thickness">
-    <h2><a href="#recovery-thickness">Recovery Quality by Thickness</a></h2>
+<div id="compression-validation">
+    <h2><a href="#compression-validation">Compression Validation</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows how material thickness affects elastic recovery.<br>
-        <strong>Metric:</strong> Recovery % = (final_height - height_under_load) / (original_height - height_under_load) × 100<br>
-        <strong>Expected:</strong> Thicker strands should recover better (higher %) due to greater material stiffness.
+        <strong>Purpose:</strong> Validates that force scaling worked correctly across all configurations.<br>
+        <strong>Target:</strong> All configurations should achieve 10-15% compression for comparable testing.<br>
+        <strong>Interpretation:</strong> Bars within the target range indicate successful force calibration.<br>
+        <strong>Color:</strong> Coded by strand count to show scaling pattern.
     </p>
-    {% if recovery_by_thickness_graph_path %}
-    <iframe src="/graphs/{{ recovery_by_thickness_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% if compression_validation_graph_path %}
+    <iframe src="/graphs/{{ compression_validation_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
-    <p>No data available for recovery by thickness graph.</p>
+    <p>No data available for compression validation graph.</p>
     {% endif %}
 </div>
 
-<div id="equilibrium-time">
-    <h2><a href="#equilibrium-time">Equilibrium Time Analysis</a></h2>
+<div id="stiffness-comparison">
+    <h2><a href="#stiffness-comparison">Effective Stiffness Comparison</a></h2>
     <p>
-        <strong>Purpose:</strong> 3D visualization showing how long structures take to reach equilibrium after force removal.<br>
-        <strong>Metric:</strong> Average time (seconds) for the system to stabilize after releasing applied force.<br>
-        <strong>Interpretation:</strong> Shorter equilibrium times indicate faster structural response and better damping characteristics.<br>
-        <strong>Use:</strong> Identifies parameter combinations that lead to faster settling behavior.
+        <strong>Purpose:</strong> Shows structural stiffness (k = F/Δx) across all configurations.<br>
+        <strong>Value:</strong> Fundamental mechanical property - higher stiffness = more force needed for same compression.<br>
+        <strong>Use:</strong> Identifies which strand/layer combinations provide desired stiffness characteristics.<br>
+        <strong>Color:</strong> Red = higher stiffness (stiffer structure), Yellow = lower stiffness (more compliant).
     </p>
-    {% if equilibrium_time_graph_path %}
-    <iframe src="/graphs/{{ equilibrium_time_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% if stiffness_comparison_graph_path %}
+    <iframe src="/graphs/{{ stiffness_comparison_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
-    <p>No data available for equilibrium time analysis.</p>
+    <p>No data available for stiffness comparison graph.</p>
     {% endif %}
 </div>
 
-<div id="recovery-layers">
-    <h2><a href="#recovery-layers">Recovery Quality by Layer Count</a></h2>
+<div id="recovery-consistency">
+    <h2><a href="#recovery-consistency">Recovery Consistency</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows how layer count affects elastic recovery.<br>
-        <strong>Expected:</strong> More layers may improve recovery (more structure) or worsen it (more buckling from height).
+        <strong>Purpose:</strong> Shows recovery reliability - average ± standard deviation.<br>
+        <strong>Interpretation:</strong> Smaller error bars = more consistent/reliable behavior.<br>
+        <strong>Use:</strong> Identifies configurations with predictable recovery for practical applications.<br>
+        <strong>Key Metric:</strong> High average recovery + low variance = optimal for real-world use.
     </p>
-    {% if recovery_by_layers_graph_path %}
-    <iframe src="/graphs/{{ recovery_by_layers_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% if recovery_consistency_graph_path %}
+    <iframe src="/graphs/{{ recovery_consistency_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
-    <p>No data available for recovery by layers graph.</p>
+    <p>No data available for recovery consistency graph.</p>
     {% endif %}
 </div>
 
 <div id="recovery-strands">
     <h2><a href="#recovery-strands">Recovery Quality by Strand Count</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows how strand count affects elastic recovery.<br>
-        <strong>Expected:</strong> More strands add material but may change braid geometry, with complex effects on recovery.
+        <strong>Purpose:</strong> Shows how strand count affects elastic recovery at comparable compression levels.<br>
+        <strong>Metric:</strong> Recovery % = (final_height - height_under_load) / (original_height - height_under_load) × 100<br>
+        <strong>Key Question:</strong> Do structures with more strands recover better or worse?<br>
+        <strong>Note:</strong> Forces are scaled per strand count (4s:-2.5N, 6s:-4.5N, 8s:-7N, 10s:-9N, 12s:-11N) to achieve similar compression.
     </p>
     {% if recovery_by_strands_graph_path %}
     <iframe src="/graphs/{{ recovery_by_strands_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
@@ -64,31 +69,62 @@
     {% endif %}
 </div>
 
-<div id="heatmap-thickness-layers">
-    <h2><a href="#heatmap-thickness-layers">Multi-Parameter Heatmap: Thickness vs. Layers</a></h2>
+<div id="recovery-layers">
+    <h2><a href="#recovery-layers">Recovery Quality by Layer Count</a></h2>
     <p>
-        <strong>Purpose:</strong> 2D visualization showing recovery quality across thickness and layer combinations.<br>
-        <strong>Use:</strong> Identifies optimal parameter combinations and interaction effects.<br>
-        <strong>Color:</strong> Darker/warmer = better recovery.
+        <strong>Purpose:</strong> Shows how layer count affects elastic recovery.<br>
+        <strong>Expected:</strong> More layers may improve recovery (more structure) or worsen it (higher susceptibility to buckling).<br>
+        <strong>Comparison:</strong> 2-layer, 3-layer, and 4-layer configurations across all strand counts.
     </p>
-    {% if recovery_heatmap_thickness_layers_path %}
-    <iframe src="/graphs/{{ recovery_heatmap_thickness_layers_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% if recovery_by_layers_graph_path %}
+    <iframe src="/graphs/{{ recovery_by_layers_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
     {% else %}
-    <p>No data available for thickness-layers heatmap.</p>
+    <p>No data available for recovery by layers graph.</p>
+    {% endif %}
+</div>
+
+<div id="heatmap-strands-layers">
+    <h2><a href="#heatmap-strands-layers">Multi-Parameter Heatmap: Strands vs. Layers</a></h2>
+    <p>
+        <strong>Purpose:</strong> 2D visualization showing recovery quality across all strand and layer combinations.<br>
+        <strong>Use:</strong> Identifies optimal parameter combinations and interaction effects.<br>
+        <strong>Color:</strong> Brighter = better recovery percentage.<br>
+        <strong>Configurations:</strong> 15 total (5 strand counts × 3 layer counts).
+    </p>
+    {% if recovery_heatmap_strands_layers_path %}
+    <iframe src="/graphs/{{ recovery_heatmap_strands_layers_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for strands-layers heatmap.</p>
     {% endif %}
 </div>
 
 <div id="parameter-importance">
     <h2><a href="#parameter-importance">Parameter Importance Analysis</a></h2>
     <p>
-        <strong>Purpose:</strong> Bar chart showing which parameter (thickness, layers, strands) has the strongest correlation with recovery quality.<br>
+        <strong>Purpose:</strong> Shows which parameter (layers or strands) has the strongest correlation with recovery quality.<br>
         <strong>Interpretation:</strong> Taller bar = that parameter is more important for optimizing elastic recovery.<br>
-        <strong>Use:</strong> Focus optimization efforts on the most influential parameter.
+        <strong>Use:</strong> Focus optimization efforts on the most influential parameter.<br>
+        <strong>Note:</strong> Thickness is constant (0.007m) across all experiments, so it won't show as important.
     </p>
     {% if parameter_importance_graph_path %}
     <iframe src="/graphs/{{ parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
     {% else %}
     <p>No data available for parameter importance analysis.</p>
+    {% endif %}
+</div>
+
+<div id="equilibrium-time">
+    <h2><a href="#equilibrium-time">Equilibrium Time Analysis</a></h2>
+    <p>
+        <strong>Purpose:</strong> Shows how long structures take to reach equilibrium after force removal.<br>
+        <strong>Metric:</strong> Average time (seconds) for the system to stabilize after releasing applied force.<br>
+        <strong>Interpretation:</strong> Shorter equilibrium times indicate faster structural response and better damping characteristics.<br>
+        <strong>Use:</strong> Identifies parameter combinations that lead to faster settling behavior.
+    </p>
+    {% if equilibrium_time_graph_path %}
+    <iframe src="/graphs/{{ equilibrium_time_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for equilibrium time analysis.</p>
     {% endif %}
 </div>
 

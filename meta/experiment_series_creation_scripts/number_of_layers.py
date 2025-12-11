@@ -1,101 +1,81 @@
-import sys
 from sqlalchemy.inspection import inspect
 from database.models import ExperimentSeries
 from database.queries.experiment_series_queries import insert_experiment_series
 from database.session import scoped_session
 from experiments import run_non_experiment
 
-num_experiment_series = 6
-num_experiments = 48
-interlaced_experiment_series_name = "number_of_layers_"
-group_name = "number_of_layers"
+if __name__ == '__main__':
+    # Configuration
+    num_experiment_series = 7
+    num_experiments = 48
+    interlaced_experiment_series_name = "number_of_layers__"
+    group_name = "number_of_layers"
+    initial_num_layers = 2
+    final_num_layers = 8
 
-# Configuration values
-initial_num_layers = 2
-final_num_layers = 8
+    # Create initial and final models for interpolation
+    initial_model = ExperimentSeries(
+        experiment_series_name=f"{interlaced_experiment_series_name}{initial_num_layers:02d}",
+        group_name=group_name,
+        num_experiments=num_experiments,
+        num_layers=initial_num_layers,
+        initial_force_applied_in_y_direction=0.0,
+        final_force_in_y_direction=-1.7,
+        is_experiments_outdated=False,
+    )
 
-# Validate configuration before proceeding
-errors = []
-if initial_num_layers < 2:
-    errors.append(f"Initial num_layers ({initial_num_layers}) must be at least 2.")
-if final_num_layers < 2:
-    errors.append(f"Final num_layers ({final_num_layers}) must be at least 2.")
-if initial_num_layers >= final_num_layers:
-    errors.append(f"Initial num_layers ({initial_num_layers}) must be less than final num_layers ({final_num_layers}).")
-
-if errors:
-    print("ERROR: Invalid configuration values:")
-    for error in errors:
-        print(f"  - {error}")
-    sys.exit(1)
-
-initial_model = ExperimentSeries(
-    experiment_series_name=interlaced_experiment_series_name + "_00",
-    group_name=group_name,
-    num_experiments=num_experiments,
-    num_layers=2,
-    initial_force_applied_in_y_direction=0.0,
-    final_force_in_y_direction=-1.7,
-    is_experiments_outdated=False,
-)
-
-final_model = ExperimentSeries(
-    experiment_series_name=f"{interlaced_experiment_series_name}_{num_experiment_series:02d}",
-    group_name=group_name,
-    num_experiments=num_experiments,
-    num_layers=8,
-    initial_force_applied_in_y_direction=-0.0,
-    final_force_in_y_direction=-2.2,
-    is_experiments_outdated=False,
-)
-
-with scoped_session() as session:
-    # Save initial model (validation happens automatically)
-    insert_experiment_series(session, initial_model)
-    print(f"Created: {initial_model.experiment_series_name}")
+    final_model = ExperimentSeries(
+        experiment_series_name=f"{interlaced_experiment_series_name}{final_num_layers:02d}",
+        group_name=group_name,
+        num_experiments=num_experiments,
+        num_layers=final_num_layers,
+        initial_force_applied_in_y_direction=-0.0,
+        final_force_in_y_direction=-2.2,
+        is_experiments_outdated=False,
+    )
 
     columns = [column.key for column in inspect(ExperimentSeries).mapper.column_attrs if column.key != "experiment_series_name"]
 
-    # Create and save interpolated models
-    for i in range(1, num_experiment_series):
-        values = {}
-        for column in columns:
-            initial_value = getattr(initial_model, column)
-            final_value = getattr(final_model, column)
+    with scoped_session() as session:
+        # Create initial model
+        insert_experiment_series(session, initial_model)
+        print(f"Created: {initial_model.experiment_series_name}")
+        run_non_experiment(initial_model.experiment_series_name, will_visualize=False)
+        print(f"  ✓ Properties calculated\n")
 
-            if isinstance(initial_value, (int, float)) and isinstance(final_value, (int, float)):
-                values[column] = initial_value + (final_value - initial_value) * i / num_experiment_series
-            elif initial_value is not None and final_value is not None and initial_value == final_value:
-                values[column] = initial_value
-            elif initial_value is not None and final_value is not None:
-                continue  # skip differing types or non-numeric unequal values
-            elif initial_value is not None:
-                values[column] = initial_value
+        # Create interpolated models
+        for i in range(1, num_experiment_series - 1):
+            values = {}
+            for column in columns:
+                initial_value = getattr(initial_model, column)
+                final_value = getattr(final_model, column)
 
-        model = ExperimentSeries(
-            experiment_series_name=f"{interlaced_experiment_series_name}_{i:02d}",
-            is_experiments_outdated=False,
-            **values
-        )
+                if isinstance(initial_value, (int, float)) and isinstance(final_value, (int, float)):
+                    values[column] = initial_value + (final_value - initial_value) * i / (num_experiment_series - 1)
+                elif initial_value is not None and final_value is not None and initial_value == final_value:
+                    values[column] = initial_value
+                elif initial_value is not None and final_value is not None:
+                    continue
+                elif initial_value is not None:
+                    values[column] = initial_value
 
-        # Save model (validation happens automatically)
-        insert_experiment_series(session, model)
-        print(f"Created: {model.experiment_series_name}")
+            num_layers_val = int(initial_num_layers + (final_num_layers - initial_num_layers) * i / (num_experiment_series - 1))
 
-    # Save final model (validation happens automatically)
-    insert_experiment_series(session, final_model)
-    print(f"Created: {final_model.experiment_series_name}")
+            model = ExperimentSeries(
+                experiment_series_name=f"{interlaced_experiment_series_name}{num_layers_val:02d}",
+                is_experiments_outdated=False,
+                **values
+            )
 
-print("\nRunning non-experiments to generate images and calculate properties...")
-with scoped_session() as session:
-    all_series_names = [initial_model.experiment_series_name]
-    all_series_names.extend([f"{interlaced_experiment_series_name}_{i:02d}" for i in range(1, num_experiment_series)])
-    all_series_names.append(final_model.experiment_series_name)
+            insert_experiment_series(session, model)
+            print(f"Created: {model.experiment_series_name}")
+            run_non_experiment(model.experiment_series_name, will_visualize=False)
+            print(f"  ✓ Properties calculated\n")
 
-    for series_name in all_series_names:
-        series = session.query(ExperimentSeries).filter_by(experiment_series_name=series_name).first()
-        if series:
-            print(f"Running non-experiment for: {series_name}")
-            run_non_experiment(series_name, will_visualize=False)
+        # Create final model
+        insert_experiment_series(session, final_model)
+        print(f"Created: {final_model.experiment_series_name}")
+        run_non_experiment(final_model.experiment_series_name, will_visualize=False)
+        print(f"  ✓ Properties calculated\n")
 
-print("\nAll experiment series created and non-experiments completed!")
+    print("All experiment series created successfully!")

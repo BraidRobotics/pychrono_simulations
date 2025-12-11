@@ -16,14 +16,14 @@ from graphs.aggregate_graphs import (
     generate_strand_height_reduction_vs_force_graph,
     generate_strand_stiffness_vs_compression_graph,
     generate_strand_force_vs_displacement_graph,
-    generate_recovery_by_thickness_graph,
     generate_recovery_by_layers_graph,
     generate_recovery_by_strands_graph,
-    generate_recovery_heatmap_thickness_layers,
     generate_recovery_heatmap_strands_layers,
-    generate_recovery_heatmap_strands_thickness,
     generate_recovery_parameter_importance_graph,
-    generate_equilibrium_time_graph
+    generate_equilibrium_time_graph,
+    generate_compression_validation_graph,
+    generate_stiffness_comparison_graph,
+    generate_recovery_consistency_graph
 )
 
 if __name__ == '__main__':
@@ -78,28 +78,28 @@ if __name__ == '__main__':
         print("  - Strand force vs. displacement...")
         generate_strand_force_vs_displacement_graph(session)
 
-        print("  - Recovery by thickness...")
-        generate_recovery_by_thickness_graph(session)
-
         print("  - Recovery by layers...")
         generate_recovery_by_layers_graph(session)
 
         print("  - Recovery by strands...")
         generate_recovery_by_strands_graph(session)
 
-        print("  - Recovery heatmap (thickness × layers)...")
-        generate_recovery_heatmap_thickness_layers(session)
-
         print("  - Recovery heatmap (strands × layers)...")
         generate_recovery_heatmap_strands_layers(session)
-
-        print("  - Recovery heatmap (strands × thickness)...")
-        generate_recovery_heatmap_strands_thickness(session)
 
         print("  - Recovery parameter importance...")
         generate_recovery_parameter_importance_graph(session)
 
         print("  - Equilibrium time...")
         generate_equilibrium_time_graph(session)
+
+        print("  - Compression validation...")
+        generate_compression_validation_graph(session)
+
+        print("  - Stiffness comparison...")
+        generate_stiffness_comparison_graph(session)
+
+        print("  - Recovery consistency...")
+        generate_recovery_consistency_graph(session)
 
         print("\nAll aggregate graphs generated successfully!")

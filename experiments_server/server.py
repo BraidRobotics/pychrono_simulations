@@ -154,19 +154,23 @@ def strands_analysis_page():
 @app.route("/force_no_force_analysis", methods=["GET"])
 def force_no_force_analysis_page():
     # Graph paths
-    recovery_by_thickness_graph_path = "recovery_by_thickness.html"
+    compression_validation_graph_path = "compression_validation.html"
+    stiffness_comparison_graph_path = "stiffness_comparison.html"
+    recovery_consistency_graph_path = "recovery_consistency.html"
     recovery_by_layers_graph_path = "recovery_by_layers.html"
     recovery_by_strands_graph_path = "recovery_by_strands.html"
-    recovery_heatmap_thickness_layers_path = "recovery_heatmap_thickness_layers.html"
+    recovery_heatmap_strands_layers_path = "recovery_heatmap_strands_layers.html"
     parameter_importance_graph_path = "recovery_parameter_importance.html"
     equilibrium_time_graph_path = "equilibrium_time.html"
 
     return render_template(
         "analysis/forceNoForceAnalysis.html",
-        recovery_by_thickness_graph_path=recovery_by_thickness_graph_path,
+        compression_validation_graph_path=compression_validation_graph_path,
+        stiffness_comparison_graph_path=stiffness_comparison_graph_path,
+        recovery_consistency_graph_path=recovery_consistency_graph_path,
         recovery_by_layers_graph_path=recovery_by_layers_graph_path,
         recovery_by_strands_graph_path=recovery_by_strands_graph_path,
-        recovery_heatmap_thickness_layers_path=recovery_heatmap_thickness_layers_path,
+        recovery_heatmap_strands_layers_path=recovery_heatmap_strands_layers_path,
         parameter_importance_graph_path=parameter_importance_graph_path,
         equilibrium_time_graph_path=equilibrium_time_graph_path
     )

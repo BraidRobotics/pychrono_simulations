@@ -20,6 +20,9 @@ from database.queries.graph_queries import (
     get_strand_height_reduction_vs_force_data,
     get_force_no_force_recovery_data,
     get_force_no_force_equilibrium_data,
+    get_force_no_force_compression_data,
+    get_force_no_force_stiffness_data,
+    get_force_no_force_recovery_consistency_data,
     get_strand_count_stiffness_vs_compression_data,
     get_strand_count_force_vs_displacement_data
 )
@@ -1164,11 +1167,8 @@ def generate_recovery_parameter_importance_graph(session):
 
     df = pd.DataFrame(data)
 
-    # Calculate correlation coefficients
+    # Calculate correlation coefficients (excluding thickness)
     correlations = {}
-
-    if df['strand_radius'].std() > 0:
-        correlations['Thickness'] = abs(np.corrcoef(df['strand_radius'], df['recovery_percent'])[0, 1])
 
     if df['num_layers'].std() > 0:
         correlations['Layers'] = abs(np.corrcoef(df['num_layers'], df['recovery_percent'])[0, 1])
@@ -1337,6 +1337,153 @@ def generate_equilibrium_time_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "equilibrium_time.html"
+
+
+def generate_compression_validation_graph(session):
+    """Bar chart showing compression achieved by each configuration"""
+    data = get_force_no_force_compression_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    df['config'] = df['num_strands'].astype(str) + 's, ' + df['num_layers'].astype(str) + 'l'
+    df = df.sort_values(['num_strands', 'num_layers'])
+
+    fig = go.Figure()
+
+    # Add average compression bars
+    fig.add_trace(go.Bar(
+        x=df['config'],
+        y=df['avg_compression_pct'],
+        name='Average Compression',
+        marker_color=df['num_strands'],
+        marker=dict(
+            colorscale='Viridis',
+            showscale=True,
+            colorbar=dict(title="Strand Count")
+        ),
+        text=[f"{val:.1f}%" for val in df['avg_compression_pct']],
+        textposition='outside',
+        hovertemplate='<b>%{x}</b><br>Avg Compression: %{y:.1f}%<br>Target Force: %{customdata:.1f}N<extra></extra>',
+        customdata=df['target_force']
+    ))
+
+    # Add reference lines for target range
+    fig.add_hline(y=10, line_dash="dash", line_color="green",
+                  annotation_text="Target Min (10%)", annotation_position="right")
+    fig.add_hline(y=15, line_dash="dash", line_color="orange",
+                  annotation_text="Target Max (15%)", annotation_position="right")
+
+    fig.update_layout(
+        title='Compression Validation: Force Scaling Effectiveness',
+        xaxis_title='Configuration (Strands, Layers)',
+        yaxis_title='Compression (%)',
+        height=600,
+        showlegend=False,
+        xaxis={'tickangle': -45}
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "compression_validation.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "compression_validation.html"
+
+
+def generate_stiffness_comparison_graph(session):
+    """Heatmap showing effective stiffness across configurations"""
+    data = get_force_no_force_stiffness_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+
+    # Create pivot table for heatmap
+    pivot = df.pivot_table(
+        values='avg_stiffness',
+        index='num_layers',
+        columns='num_strands',
+        aggfunc='mean'
+    )
+
+    if pivot.empty:
+        return None
+
+    fig = go.Figure(data=go.Heatmap(
+        z=pivot.values,
+        x=pivot.columns,
+        y=pivot.index,
+        colorscale='YlOrRd',
+        hovertemplate='Strands: %{x}<br>Layers: %{y}<br>Stiffness: %{z:.1f} N/m<extra></extra>',
+        colorbar=dict(title="Stiffness (N/m)")
+    ))
+
+    fig.update_layout(
+        title='Effective Stiffness Comparison (k = F/Δx)',
+        xaxis_title='Number of Strands',
+        yaxis_title='Number of Layers',
+        height=600
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "stiffness_comparison.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "stiffness_comparison.html"
+
+
+def generate_recovery_consistency_graph(session):
+    """Box plot showing recovery consistency across configurations"""
+    data = get_force_no_force_recovery_consistency_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    df['config'] = df['num_strands'].astype(str) + 's, ' + df['num_layers'].astype(str) + 'l'
+    df = df.sort_values(['num_strands', 'num_layers'])
+
+    fig = go.Figure()
+
+    # Create error bars showing variability
+    fig.add_trace(go.Bar(
+        x=df['config'],
+        y=df['avg_recovery'],
+        name='Average Recovery',
+        marker_color=df['num_strands'],
+        marker=dict(
+            colorscale='Plasma',
+            showscale=True,
+            colorbar=dict(title="Strand Count")
+        ),
+        error_y=dict(
+            type='data',
+            array=df['std_recovery'],
+            visible=True,
+            color='rgba(0,0,0,0.3)',
+            thickness=1.5,
+            width=4
+        ),
+        text=[f"{avg:.1f}±{std:.1f}%" for avg, std in zip(df['avg_recovery'], df['std_recovery'])],
+        textposition='outside',
+        hovertemplate='<b>%{x}</b><br>Recovery: %{y:.1f}%<br>Std Dev: %{customdata:.2f}%<br>Range: %{text}<extra></extra>',
+        customdata=df['std_recovery']
+    ))
+
+    fig.update_layout(
+        title='Recovery Consistency: Average ± Standard Deviation',
+        xaxis_title='Configuration (Strands, Layers)',
+        yaxis_title='Recovery Percentage (%)',
+        height=600,
+        showlegend=False,
+        xaxis={'tickangle': -45},
+        yaxis=dict(range=[0, 100])
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "recovery_consistency.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "recovery_consistency.html"
 
 
 def generate_strand_stiffness_vs_compression_graph(session):

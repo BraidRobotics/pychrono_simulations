@@ -637,6 +637,146 @@ def get_force_no_force_equilibrium_data(session):
 	return results
 
 
+def get_force_no_force_compression_data(session):
+	"""Get compression data for force_no_force experiments"""
+	series_list = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%force_no_force%')
+	).all()
+
+	results = []
+
+	for series in series_list:
+		if not series.height_m:
+			continue
+
+		experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name,
+			Experiment.time_to_bounding_box_explosion.is_(None),
+			Experiment.height_under_load.isnot(None),
+			Experiment.force_in_y_direction.isnot(None)
+		).all()
+
+		if not experiments:
+			continue
+
+		# Calculate compressions
+		compressions = []
+		for exp in experiments:
+			compression = series.height_m - exp.height_under_load
+			if compression > 0:
+				compression_pct = (compression / series.height_m) * 100
+				compressions.append(compression_pct)
+
+		if compressions:
+			avg_compression = sum(compressions) / len(compressions)
+			max_compression = max(compressions)
+			results.append({
+				"experiment_series_name": series.experiment_series_name,
+				"num_layers": series.num_layers,
+				"num_strands": series.num_strands,
+				"avg_compression_pct": avg_compression,
+				"max_compression_pct": max_compression,
+				"target_force": abs(series.final_force_in_y_direction)
+			})
+
+	return results
+
+
+def get_force_no_force_stiffness_data(session):
+	"""Get effective stiffness data for force_no_force experiments"""
+	series_list = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%force_no_force%')
+	).all()
+
+	results = []
+
+	for series in series_list:
+		if not series.height_m:
+			continue
+
+		experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name,
+			Experiment.time_to_bounding_box_explosion.is_(None),
+			Experiment.height_under_load.isnot(None),
+			Experiment.force_in_y_direction.isnot(None)
+		).all()
+
+		if not experiments:
+			continue
+
+		# Calculate stiffness k = F/Δx for each experiment
+		stiffnesses = []
+		for exp in experiments:
+			displacement = series.height_m - exp.height_under_load
+			force = abs(exp.force_in_y_direction)
+			if displacement > 0 and force > 0:
+				stiffness = force / displacement  # N/m
+				stiffnesses.append(stiffness)
+
+		if stiffnesses:
+			avg_stiffness = sum(stiffnesses) / len(stiffnesses)
+			results.append({
+				"experiment_series_name": series.experiment_series_name,
+				"num_layers": series.num_layers,
+				"num_strands": series.num_strands,
+				"avg_stiffness": avg_stiffness,
+				"weight_kg": series.weight_kg
+			})
+
+	return results
+
+
+def get_force_no_force_recovery_consistency_data(session):
+	"""Get recovery data with variance/consistency metrics"""
+	series_list = session.query(ExperimentSeries).filter(
+		ExperimentSeries.group_name.like('%force_no_force%')
+	).all()
+
+	results = []
+
+	for series in series_list:
+		if not series.height_m or not series.reset_force_after_seconds:
+			continue
+
+		experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name,
+			Experiment.time_to_bounding_box_explosion.is_(None),
+			Experiment.height_under_load.isnot(None),
+			Experiment.final_height.isnot(None)
+		).all()
+
+		if not experiments:
+			continue
+
+		# Calculate recovery for each experiment
+		recovery_percentages = []
+		for exp in experiments:
+			compression = series.height_m - exp.height_under_load
+			if compression > 0:
+				recovery = (exp.final_height - exp.height_under_load) / compression * 100
+				recovery_percentages.append(recovery)
+
+		if len(recovery_percentages) >= 2:
+			import statistics
+			avg_recovery = statistics.mean(recovery_percentages)
+			std_recovery = statistics.stdev(recovery_percentages)
+			min_recovery = min(recovery_percentages)
+			max_recovery = max(recovery_percentages)
+
+			results.append({
+				"experiment_series_name": series.experiment_series_name,
+				"num_layers": series.num_layers,
+				"num_strands": series.num_strands,
+				"avg_recovery": avg_recovery,
+				"std_recovery": std_recovery,
+				"min_recovery": min_recovery,
+				"max_recovery": max_recovery,
+				"sample_size": len(recovery_percentages)
+			})
+
+	return results
+
+
 def get_strand_count_stiffness_vs_compression_data(session):
 	"""Get stiffness vs. compression data for all strand count series"""
 	strand_series = session.query(ExperimentSeries).filter(
@@ -695,8 +835,8 @@ def get_strand_count_force_vs_displacement_data(session):
 		ExperimentSeries.group_name.like('%number_of_strands%')
 	).all()
 
-	# Filter out 2-strand series (unstable)
-	strand_series = [s for s in strand_series if s.num_strands >= 4]
+	# Include all strand counts
+	strand_series = [s for s in strand_series if s.num_strands >= 2]
 
 	series_map = {s.experiment_series_name: s for s in strand_series}
 
