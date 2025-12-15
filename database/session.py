@@ -1,9 +1,12 @@
+import os
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
 from contextlib import contextmanager
 from typing import Optional
 
-engine = create_engine("sqlite:///database.db", echo=False, future=True)
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+db_path = os.path.join(project_root, 'database.db')
+engine = create_engine(f"sqlite:///{db_path}", echo=False, future=True)
 SessionLocal = sessionmaker(bind=engine)
 
 event.listen(engine, "connect", lambda conn, rec: conn.execute("PRAGMA foreign_keys=ON"))
