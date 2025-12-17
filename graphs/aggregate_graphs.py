@@ -1654,3 +1654,69 @@ def generate_load_bearing_parameter_importance_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "load_bearing_parameter_importance.html"
+
+
+# Mapping of group_name to their aggregate graph functions
+GROUP_AGGREGATE_GRAPHS = {
+    'strand_thickness': [
+        generate_strand_thickness_weight_graph,
+        generate_strand_thickness_force_graph,
+        generate_strand_thickness_efficiency_graph,
+        generate_thickness_height_reduction_vs_force_graph,
+        generate_strand_thickness_max_survivable_force_graph,
+        generate_strand_stiffness_vs_compression_graph,
+        generate_strand_force_vs_displacement_graph,
+    ],
+    'number_of_layers': [
+        generate_layer_count_height_graph,
+        generate_layer_count_force_graph,
+        generate_layer_count_efficiency_graph,
+        generate_layer_height_reduction_vs_force_graph,
+    ],
+    'number_of_strands': [
+        generate_strand_count_weight_graph,
+        generate_strand_count_force_graph,
+        generate_strand_count_efficiency_graph,
+        generate_strand_height_reduction_vs_force_graph,
+    ],
+    'force_no_force': [
+        generate_recovery_by_layers_graph,
+        generate_recovery_by_strands_graph,
+        generate_recovery_heatmap_strands_layers,
+        generate_recovery_parameter_importance_graph,
+        generate_equilibrium_time_graph,
+        generate_compression_validation_graph,
+        generate_stiffness_comparison_graph,
+        generate_recovery_consistency_graph,
+        generate_load_bearing_parameter_importance_graph,
+    ]
+}
+
+# Graphs that aggregate across all experiments regardless of group
+ALL_EXPERIMENTS_GRAPHS = [
+    generate_load_capacity_ratio_graph,
+]
+
+
+def generate_aggregate_graphs_for_group(session, group_name):
+    """Generate aggregate graphs for a specific group_name"""
+    graphs = GROUP_AGGREGATE_GRAPHS.get(group_name, [])
+
+    if not graphs:
+        # If no specific group match, generate all-experiments graphs
+        print(f"  No specific aggregate graphs for group '{group_name}', generating all-experiments graphs...")
+        for graph_func in ALL_EXPERIMENTS_GRAPHS:
+            try:
+                print(f"    - {graph_func.__name__}...")
+                graph_func(session)
+            except Exception as e:
+                print(f"      Error generating {graph_func.__name__}: {e}")
+        return
+
+    print(f"  Generating aggregate graphs for group '{group_name}'...")
+    for graph_func in graphs:
+        try:
+            print(f"    - {graph_func.__name__}...")
+            graph_func(session)
+        except Exception as e:
+            print(f"      Error generating {graph_func.__name__}: {e}")
