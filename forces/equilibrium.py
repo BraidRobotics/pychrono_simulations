@@ -2,11 +2,12 @@ from dataclasses import dataclass
 
 @dataclass
 class EquilibriumThresholds:
-	# todo remember to change the target strain if I change the material
-	# Nylon typically has a yield strain between 2–10%, with elastic deformation typically below 1%
-	target_strain: float = 0.01          # 1%, typical elastic limit for Nylon 
+	# todo remember to adjust these if simulating different materials
+	# Target strain should match the material's elastic limit
+	# Rubber-like material (E=100 MPa) has elastic limit around 5-10%
+	target_strain: float = 0.05          # 5%, typical elastic limit for rubber-like materials 
 	strain_tolerance: float = 1e-6       # minimal strain change per timestep
-	stability_timesteps: int = 1000        # must maintain thresholds for 1000 steps
+	stability_timesteps: int = 1000        # must maintain below the thresholds for 10 seconds with a 0.1 simulation time step
 
 thresholds = EquilibriumThresholds()
 
@@ -19,8 +20,9 @@ def is_in_equilibrium(max_beam_strain, _max_node_velocity):
 		is_in_equilibrium.consecutive_stable_steps = 0
 
 	'''
-		Equilibrium criterion based on strain rate:
-		|(ε_current - ε_previous) / Δt| ≤ strain_tolerance
+		Equilibrium criteria:
+		1. Maximum strain within elastic limit: ε_max ≤ ε_target
+		2. Strain change per timestep negligible: |ε_current - ε_previous| ≤ ε_tolerance
 	'''
 	strain_delta = abs(max_beam_strain - is_in_equilibrium.previous_strain)
 	strain_stable = (

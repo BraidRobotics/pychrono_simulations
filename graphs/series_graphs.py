@@ -202,28 +202,6 @@ def generate_experiment_series_elastic_recovery_graph(session, safe_name, experi
             hovertemplate='<b>Height Under Load: %{x:.4f} m</b><br>Final Height: %{y:.4f} m<extra></extra>'
         ))
 
-        # Add linear regression for non-exploded experiments
-        if len(df_no_explosion) >= 2:
-            X = df_no_explosion['height_under_load'].values.reshape(-1, 1)
-            y = df_no_explosion['final_height'].values
-
-            model = LinearRegression()
-            model.fit(X, y)
-
-            X_range = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
-            y_pred = model.predict(X_range)
-
-            r2 = r2_score(y, model.predict(X))
-
-            fig.add_trace(go.Scatter(
-                x=X_range.flatten(),
-                y=y_pred,
-                mode='lines',
-                name=f'Linear Fit (R²={r2:.3f})',
-                line=dict(color='green', width=2, dash='dash'),
-                hovertemplate='<b>Height Under Load: %{x:.4f} m</b><br>Predicted: %{y:.4f} m<extra></extra>'
-            ))
-
     df_exploded = df[df['time_to_bounding_box_explosion'].notna()]
     if not df_exploded.empty:
         fig.add_trace(go.Scatter(
