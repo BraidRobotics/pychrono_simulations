@@ -20,12 +20,12 @@
     <button id="new-experiment-button">Create A New Experiment Series</button>
 </form>
 
-<h2>Previous Experiment Series</h2>
+<h2>Existing Experiment Series</h2>
 
 {% for group_name, experiment_series_list in grouped_experiment_series.items() %}
 <div class="experiment-group collapsed">
     <div class="group-header" onclick="toggleGroup(this)">
-        {{ group_name }} ({{ experiment_series_list|length }} series)
+        {{ group_name }} ({{ experiment_series_list|length }} models)
         <span class="toggle-icon">▼</span>
     </div>
     <div class="group-content">

@@ -38,7 +38,6 @@ class ExperimentSeries(Base):
 	radius_taper = Column(Float, default=0.0)  # Conicity (how much it narrows towards the top)
 	strand_radius = Column(Float, default=0.007)
 	material_youngs_modulus = Column(Float, default=1.72e10)  # Glass-reinforced polyester (GRP) https://en.wikipedia.org/wiki/Young%27s_modulus
-	target_strain = Column(Float, default=0.05)  # Target elastic strain limit for equilibrium detection (5% for rubber-like materials)
 	weight_kg = Column(Float, default=None)
 	height_m = Column(Float, default=None)
 
@@ -63,8 +62,6 @@ class ExperimentSeries(Base):
 			errors.append("Strand radius must be greater than 0.")
 		if self.material_youngs_modulus is not None and self.material_youngs_modulus <= 0:
 			errors.append("Material Young's modulus must be greater than 0.")
-		if self.target_strain is not None and self.target_strain <= 0:
-			errors.append("Target strain must be greater than 0.")
 		forces_vary = (
 			self.initial_force_applied_in_y_direction != self.final_force_in_y_direction or
 			self.initial_top_nodes_force_in_y_direction != self.final_top_nodes_force_in_y_direction or
