@@ -1,0 +1,125 @@
+.recommendations-intro {
+  font-size: 1.1em;
+  margin-bottom: 2em;
+}
+
+.recommendations-section {
+  margin-bottom: 3em;
+}
+
+.quick-reference-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1em;
+}
+
+.quick-reference-table thead tr {
+  background-color: #2c3e50;
+  color: white;
+}
+
+.quick-reference-table th,
+.quick-reference-table td {
+  padding: 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.quick-reference-table th:first-child {
+  width: 30%;
+}
+
+.quick-reference-table tbody tr:nth-child(even) {
+  background-color: #151d1e;
+}
+
+.objective-label {
+  font-weight: bold;
+}
+
+.objective-description {
+  font-weight: normal;
+  color: #7f8c8d;
+}
+
+.recommendation-value {
+  color: #7f8c8d;
+}
+
+.detail-section {
+  margin-bottom: 3em;
+}
+
+.detail-section h3 a {
+  text-decoration: none;
+}
+
+.config-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.config-table thead tr {
+  color: white;
+}
+
+.config-table th,
+.config-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.config-table td:last-child {
+  font-size: 0.85em;
+  text-align: left;
+}
+
+.config-table th {
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.config-table tbody tr:nth-child(even) {
+  background-color: #151d1e;
+}
+
+.config-table .rank-cell {
+  text-align: center;
+}
+
+.config-table .value-cell {
+  font-weight: bold;
+}
+
+.flexibility-header {
+  background-color: #9b59b6;
+}
+
+.recovery-header {
+  background-color: #3498db;
+}
+
+.load-bearing-header {
+  background-color: #e74c3c;
+}
+
+.efficiency-header {
+  background-color: #2ecc71;
+}
+
+.methodology-section {
+  margin-top: 3em;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #3498db;
+}
+
+.methodology-section ul {
+  margin: 10px 0;
+}
+
+.methodology-section li {
+  margin: 5px 0;
+}

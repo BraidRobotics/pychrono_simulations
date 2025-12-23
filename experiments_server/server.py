@@ -162,7 +162,9 @@ def force_no_force_analysis_page():
     recovery_heatmap_strands_layers_path = "recovery_heatmap_strands_layers.html"
     recovery_parameter_importance_graph_path = "recovery_parameter_importance.html"
     load_bearing_parameter_importance_graph_path = "load_bearing_parameter_importance.html"
+    compression_parameter_importance_graph_path = "compression_parameter_importance.html"
     equilibrium_time_graph_path = "equilibrium_time.html"
+    equilibrium_time_by_strands_graph_path = "equilibrium_time_by_strands.html"
 
     return render_template(
         "analysis/forceNoForceAnalysis.html",
@@ -174,7 +176,20 @@ def force_no_force_analysis_page():
         recovery_heatmap_strands_layers_path=recovery_heatmap_strands_layers_path,
         recovery_parameter_importance_graph_path=recovery_parameter_importance_graph_path,
         load_bearing_parameter_importance_graph_path=load_bearing_parameter_importance_graph_path,
-        equilibrium_time_graph_path=equilibrium_time_graph_path
+        compression_parameter_importance_graph_path=compression_parameter_importance_graph_path,
+        equilibrium_time_graph_path=equilibrium_time_graph_path,
+        equilibrium_time_by_strands_graph_path=equilibrium_time_by_strands_graph_path
+    )
+
+@app.route("/recommendations", methods=["GET"])
+def recommendations_page():
+    from database.queries.recommendation_queries import get_design_recommendations
+
+    recommendations = get_design_recommendations(g.db)
+
+    return render_template(
+        "analysis/recommendations.html",
+        recommendations=recommendations
     )
 
 @app.route('/assets/<path:filename>')

@@ -19,7 +19,8 @@ from .aggregate_graphs import (
     generate_recovery_heatmap_strands_layers,
     generate_recovery_heatmap_strands_thickness,
     generate_recovery_parameter_importance_graph,
-    generate_equilibrium_time_graph
+    generate_equilibrium_time_graph,
+    generate_equilibrium_time_by_strands_graph
 )
 from .series_graphs import (
     generate_experiment_series_force_graph,

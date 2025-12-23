@@ -9,10 +9,13 @@
     All experiments use <strong>0.007m material thickness</strong> with forces optimized per configuration to achieve comparable compression levels.
 </p>
 
+<!-- COMPRESSION GRAPHS -->
+
 <div id="compression-validation">
-    <h2><a href="#compression-validation">Compression Validation</a></h2>
+    <h2><a href="#compression-validation">Best Performing Compression</a></h2>
     <p>
         <strong>Purpose:</strong> Validates that force scaling worked correctly across all configurations.<br>
+        <strong>Metric:</strong> Shows the optimal compression performance (maximum compression achieved) for each configuration.<br>
         <strong>Target:</strong> All configurations should achieve 10-15% compression for comparable testing.<br>
         <strong>Interpretation:</strong> Bars within the target range indicate successful force calibration.<br>
         <strong>Color:</strong> Coded by strand count to show scaling pattern.
@@ -21,6 +24,60 @@
     <iframe src="/graphs/{{ compression_validation_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
     <p>No data available for compression validation graph.</p>
+    {% endif %}
+</div>
+
+<div id="compression-parameter-importance">
+    <h2><a href="#compression-parameter-importance">Compression Performance (As a function of its best compression rate): Parameter Importance</a></h2>
+    <p>
+        <strong>Purpose:</strong> Identifies which design parameter (strand count or layer count) most strongly influences how much the structure compresses under applied force.
+    </p>
+
+    <h3>Mathematical Framework</h3>
+    <p>
+        For each configuration, we identify the <strong>maximum compression percentage</strong> achieved across all successful experiments:
+    </p>
+    <p style="text-align: center; font-size: 1.1em; margin: 1em 0;">
+        <em>C</em> = max(<em>c</em><sub>1</sub>, <em>c</em><sub>2</sub>, ..., <em>c</em><sub><em>n</em></sub>)
+    </p>
+    <p>
+        where <em>c</em><sub><em>i</em></sub> = (<em>h</em><sub>0</sub> - <em>h</em><sub>load</sub>) / <em>h</em><sub>0</sub> × 100%
+    </p>
+    <p>
+        • <em>h</em><sub>0</sub> is the original structure height (m)<br>
+        • <em>h</em><sub>load</sub> is the height under applied load (m)<br>
+        • <em>C</em> is the best compression performance (%)
+    </p>
+
+    <p>
+        To quantify parameter importance, we compute the <strong>Pearson correlation coefficient</strong> between each design parameter and compression percentage:
+    </p>
+    <p style="text-align: center; font-size: 1.1em; margin: 1em 0;">
+        <em>r</em> = cov(<em>X</em>, <em>C</em>) / (σ<sub><em>X</em></sub> · σ<sub><em>C</em></sub>)
+    </p>
+    <p>
+        where:<br>
+        • <em>X</em> is the parameter vector (strand count or layer count)<br>
+        • cov(<em>X</em>, <em>C</em>) is the covariance between parameter and compression percentage<br>
+        • σ<sub><em>X</em></sub> and σ<sub><em>C</em></sub> are the standard deviations
+    </p>
+
+    <p>
+        The <strong>parameter importance</strong> is defined as the absolute correlation:
+    </p>
+    <p style="text-align: center; font-size: 1.1em; margin: 1em 0;">
+        Importance = |<em>r</em>|
+    </p>
+
+    <p>
+        <strong>Interpretation:</strong> Values range from 0 (no linear relationship) to 1 (perfect linear relationship). A higher value indicates that parameter is more influential for controlling compression behavior.<br>
+        <strong>Note:</strong> Material thickness is constant (0.007 m) across all configurations, isolating the effects of strand and layer count.
+    </p>
+
+    {% if compression_parameter_importance_graph_path %}
+    <iframe src="/graphs/{{ compression_parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for compression parameter importance analysis.</p>
     {% endif %}
 </div>
 
@@ -39,6 +96,80 @@
     {% endif %}
 </div>
 
+<!-- LOAD-BEARING -->
+
+<div id="load-bearing-parameter-importance">
+    <h2><a href="#load-bearing-parameter-importance">Load-Bearing Capability (As a function of its own weight): Parameter Importance</a></h2>
+    <p>
+        <strong>Purpose:</strong> Identifies which design parameter (strand count or layer count) most strongly influences the structure's ability to bear load relative to its weight.
+    </p>
+
+    <h3>Mathematical Framework</h3>
+    <p>
+        For each configuration, we calculate the <strong>specific load capacity</strong>, which normalizes load-bearing capability by structural weight:
+    </p>
+    <p style="text-align: center; font-size: 1.1em; margin: 1em 0;">
+        <em>λ</em> = <em>F</em><sub>max</sub> / (<em>m</em> · <em>g</em>)
+    </p>
+    <p>
+        where:<br>
+        • <em>λ</em> is the specific load capacity (dimensionless)<br>
+        • <em>F</em><sub>max</sub> is the maximum force sustained during compression (N)<br>
+        • <em>m</em> is the structure mass (kg)<br>
+        • <em>g</em> = 9.81 m/s² is gravitational acceleration
+    </p>
+
+    <p>
+        To quantify parameter importance, we compute the <strong>Pearson correlation coefficient</strong> between each design parameter and specific load capacity:
+    </p>
+    <p style="text-align: center; font-size: 1.1em; margin: 1em 0;">
+        <em>r</em> = cov(<em>X</em>, <em>λ</em>) / (σ<sub><em>X</em></sub> · σ<sub><em>λ</em></sub>)
+    </p>
+    <p>
+        where:<br>
+        • <em>X</em> is the parameter vector (strand count or layer count)<br>
+        • cov(<em>X</em>, <em>λ</em>) is the covariance between parameter and load capacity<br>
+        • σ<sub><em>X</em></sub> and σ<sub><em>λ</em></sub> are the standard deviations
+    </p>
+
+    <p>
+        The <strong>parameter importance</strong> is defined as the absolute correlation:
+    </p>
+    <p style="text-align: center; font-size: 1.1em; margin: 1em 0;">
+        Importance = |<em>r</em>|
+    </p>
+
+    <p>
+        <strong>Interpretation:</strong> Values range from 0 (no linear relationship) to 1 (perfect linear relationship). A higher value indicates that parameter is more influential for optimizing load-bearing performance.<br>
+        <strong>Note:</strong> Material thickness is constant (0.007 m) across all configurations, isolating the effects of strand and layer count.
+    </p>
+
+    {% if load_bearing_parameter_importance_graph_path %}
+    <iframe src="/graphs/{{ load_bearing_parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for load-bearing parameter importance analysis.</p>
+    {% endif %}
+</div>
+
+<!-- ELASTIC RECOVERY -->
+
+<div style="background-color: #f0f8ff; padding: 20px; margin: 30px 0 20px 0; border-left: 4px solid #3498db;">
+    <h3 style="margin-top: 0;">About Recovery Metrics</h3>
+    <p>
+        <strong>Important:</strong> Recovery graphs show <em>normalized recovery efficiency</em>
+        (% per Newton) rather than raw recovery percentages. This normalization accounts for the
+        fact that different configurations were tested under different force levels to achieve
+        comparable compression (e.g., 4 strands at 2.5N, 12 strands at 11N).
+    </p>
+    <p>
+        Higher efficiency values indicate better recovery performance per unit of applied force,
+        enabling fair comparison across all configurations regardless of testing conditions.
+    </p>
+    <p style="margin-bottom: 0;">
+        <strong>Formula:</strong> Normalized Efficiency = Recovery (%) / Applied Force (N)
+    </p>
+</div>
+
 <div id="recovery-consistency">
     <h2><a href="#recovery-consistency">Recovery Consistency</a></h2>
     <p>
@@ -55,12 +186,13 @@
 </div>
 
 <div id="recovery-strands">
-    <h2><a href="#recovery-strands">Recovery Quality by Strand Count</a></h2>
+    <h2><a href="#recovery-strands">Normalized Recovery Efficiency by Strand Count</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows how strand count affects elastic recovery at comparable compression levels.<br>
-        <strong>Metric:</strong> Recovery % = (final_height - height_under_load) / (original_height - height_under_load) × 100<br>
-        <strong>Key Question:</strong> Do structures with more strands recover better or worse?<br>
-        <strong>Note:</strong> Forces are scaled per strand count (4s:-2.5N, 6s:-4.5N, 8s:-7N, 10s:-9N, 12s:-11N) to achieve similar compression.
+        <strong>Purpose:</strong> Shows how strand count affects normalized recovery efficiency at comparable compression levels.<br>
+        <strong>Metric:</strong> Normalized Efficiency (% per N) = [Recovery % / Applied Force]<br>
+        <strong>Raw Recovery:</strong> Recovery % = (final_height - height_under_load) / (original_height - height_under_load) × 100<br>
+        <strong>Key Question:</strong> Which strand counts provide the best recovery per unit of force applied?<br>
+        <strong>Note:</strong> Forces are scaled per strand count (4s: 2.5N, 6s: 4.5N, 8s: 7N, 10s: 9N, 12s: 11N) to achieve similar compression.
     </p>
     {% if recovery_by_strands_graph_path %}
     <iframe src="/graphs/{{ recovery_by_strands_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
@@ -70,10 +202,11 @@
 </div>
 
 <div id="recovery-layers">
-    <h2><a href="#recovery-layers">Recovery Quality by Layer Count</a></h2>
+    <h2><a href="#recovery-layers">Normalized Recovery Efficiency by Layer Count</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows how layer count affects elastic recovery.<br>
-        <strong>Expected:</strong> More layers may improve recovery (more structure) or worsen it (higher susceptibility to buckling).<br>
+        <strong>Purpose:</strong> Shows how layer count affects normalized recovery efficiency.<br>
+        <strong>Metric:</strong> Normalized Efficiency (% per N) = [Recovery % / Applied Force]<br>
+        <strong>Expected:</strong> More layers may improve efficiency (more structure) or worsen it (higher susceptibility to buckling).<br>
         <strong>Comparison:</strong> 2-layer, 3-layer, and 4-layer configurations across all strand counts.
     </p>
     {% if recovery_by_layers_graph_path %}
@@ -84,11 +217,12 @@
 </div>
 
 <div id="heatmap-strands-layers">
-    <h2><a href="#heatmap-strands-layers">Multi-Parameter Heatmap: Strands vs. Layers</a></h2>
+    <h2><a href="#heatmap-strands-layers">Normalized Recovery Efficiency Heatmap: Strands vs. Layers</a></h2>
     <p>
-        <strong>Purpose:</strong> 2D visualization showing recovery quality across all strand and layer combinations.<br>
+        <strong>Purpose:</strong> 2D visualization showing normalized recovery efficiency across all strand and layer combinations.<br>
+        <strong>Metric:</strong> Normalized Efficiency (% per N) = [Recovery % / Applied Force]<br>
         <strong>Use:</strong> Identifies optimal parameter combinations and interaction effects.<br>
-        <strong>Color:</strong> Brighter = better recovery percentage.<br>
+        <strong>Color:</strong> Green = higher efficiency, Red = lower efficiency.<br>
         <strong>Configurations:</strong> 15 total (5 strand counts × 3 layer counts).
     </p>
     {% if recovery_heatmap_strands_layers_path %}
@@ -99,13 +233,14 @@
 </div>
 
 <div id="recovery-parameter-importance">
-    <h2><a href="#recovery-parameter-importance">Elastic Recovery: Parameter Importance</a></h2>
+    <h2><a href="#recovery-parameter-importance">Normalized Recovery Efficiency: Parameter Importance</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows which parameter (layers or strands) has the strongest correlation with elastic recovery quality.<br>
-        <strong>Formula:</strong> Correlation = |Pearson(parameter, recovery_percent)|<br>
-        <strong>Where:</strong> recovery_percent = ((final_height - height_under_load) / (original_height - height_under_load)) × 100<br>
-        <strong>Analysis:</strong> Uses Pearson linear correlation coefficients (numpy.corrcoef) between each parameter and recovery percentage.<br>
-        <strong>Interpretation:</strong> Taller bar = that parameter is more important for optimizing elastic recovery after force removal.<br>
+        <strong>Purpose:</strong> Shows which parameter (layers or strands) has the strongest correlation with normalized recovery efficiency.<br>
+        <strong>Formula:</strong> Correlation = |Pearson(parameter, normalized_efficiency)|<br>
+        <strong>Where:</strong> normalized_efficiency = recovery_percent / applied_force<br>
+        <strong>Raw Recovery:</strong> recovery_percent = ((final_height - height_under_load) / (original_height - height_under_load)) × 100<br>
+        <strong>Analysis:</strong> Uses Pearson linear correlation coefficients (numpy.corrcoef) between each parameter and normalized efficiency.<br>
+        <strong>Interpretation:</strong> Taller bar = that parameter is more important for optimizing recovery efficiency per unit of force applied.<br>
         <strong>Use:</strong> Focus recovery optimization efforts on the most influential parameter.<br>
         <strong>Note:</strong> Material thickness is constant (0.007m) across all force/no-force experiments.
     </p>
@@ -116,37 +251,35 @@
     {% endif %}
 </div>
 
-<div id="load-bearing-parameter-importance">
-    <h2><a href="#load-bearing-parameter-importance">Load Bearing Capability: Parameter Importance</a></h2>
-    <p>
-        <strong>Purpose:</strong> Shows which parameter (layers or strands) has the strongest correlation with load bearing capability.<br>
-        <strong>Formula:</strong> Correlation = |Pearson(parameter, specific_load_capacity)|<br>
-        <strong>Where:</strong> specific_load_capacity = max_force / (weight_kg × 9.81)<br>
-        <strong>Analysis:</strong> Uses Pearson linear correlation coefficients (numpy.corrcoef) between each parameter and specific load capacity.<br>
-        <strong>Interpretation:</strong> Taller bar = that parameter is more important for maximizing structural strength.<br>
-        <strong>Use:</strong> Focus structural optimization efforts on the most influential parameter.<br>
-        <strong>Data:</strong> Analyzes the maximum force each configuration can support during compression phase of force/no-force experiments.<br>
-        <strong>Note:</strong> Material thickness is constant (0.007m) across all experiments.
-    </p>
-    {% if load_bearing_parameter_importance_graph_path %}
-    <iframe src="/graphs/{{ load_bearing_parameter_importance_graph_path }}" width="100%" height="600" frameborder="0"></iframe>
-    {% else %}
-    <p>No data available for load bearing parameter importance analysis.</p>
-    {% endif %}
-</div>
+<!-- EQUILIBRIUM -->
 
 <div id="equilibrium-time">
-    <h2><a href="#equilibrium-time">Equilibrium Time Analysis</a></h2>
+    <h2><a href="#equilibrium-time">Equilibrium Time Analysis (by Layer Count)</a></h2>
     <p>
-        <strong>Purpose:</strong> Shows how long structures take to reach equilibrium after force removal.<br>
+        <strong>Purpose:</strong> Shows how equilibrium time changes with layer count for each strand configuration.<br>
         <strong>Metric:</strong> Average time (seconds) for the system to stabilize after releasing applied force.<br>
         <strong>Interpretation:</strong> Shorter equilibrium times indicate faster structural response and better damping characteristics.<br>
-        <strong>Use:</strong> Identifies parameter combinations that lead to faster settling behavior.
+        <strong>Key Observations:</strong> Simple structures (4-6 strands) show monotonic increase, while complex structures (10-12 strands) exhibit non-monotonic behavior.
     </p>
     {% if equilibrium_time_graph_path %}
     <iframe src="/graphs/{{ equilibrium_time_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
     {% else %}
     <p>No data available for equilibrium time analysis.</p>
+    {% endif %}
+</div>
+
+<div id="equilibrium-time-by-strands">
+    <h2><a href="#equilibrium-time-by-strands">Equilibrium Time Analysis (by Strand Count)</a></h2>
+    <p>
+        <strong>Purpose:</strong> Shows how equilibrium time changes with strand count for each layer configuration.<br>
+        <strong>Metric:</strong> Average time (seconds) for the system to stabilize after releasing applied force.<br>
+        <strong>Interpretation:</strong> Reveals the "peak at 6 strands then decline" pattern for 3 and 4 layer configurations.<br>
+        <strong>Key Observations:</strong> 2-layer structures show diminishing returns growth, while 3 and 4-layer structures peak at intermediate strand counts.
+    </p>
+    {% if equilibrium_time_by_strands_graph_path %}
+    <iframe src="/graphs/{{ equilibrium_time_by_strands_graph_path }}" width="100%" height="650" frameborder="0"></iframe>
+    {% else %}
+    <p>No data available for equilibrium time by strands analysis.</p>
     {% endif %}
 </div>
 

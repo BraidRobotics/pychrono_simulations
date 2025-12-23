@@ -1000,7 +1000,8 @@ def generate_strand_height_reduction_vs_force_graph(session):
 
 
 def generate_recovery_by_thickness_graph(session):
-    """3D scatter plot showing recovery as a function of all three parameters"""
+    """3D scatter plot showing recovered height as a function of all three parameters"""
+
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
@@ -1008,26 +1009,43 @@ def generate_recovery_by_thickness_graph(session):
     df = pd.DataFrame(data)
     df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
-    # 3D scatter with recovery as color
+    # Prepare data for 3D plot
+    normalized_data = []
+    for _, row in df.iterrows():
+        normalized_data.append({
+            'strand_thickness_mm': row['strand_radius'] * 1000,
+            'num_layers': row['num_layers'],
+            'num_strands': row['num_strands'],
+            'final_height': row['avg_final_height'],
+            'experiment_series_name': row['experiment_series_name']
+        })
+
+    if not normalized_data:
+        return None
+
+    df_normalized = pd.DataFrame(normalized_data)
+
+    # 3D scatter with recovered height as color
     fig = go.Figure(data=[go.Scatter3d(
-        x=df['strand_thickness_mm'],
-        y=df['num_layers'],
-        z=df['num_strands'],
+        x=df_normalized['strand_thickness_mm'],
+        y=df_normalized['num_layers'],
+        z=df_normalized['num_strands'],
         mode='markers',
         marker=dict(
             size=8,
-            color=df['recovery_percent'],
+            color=df_normalized['final_height'],
             colorscale='Viridis',
             showscale=True,
-            colorbar=dict(title="Recovery (%)"),
+            colorbar=dict(title="Recovered Height (m)"),
             line=dict(width=0.5, color='DarkSlateGrey')
         ),
-        text=df['experiment_series_name'],
-        hovertemplate='<b>%{text}</b><br>Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Strands: %{z}<br>Recovery: %{marker.color:.1f}%<extra></extra>'
+        text=df_normalized['experiment_series_name'],
+        customdata=df_normalized[['final_height']],
+        hovertemplate='<b>%{text}</b><br>Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Strands: %{z}<br>Recovered Height: %{marker.color:.4f} m<extra></extra>'
     )])
 
     fig.update_layout(
-        title='3D Recovery Analysis: Thickness × Layers × Strands',
+        title='3D Recovered Height Analysis: Thickness × Layers × Strands',
         scene=dict(
             xaxis_title='Material Thickness (mm)',
             yaxis_title='Number of Layers',
@@ -1045,7 +1063,8 @@ def generate_recovery_by_thickness_graph(session):
 
 
 def generate_recovery_by_layers_graph(session):
-    """Faceted plot showing recovery vs. layers, grouped by strand count"""
+    """Scatter plot showing recovered height vs. layers, colored by strand count"""
+
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
@@ -1053,26 +1072,43 @@ def generate_recovery_by_layers_graph(session):
     df = pd.DataFrame(data)
     df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
+    # Prepare data for plotting
+    normalized_data = []
+    for _, row in df.iterrows():
+        normalized_data.append({
+            'num_layers': row['num_layers'],
+            'num_strands': row['num_strands'],
+            'strand_thickness_mm': row['strand_thickness_mm'],
+            'final_height': row['avg_final_height'],
+            'experiment_series_name': row['experiment_series_name']
+        })
+
+    if not normalized_data:
+        return None
+
+    df_normalized = pd.DataFrame(normalized_data)
+
     # Create scatter plot with color by strands
     fig = px.scatter(
-        df,
+        df_normalized,
         x='num_layers',
-        y='recovery_percent',
+        y='final_height',
         color='num_strands',
         size='strand_thickness_mm',
         hover_data=['experiment_series_name', 'strand_thickness_mm'],
         labels={
             'num_layers': 'Number of Layers',
-            'recovery_percent': 'Recovery (%)',
+            'final_height': 'Recovered Height (m)',
             'num_strands': 'Strands',
-            'strand_thickness_mm': 'Thickness (mm)'
+            'strand_thickness_mm': 'Thickness (mm)',
+            'experiment_series_name': 'Experiment Series'
         },
-        title='Recovery vs. Layers (colored by Strands, sized by Thickness)',
+        title='Recovered Height vs. Layers (colored by Strands, sized by Thickness)',
         color_continuous_scale='Viridis'
     )
 
     fig.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
-    fig.update_layout(height=600, hovermode='closest')
+    fig.update_layout(height=600, hovermode='closest', yaxis=dict(autorange="reversed"))
     apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_by_layers.html"
@@ -1082,7 +1118,9 @@ def generate_recovery_by_layers_graph(session):
 
 
 def generate_recovery_by_strands_graph(session):
-    """Scatter plot showing recovery vs. strands, colored by layers"""
+    """Scatter plot showing recovered height vs. strands, colored by layers"""
+    from database.models.experiment_series_model import ExperimentSeries
+
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
@@ -1090,26 +1128,43 @@ def generate_recovery_by_strands_graph(session):
     df = pd.DataFrame(data)
     df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
+    # Prepare data for plotting
+    normalized_data = []
+    for _, row in df.iterrows():
+        normalized_data.append({
+            'num_strands': row['num_strands'],
+            'num_layers': row['num_layers'],
+            'strand_thickness_mm': row['strand_thickness_mm'],
+            'final_height': row['avg_final_height'],
+            'experiment_series_name': row['experiment_series_name']
+        })
+
+    if not normalized_data:
+        return None
+
+    df_normalized = pd.DataFrame(normalized_data)
+
     # Create scatter plot with color by layers
     fig = px.scatter(
-        df,
+        df_normalized,
         x='num_strands',
-        y='recovery_percent',
+        y='final_height',
         color='num_layers',
         size='strand_thickness_mm',
         hover_data=['experiment_series_name', 'strand_thickness_mm'],
         labels={
             'num_strands': 'Number of Strands',
-            'recovery_percent': 'Recovery (%)',
+            'final_height': 'Recovered Height (m)',
             'num_layers': 'Layers',
-            'strand_thickness_mm': 'Thickness (mm)'
+            'strand_thickness_mm': 'Thickness (mm)',
+            'experiment_series_name': 'Experiment Series'
         },
-        title='Recovery vs. Strands (colored by Layers, sized by Thickness)',
+        title='Recovered Height vs. Strands (colored by Layers, sized by Thickness)',
         color_continuous_scale='Plasma'
     )
 
     fig.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
-    fig.update_layout(height=600, hovermode='closest')
+    fig.update_layout(height=600, hovermode='closest', yaxis=dict(autorange="reversed"))
     apply_latex_font_theme(fig)
 
     output_path = GRAPHS_DIR / "recovery_by_strands.html"
@@ -1119,6 +1174,7 @@ def generate_recovery_by_strands_graph(session):
 
 
 def generate_recovery_heatmap_thickness_layers(session):
+    """Heatmap showing recovered height across thickness and layers"""
 
     data = get_force_no_force_recovery_data(session)
     if not data:
@@ -1127,9 +1183,23 @@ def generate_recovery_heatmap_thickness_layers(session):
     df = pd.DataFrame(data)
     df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
+    # Prepare data for heatmap
+    normalized_data = []
+    for _, row in df.iterrows():
+        normalized_data.append({
+            'num_layers': row['num_layers'],
+            'strand_thickness_mm': row['strand_radius'] * 1000,
+            'final_height': row['avg_final_height']
+        })
+
+    if not normalized_data:
+        return None
+
+    df_normalized = pd.DataFrame(normalized_data)
+
     # Create pivot table for heatmap
-    pivot = df.pivot_table(
-        values='recovery_percent',
+    pivot = df_normalized.pivot_table(
+        values='final_height',
         index='num_layers',
         columns='strand_thickness_mm',
         aggfunc='mean'
@@ -1143,11 +1213,12 @@ def generate_recovery_heatmap_thickness_layers(session):
         x=pivot.columns,
         y=pivot.index,
         colorscale='Viridis',
-        hovertemplate='Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Recovery: %{z:.1f}%<extra></extra>'
+        hovertemplate='Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Recovered Height: %{z:.4f} m<extra></extra>',
+        colorbar=dict(title="Recovered Height (m)")
     ))
 
     fig.update_layout(
-        title='Recovery Heatmap: Thickness vs. Layers',
+        title='Recovered Height Heatmap: Thickness vs. Layers',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Number of Layers',
         height=600
@@ -1161,21 +1232,36 @@ def generate_recovery_heatmap_thickness_layers(session):
 
 
 def generate_recovery_parameter_importance_graph(session):
-    """Multi-variable regression analysis with prediction surface"""
+    """Parameter importance analysis based on recovered height"""
+
     data = get_force_no_force_recovery_data(session)
     if not data or len(data) < 3:
         return None
 
     df = pd.DataFrame(data)
 
-    # Calculate correlation coefficients (excluding thickness)
+    # Prepare data for correlation analysis
+    normalized_data = []
+    for _, row in df.iterrows():
+        normalized_data.append({
+            'num_strands': row['num_strands'],
+            'num_layers': row['num_layers'],
+            'final_height': row['avg_final_height']
+        })
+
+    if not normalized_data:
+        return None
+
+    df_normalized = pd.DataFrame(normalized_data)
+
+    # Calculate correlation coefficients
     correlations = {}
 
-    if df['num_layers'].std() > 0:
-        correlations['Layers'] = abs(np.corrcoef(df['num_layers'], df['recovery_percent'])[0, 1])
+    if df_normalized['num_layers'].std() > 0:
+        correlations['Layers'] = abs(np.corrcoef(df_normalized['num_layers'], df_normalized['final_height'])[0, 1])
 
-    if df['num_strands'].std() > 0:
-        correlations['Strands'] = abs(np.corrcoef(df['num_strands'], df['recovery_percent'])[0, 1])
+    if df_normalized['num_strands'].std() > 0:
+        correlations['Strands'] = abs(np.corrcoef(df_normalized['num_strands'], df_normalized['final_height'])[0, 1])
 
     if not correlations:
         return None
@@ -1196,9 +1282,9 @@ def generate_recovery_parameter_importance_graph(session):
     ])
 
     fig.update_layout(
-        title='Parameter Importance: Elastic Recovery Quality (Linear Correlation)',
+        title='Parameter Importance: Recovered Height (Linear Correlation)',
         xaxis_title='Parameter',
-        yaxis_title='Absolute Correlation with Recovery %',
+        yaxis_title='Absolute Correlation with Recovered Height (m)',
         yaxis=dict(range=[0, 1]),
         height=550
     )
@@ -1211,16 +1297,31 @@ def generate_recovery_parameter_importance_graph(session):
 
 
 def generate_recovery_heatmap_strands_layers(session):
-    """Heatmap showing recovery quality across strands and layers"""
+    """Heatmap showing recovered height across strands and layers"""
+
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
 
     df = pd.DataFrame(data)
 
+    # Prepare data for heatmap
+    normalized_data = []
+    for _, row in df.iterrows():
+        normalized_data.append({
+            'num_strands': row['num_strands'],
+            'num_layers': row['num_layers'],
+            'final_height': row['avg_final_height']
+        })
+
+    if not normalized_data:
+        return None
+
+    df_normalized = pd.DataFrame(normalized_data)
+
     # Create pivot table for heatmap
-    pivot = df.pivot_table(
-        values='recovery_percent',
+    pivot = df_normalized.pivot_table(
+        values='final_height',
         index='num_layers',
         columns='num_strands',
         aggfunc='mean'
@@ -1234,12 +1335,12 @@ def generate_recovery_heatmap_strands_layers(session):
         x=pivot.columns,
         y=pivot.index,
         colorscale='RdYlGn',
-        hovertemplate='Strands: %{x}<br>Layers: %{y}<br>Recovery: %{z:.1f}%<extra></extra>',
-        colorbar=dict(title="Recovery (%)")
+        hovertemplate='Strands: %{x}<br>Layers: %{y}<br>Recovered Height: %{z:.4f} m<extra></extra>',
+        colorbar=dict(title="Recovered Height (m)")
     ))
 
     fig.update_layout(
-        title='Recovery Heatmap: Strands vs. Layers',
+        title='Recovered Height Heatmap: Strands vs. Layers',
         xaxis_title='Number of Strands',
         yaxis_title='Number of Layers',
         height=600
@@ -1253,7 +1354,8 @@ def generate_recovery_heatmap_strands_layers(session):
 
 
 def generate_recovery_heatmap_strands_thickness(session):
-    """Heatmap showing recovery quality across strands and thickness"""
+    """Heatmap showing recovered height across strands and thickness"""
+
     data = get_force_no_force_recovery_data(session)
     if not data:
         return None
@@ -1261,9 +1363,23 @@ def generate_recovery_heatmap_strands_thickness(session):
     df = pd.DataFrame(data)
     df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
+    # Prepare data for heatmap
+    normalized_data = []
+    for _, row in df.iterrows():
+        normalized_data.append({
+            'num_strands': row['num_strands'],
+            'strand_thickness_mm': row['strand_radius'] * 1000,
+            'final_height': row['avg_final_height']
+        })
+
+    if not normalized_data:
+        return None
+
+    df_normalized = pd.DataFrame(normalized_data)
+
     # Create pivot table for heatmap
-    pivot = df.pivot_table(
-        values='recovery_percent',
+    pivot = df_normalized.pivot_table(
+        values='final_height',
         index='num_strands',
         columns='strand_thickness_mm',
         aggfunc='mean'
@@ -1277,12 +1393,12 @@ def generate_recovery_heatmap_strands_thickness(session):
         x=pivot.columns,
         y=pivot.index,
         colorscale='RdYlGn',
-        hovertemplate='Material Thickness: %{x:.2f} mm<br>Strands: %{y}<br>Recovery: %{z:.1f}%<extra></extra>',
-        colorbar=dict(title="Recovery (%)")
+        hovertemplate='Material Thickness: %{x:.2f} mm<br>Strands: %{y}<br>Recovered Height: %{z:.4f} m<extra></extra>',
+        colorbar=dict(title="Recovered Height (m)")
     ))
 
     fig.update_layout(
-        title='Recovery Heatmap: Strands vs. Thickness',
+        title='Recovered Height Heatmap: Strands vs. Thickness',
         xaxis_title='Material Thickness (mm)',
         yaxis_title='Number of Strands',
         height=600
@@ -1296,7 +1412,7 @@ def generate_recovery_heatmap_strands_thickness(session):
 
 
 def generate_equilibrium_time_graph(session):
-    """3D scatter plot showing equilibrium time as a function of all three parameters"""
+    """Line plot showing equilibrium time trends across layers for each strand count"""
     data = get_force_no_force_equilibrium_data(session)
     if not data:
         return None
@@ -1304,33 +1420,70 @@ def generate_equilibrium_time_graph(session):
     df = pd.DataFrame(data)
     df['strand_thickness_mm'] = df['strand_radius'] * 1000
 
-    # 3D scatter with equilibrium time as color
-    fig = go.Figure(data=[go.Scatter3d(
-        x=df['strand_thickness_mm'],
-        y=df['num_layers'],
-        z=df['num_strands'],
-        mode='markers',
-        marker=dict(
-            size=8,
-            color=df['avg_equilibrium_time'],
-            colorscale='Viridis',
-            showscale=True,
-            colorbar=dict(title="Equilibrium Time (s)"),
-            line=dict(width=0.5, color='DarkSlateGrey')
-        ),
-        text=df['experiment_series_name'],
-        hovertemplate='<b>%{text}</b><br>Material Thickness: %{x:.2f} mm<br>Layers: %{y}<br>Strands: %{z}<br>Equilibrium Time: %{marker.color:.1f}s<extra></extra>'
-    )])
+    # Filter to only experiments with material thickness 0.007m (7mm)
+    df_filtered = df[df['strand_thickness_mm'].between(6.9, 7.1)]
+
+    if df_filtered.empty:
+        df_filtered = df  # Fall back to all data if filtering removes everything
+
+    # Sort by strands and layers for proper line plotting
+    df_filtered = df_filtered.sort_values(['num_strands', 'num_layers'])
+
+    # Create line plot with one trace per strand count
+    fig = go.Figure()
+
+    # Color palette for different strand counts
+    colors = {
+        4: '#1f77b4',   # Blue
+        6: '#ff7f0e',   # Orange
+        8: '#2ca02c',   # Green
+        10: '#d62728',  # Red
+        12: '#9467bd'   # Purple
+    }
+
+    # Get unique strand counts
+    strand_counts = sorted(df_filtered['num_strands'].unique())
+
+    for strands in strand_counts:
+        strand_data = df_filtered[df_filtered['num_strands'] == strands]
+
+        # Add line with markers
+        fig.add_trace(go.Scatter(
+            x=strand_data['num_layers'],
+            y=strand_data['avg_equilibrium_time'],
+            mode='lines+markers',
+            name=f'{int(strands)} strands',
+            line=dict(width=2.5, color=colors.get(strands, '#000000')),
+            marker=dict(size=10, symbol='circle', line=dict(width=1, color='white')),
+            hovertemplate='<b>%{fullData.name}</b><br>Layers: %{x}<br>Equilibrium Time: %{y:.2f}s<extra></extra>'
+        ))
 
     fig.update_layout(
-        title='Equilibrium Time Analysis: Thickness × Layers × Strands',
-        scene=dict(
-            xaxis_title='Material Thickness (mm)',
-            yaxis_title='Number of Layers',
-            zaxis_title='Number of Strands'
+        title='Equilibrium Time vs Layer Count (by Strand Count)',
+        xaxis=dict(
+            title='Number of Layers',
+            tickmode='linear',
+            tick0=2,
+            dtick=1,
+            gridcolor='lightgray'
+        ),
+        yaxis=dict(
+            title='Equilibrium Time (s)',
+            gridcolor='lightgray'
         ),
         height=600,
-        hovermode='closest'
+        hovermode='closest',
+        plot_bgcolor='white',
+        legend=dict(
+            title='Strand Count',
+            x=0.02,
+            y=0.98,
+            xanchor='left',
+            yanchor='top',
+            bgcolor='rgba(255, 255, 255, 0.8)',
+            bordercolor='gray',
+            borderwidth=1
+        )
     )
     apply_latex_font_theme(fig)
 
@@ -1338,6 +1491,86 @@ def generate_equilibrium_time_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "equilibrium_time.html"
+
+
+def generate_equilibrium_time_by_strands_graph(session):
+    """Line plot showing equilibrium time trends across strands for each layer count"""
+    data = get_force_no_force_equilibrium_data(session)
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    df['strand_thickness_mm'] = df['strand_radius'] * 1000
+
+    # Filter to only experiments with material thickness 0.007m (7mm)
+    df_filtered = df[df['strand_thickness_mm'].between(6.9, 7.1)]
+
+    if df_filtered.empty:
+        df_filtered = df  # Fall back to all data if filtering removes everything
+
+    # Sort by layers and strands for proper line plotting
+    df_filtered = df_filtered.sort_values(['num_layers', 'num_strands'])
+
+    # Create line plot with one trace per layer count
+    fig = go.Figure()
+
+    # Color palette for different layer counts
+    colors = {
+        2: '#e74c3c',   # Red
+        3: '#3498db',   # Blue
+        4: '#2ecc71'    # Green
+    }
+
+    # Get unique layer counts
+    layer_counts = sorted(df_filtered['num_layers'].unique())
+
+    for layers in layer_counts:
+        layer_data = df_filtered[df_filtered['num_layers'] == layers]
+
+        # Add line with markers
+        fig.add_trace(go.Scatter(
+            x=layer_data['num_strands'],
+            y=layer_data['avg_equilibrium_time'],
+            mode='lines+markers',
+            name=f'{int(layers)} layers',
+            line=dict(width=2.5, color=colors.get(layers, '#000000')),
+            marker=dict(size=10, symbol='circle', line=dict(width=1, color='white')),
+            hovertemplate='<b>%{fullData.name}</b><br>Strands: %{x}<br>Equilibrium Time: %{y:.2f}s<extra></extra>'
+        ))
+
+    fig.update_layout(
+        title='Equilibrium Time vs Strand Count (by Layer Count)',
+        xaxis=dict(
+            title='Number of Strands',
+            tickmode='linear',
+            tick0=4,
+            dtick=2,
+            gridcolor='lightgray'
+        ),
+        yaxis=dict(
+            title='Equilibrium Time (s)',
+            gridcolor='lightgray'
+        ),
+        height=600,
+        hovermode='closest',
+        plot_bgcolor='white',
+        legend=dict(
+            title='Layer Count',
+            x=0.02,
+            y=0.98,
+            xanchor='left',
+            yanchor='top',
+            bgcolor='rgba(255, 255, 255, 0.8)',
+            bordercolor='gray',
+            borderwidth=1
+        )
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "equilibrium_time_by_strands.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "equilibrium_time_by_strands.html"
 
 
 def generate_compression_validation_graph(session):
@@ -1352,31 +1585,25 @@ def generate_compression_validation_graph(session):
 
     fig = go.Figure()
 
-    # Add average compression bars
+    # Add optimal compression bars (maximum compression from all experiments)
     fig.add_trace(go.Bar(
         x=df['config'],
-        y=df['avg_compression_pct'],
-        name='Average Compression',
+        y=df['max_compression_pct'],
+        name='Optimal Compression Performance',
         marker_color=df['num_strands'],
         marker=dict(
             colorscale='Viridis',
             showscale=True,
             colorbar=dict(title="Strand Count")
         ),
-        text=[f"{val:.1f}%" for val in df['avg_compression_pct']],
+        text=[f"{val:.1f}%" for val in df['max_compression_pct']],
         textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Avg Compression: %{y:.1f}%<br>Target Force: %{customdata:.1f}N<extra></extra>',
+        hovertemplate='<b>%{x}</b><br>Optimal Compression: %{y:.1f}%<br>Target Force: %{customdata:.1f}N<extra></extra>',
         customdata=df['target_force']
     ))
 
-    # Add reference lines for target range
-    fig.add_hline(y=10, line_dash="dash", line_color="green",
-                  annotation_text="Target Min (10%)", annotation_position="right")
-    fig.add_hline(y=15, line_dash="dash", line_color="orange",
-                  annotation_text="Target Max (15%)", annotation_position="right")
-
     fig.update_layout(
-        title='Compression Validation: Force Scaling Effectiveness',
+        title='Best Performing Compression',
         xaxis_title='Configuration (Strands, Layers)',
         yaxis_title='Compression (%)',
         height=600,
@@ -1449,7 +1676,7 @@ def generate_recovery_consistency_graph(session):
     fig.add_trace(go.Bar(
         x=df['config'],
         y=df['avg_recovery'],
-        name='Average Recovery',
+        name='Average Recovered Height',
         marker_color=df['num_strands'],
         marker=dict(
             colorscale='Plasma',
@@ -1464,20 +1691,19 @@ def generate_recovery_consistency_graph(session):
             thickness=1.5,
             width=4
         ),
-        text=[f"{avg:.1f}±{std:.1f}%" for avg, std in zip(df['avg_recovery'], df['std_recovery'])],
+        text=[f"{avg:.4f}±{std:.4f}m" for avg, std in zip(df['avg_recovery'], df['std_recovery'])],
         textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Recovery: %{y:.1f}%<br>Std Dev: %{customdata:.2f}%<br>Range: %{text}<extra></extra>',
+        hovertemplate='<b>%{x}</b><br>Recovered Height: %{y:.4f} m<br>Std Dev: %{customdata:.4f} m<br>Range: %{text}<extra></extra>',
         customdata=df['std_recovery']
     ))
 
     fig.update_layout(
-        title='Recovery Consistency: Average ± Standard Deviation',
+        title='Recovered Height Consistency: Average ± Standard Deviation',
         xaxis_title='Configuration (Strands, Layers)',
-        yaxis_title='Recovery Percentage (%)',
+        yaxis_title='Recovered Height (m)',
         height=600,
         showlegend=False,
-        xaxis={'tickangle': -45},
-        yaxis=dict(range=[0, 100])
+        xaxis={'tickangle': -45}
     )
     apply_latex_font_theme(fig)
 
@@ -1607,7 +1833,7 @@ def generate_strand_force_vs_displacement_graph(session):
 
 
 def generate_load_bearing_parameter_importance_graph(session):
-    """Parameter importance analysis for load bearing capability"""
+    """Parameter importance analysis for load-bearing capability"""
     data = get_load_bearing_parameter_importance_data(session)
     if not data or len(data) < 3:
         return None
@@ -1642,7 +1868,7 @@ def generate_load_bearing_parameter_importance_graph(session):
     ])
 
     fig.update_layout(
-        title='Parameter Importance: Load Bearing Capability (Linear Correlation)',
+        title='Parameter Importance: Load-Bearing Capability (Linear Correlation)',
         xaxis_title='Parameter',
         yaxis_title='Absolute Correlation with Specific Load Capacity',
         yaxis=dict(range=[0, 1]),
@@ -1654,6 +1880,56 @@ def generate_load_bearing_parameter_importance_graph(session):
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
     return "load_bearing_parameter_importance.html"
+
+
+def generate_compression_parameter_importance_graph(session):
+    """Parameter importance analysis for compression performance"""
+    data = get_force_no_force_compression_data(session)
+    if not data or len(data) < 3:
+        return None
+
+    df = pd.DataFrame(data)
+
+    # Calculate correlation coefficients for compression percentage
+    correlations = {}
+
+    if 'num_layers' in df.columns and df['num_layers'].std() > 0:
+        correlations['Layers'] = abs(np.corrcoef(df['num_layers'], df['max_compression_pct'])[0, 1])
+
+    if 'num_strands' in df.columns and df['num_strands'].std() > 0:
+        correlations['Strands'] = abs(np.corrcoef(df['num_strands'], df['max_compression_pct'])[0, 1])
+
+    if not correlations:
+        return None
+
+    # Sort by importance
+    sorted_params = sorted(correlations.items(), key=lambda x: x[1], reverse=True)
+    params, values = zip(*sorted_params)
+
+    fig = go.Figure(data=[
+        go.Bar(
+            x=list(params),
+            y=list(values),
+            marker_color=['#d62728', '#ff7f0e'][:len(params)],
+            text=[f'{v:.3f}' for v in values],
+            textposition='auto',
+            hovertemplate='%{x}<br>Correlation: %{y:.3f}<extra></extra>'
+        )
+    ])
+
+    fig.update_layout(
+        title='Parameter Importance: Compression Performance (Linear Correlation)',
+        xaxis_title='Parameter',
+        yaxis_title='Absolute Correlation with Compression Percentage',
+        yaxis=dict(range=[0, 1]),
+        height=550
+    )
+    apply_latex_font_theme(fig)
+
+    output_path = GRAPHS_DIR / "compression_parameter_importance.html"
+    fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
+
+    return "compression_parameter_importance.html"
 
 
 # Mapping of group_name to their aggregate graph functions
@@ -1680,15 +1956,20 @@ GROUP_AGGREGATE_GRAPHS = {
         generate_strand_height_reduction_vs_force_graph,
     ],
     'force_no_force': [
+        generate_recovery_by_thickness_graph,
         generate_recovery_by_layers_graph,
         generate_recovery_by_strands_graph,
+        generate_recovery_heatmap_thickness_layers,
         generate_recovery_heatmap_strands_layers,
+        generate_recovery_heatmap_strands_thickness,
         generate_recovery_parameter_importance_graph,
         generate_equilibrium_time_graph,
+        generate_equilibrium_time_by_strands_graph,
         generate_compression_validation_graph,
         generate_stiffness_comparison_graph,
         generate_recovery_consistency_graph,
         generate_load_bearing_parameter_importance_graph,
+        generate_compression_parameter_importance_graph,
     ]
 }
 

@@ -183,50 +183,67 @@ def generate_experiment_series_elastic_recovery_graph(session, safe_name, experi
     if not experiments or reset_force_after_seconds is None:
         return None
 
-    df = _prepare_experiments_dataframe(experiments)
-    df = df[df['height_under_load'].notna() & df['final_height'].notna()]
+    # Import the filter function for force_no_force experiments
+    from database.queries.graph_queries import filter_force_no_force_experiments
+
+    # Apply comprehensive filtering including monotonicity check
+    valid_experiments = filter_force_no_force_experiments(experiments, initial_height)
+
+    if not valid_experiments:
+        return None
+
+    df = _prepare_experiments_dataframe(valid_experiments)
 
     if df.empty:
         return None
 
+    # Calculate recovery ratio: 1.0 = full recovery, 0 = stayed compressed
+    # recovery = (final_height - height_under_load) / (initial_height - height_under_load)
+    df['recovery'] = (df['final_height'] - df['height_under_load']) / (initial_height - df['height_under_load'])
+
     fig = go.Figure()
 
-    df_no_explosion = df[df['time_to_bounding_box_explosion'].isna()]
-    if not df_no_explosion.empty:
-        fig.add_trace(go.Scatter(
-            x=df_no_explosion['height_under_load'],
-            y=df_no_explosion['final_height'],
-            mode='markers',
-            name='No Explosion',
-            marker=dict(size=10, color='blue'),
-            hovertemplate='<b>Height Under Load: %{x:.4f} m</b><br>Final Height: %{y:.4f} m<extra></extra>'
-        ))
+    # All experiments in df are valid (no explosions, passed monotonicity check)
+    fig.add_trace(go.Scatter(
+        x=df['height_under_load'],
+        y=df['recovery'],
+        mode='markers',
+        name='Valid Data',
+        marker=dict(size=10, color='blue'),
+        hovertemplate='<b>Height Under Load: %{x:.4f} m</b><br>Recovery: %{y:.2%}<extra></extra>'
+    ))
 
-    df_exploded = df[df['time_to_bounding_box_explosion'].notna()]
-    if not df_exploded.empty:
+    # Show filtered out experiments as invalid
+    all_experiments_df = _prepare_experiments_dataframe(experiments)
+    invalid_experiments_df = all_experiments_df[~all_experiments_df['experiment_id'].isin(df['experiment_id'])]
+    invalid_experiments_df = invalid_experiments_df[invalid_experiments_df['height_under_load'].notna() & invalid_experiments_df['final_height'].notna()]
+
+    if not invalid_experiments_df.empty:
+        invalid_experiments_df['recovery'] = (invalid_experiments_df['final_height'] - invalid_experiments_df['height_under_load']) / (initial_height - invalid_experiments_df['height_under_load'])
         fig.add_trace(go.Scatter(
-            x=df_exploded['height_under_load'],
-            y=df_exploded['final_height'],
+            x=invalid_experiments_df['height_under_load'],
+            y=invalid_experiments_df['recovery'],
             mode='markers',
-            name='Exploded',
+            name='Filtered (Anomalous)',
             marker=dict(size=12, color='red', symbol='x'),
-            hovertemplate='<b>Height Under Load: %{x:.4f} m</b><br>Final Height: %{y:.4f} m<br>(Exploded)<extra></extra>'
+            hovertemplate='<b>Height Under Load: %{x:.4f} m</b><br>Recovery: %{y:.2%}<br>(Filtered: Structural Compromise)<extra></extra>'
         ))
 
-    # Add horizontal line at initial height (perfect recovery)
-    if not df.empty and initial_height:
+    # Add horizontal line at 1.0 (perfect recovery)
+    if not df.empty:
         fig.add_hline(
-            y=initial_height,
+            y=1.0,
             line_dash="dot",
             line_color="gray",
-            annotation_text=f"Perfect Recovery (y={initial_height:.4f}m)",
+            annotation_text="Full Recovery (100%)",
             annotation_position="right"
         )
 
     fig.update_layout(
         title=f'Elastic Recovery - {safe_name}',
         xaxis_title='Height Under Load (m)',
-        yaxis_title='Final Height (m)',
+        yaxis_title='Recovery Ratio',
+        yaxis=dict(range=[0, 1.1], tickformat='.0%'),
         height=500,
         hovermode='closest',
         showlegend=True

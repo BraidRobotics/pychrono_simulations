@@ -7,6 +7,59 @@ from database.models.experiment_model import Experiment
 
 from graphs import TARGET_HEIGHT_REDUCTION_PERCENT
 
+
+def filter_force_no_force_experiments(experiments, initial_height):
+	"""
+	Filter force_no_force experiments to exclude those after structural compromise.
+
+	Applies filters in order:
+	1. Explosion indicators (bounding box, beam strain, node velocity)
+	2. Missing required data (height_under_load, final_height)
+	3. Monotonic compression check - stops when height_under_load increases
+	4. Recovery threshold - stops at very low recovery indicating plastic deformation
+
+	Returns only valid experiments up to the point of structural compromise.
+	"""
+	if not experiments or not initial_height:
+		return []
+
+	# Sort by experiment_id to ensure sequential processing
+	sorted_experiments = sorted(experiments, key=lambda e: e.experiment_id)
+
+	valid_experiments = []
+	min_height_under_load = float('inf')
+
+	for exp in sorted_experiments:
+		# Filter 1: Skip explosions
+		if (exp.time_to_bounding_box_explosion is not None or
+			exp.time_to_beam_strain_exceed_explosion is not None or
+			exp.time_to_node_velocity_spike_explosion is not None):
+			continue
+
+		# Filter 2: Skip missing data
+		if exp.height_under_load is None or exp.final_height is None:
+			continue
+
+		# Filter 3: Check monotonic decrease in height_under_load
+		# If height starts increasing, structure is compromised - stop here
+		# Use 1% tolerance to account for measurement noise
+		if exp.height_under_load > min_height_under_load * 1.01:
+			break  # All subsequent experiments are invalid
+
+		# Filter 4: Check height loss indicates structural damage
+		# Height loss = final_height - initial_height
+		# Positive height loss (final_height > initial_height) indicates structural damage
+		height_loss = exp.final_height - initial_height
+		if height_loss > 0:
+			break  # Material gained height after unloading - structure is damaged
+
+		# Update minimum height and add to valid list
+		min_height_under_load = min(min_height_under_load, exp.height_under_load)
+		valid_experiments.append(exp)
+
+	return valid_experiments
+
+
 def get_weight_for_series(session, experiment_series_name):
 	series = session.query(ExperimentSeries).filter_by(experiment_series_name=experiment_series_name).first()
 	return series.weight_kg if series else None
@@ -567,32 +620,35 @@ def get_force_no_force_recovery_data(session):
 		if not series.height_m or not series.reset_force_after_seconds:
 			continue
 
-		experiments = session.query(Experiment).filter(
-			Experiment.experiment_series_name == series.experiment_series_name,
-			Experiment.time_to_bounding_box_explosion.is_(None),
-			Experiment.height_under_load.isnot(None),
-			Experiment.final_height.isnot(None)
+		# Get all experiments for this series
+		all_experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name
 		).all()
 
-		if not experiments:
+		# Apply comprehensive filtering including monotonicity check
+		valid_experiments = filter_force_no_force_experiments(all_experiments, series.height_m)
+
+		if not valid_experiments:
 			continue
 
-		# Calculate average recovery for this series
-		recovery_percentages = []
-		for exp in experiments:
-			compression = series.height_m - exp.height_under_load
-			if compression > 0:  # Avoid division by zero
-				recovery = (exp.final_height - exp.height_under_load) / compression * 100
-				recovery_percentages.append(recovery)
+		# Calculate average height loss and final height for this series
+		height_losses = []
+		final_heights = []
+		for exp in valid_experiments:
+			height_loss = exp.final_height - series.height_m
+			height_losses.append(height_loss)
+			final_heights.append(exp.final_height)
 
-		if recovery_percentages:
-			avg_recovery = sum(recovery_percentages) / len(recovery_percentages)
+		if height_losses:
+			avg_height_loss = sum(height_losses) / len(height_losses)
+			avg_final_height = sum(final_heights) / len(final_heights)
 			results.append({
 				"experiment_series_name": series.experiment_series_name,
 				"strand_radius": series.strand_radius,
 				"num_layers": series.num_layers,
 				"num_strands": series.num_strands,
-				"recovery_percent": avg_recovery,
+				"recovery_percent": avg_height_loss,
+				"avg_final_height": avg_final_height,
 				"weight_kg": series.weight_kg
 			})
 
@@ -611,17 +667,23 @@ def get_force_no_force_equilibrium_data(session):
 		if not series.height_m or not series.reset_force_after_seconds:
 			continue
 
-		experiments = session.query(Experiment).filter(
-			Experiment.experiment_series_name == series.experiment_series_name,
-			Experiment.time_to_bounding_box_explosion.is_(None),
-			Experiment.equilibrium_after_seconds.isnot(None)
+		# Get all experiments for this series
+		all_experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name
 		).all()
 
-		if not experiments:
+		# Apply comprehensive filtering including monotonicity check
+		valid_experiments = filter_force_no_force_experiments(all_experiments, series.height_m)
+
+		# Further filter for equilibrium data
+		experiments_with_equilibrium = [exp for exp in valid_experiments
+										if exp.equilibrium_after_seconds is not None]
+
+		if not experiments_with_equilibrium:
 			continue
 
 		# Calculate average equilibrium time for this series
-		equilibrium_times = [exp.equilibrium_after_seconds for exp in experiments]
+		equilibrium_times = [exp.equilibrium_after_seconds for exp in experiments_with_equilibrium]
 
 		if equilibrium_times:
 			avg_equilibrium_time = sum(equilibrium_times) / len(equilibrium_times)
@@ -649,19 +711,24 @@ def get_force_no_force_compression_data(session):
 		if not series.height_m:
 			continue
 
-		experiments = session.query(Experiment).filter(
-			Experiment.experiment_series_name == series.experiment_series_name,
-			Experiment.time_to_bounding_box_explosion.is_(None),
-			Experiment.height_under_load.isnot(None),
-			Experiment.force_in_y_direction.isnot(None)
+		# Get all experiments for this series
+		all_experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name
 		).all()
 
-		if not experiments:
+		# Apply comprehensive filtering including monotonicity check
+		valid_experiments = filter_force_no_force_experiments(all_experiments, series.height_m)
+
+		# Further filter for force data
+		experiments_with_force = [exp for exp in valid_experiments
+								  if exp.force_in_y_direction is not None]
+
+		if not experiments_with_force:
 			continue
 
 		# Calculate compressions
 		compressions = []
-		for exp in experiments:
+		for exp in experiments_with_force:
 			compression = series.height_m - exp.height_under_load
 			if compression > 0:
 				compression_pct = (compression / series.height_m) * 100
@@ -670,12 +737,14 @@ def get_force_no_force_compression_data(session):
 		if compressions:
 			avg_compression = sum(compressions) / len(compressions)
 			max_compression = max(compressions)
+			min_compression = min(compressions)
 			results.append({
 				"experiment_series_name": series.experiment_series_name,
 				"num_layers": series.num_layers,
 				"num_strands": series.num_strands,
 				"avg_compression_pct": avg_compression,
 				"max_compression_pct": max_compression,
+				"min_compression_pct": min_compression,
 				"target_force": abs(series.final_force_in_y_direction)
 			})
 
@@ -694,19 +763,24 @@ def get_force_no_force_stiffness_data(session):
 		if not series.height_m:
 			continue
 
-		experiments = session.query(Experiment).filter(
-			Experiment.experiment_series_name == series.experiment_series_name,
-			Experiment.time_to_bounding_box_explosion.is_(None),
-			Experiment.height_under_load.isnot(None),
-			Experiment.force_in_y_direction.isnot(None)
+		# Get all experiments for this series
+		all_experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name
 		).all()
 
-		if not experiments:
+		# Apply comprehensive filtering including monotonicity check
+		valid_experiments = filter_force_no_force_experiments(all_experiments, series.height_m)
+
+		# Further filter for force data
+		experiments_with_force = [exp for exp in valid_experiments
+								  if exp.force_in_y_direction is not None]
+
+		if not experiments_with_force:
 			continue
 
 		# Calculate stiffness k = F/Δx for each experiment
 		stiffnesses = []
-		for exp in experiments:
+		for exp in experiments_with_force:
 			displacement = series.height_m - exp.height_under_load
 			force = abs(exp.force_in_y_direction)
 			if displacement > 0 and force > 0:
@@ -738,40 +812,38 @@ def get_force_no_force_recovery_consistency_data(session):
 		if not series.height_m or not series.reset_force_after_seconds:
 			continue
 
-		experiments = session.query(Experiment).filter(
-			Experiment.experiment_series_name == series.experiment_series_name,
-			Experiment.time_to_bounding_box_explosion.is_(None),
-			Experiment.height_under_load.isnot(None),
-			Experiment.final_height.isnot(None)
+		# Get all experiments for this series
+		all_experiments = session.query(Experiment).filter(
+			Experiment.experiment_series_name == series.experiment_series_name
 		).all()
 
-		if not experiments:
+		# Apply comprehensive filtering including monotonicity check
+		valid_experiments = filter_force_no_force_experiments(all_experiments, series.height_m)
+
+		if not valid_experiments:
 			continue
 
-		# Calculate recovery for each experiment
-		recovery_percentages = []
-		for exp in experiments:
-			compression = series.height_m - exp.height_under_load
-			if compression > 0:
-				recovery = (exp.final_height - exp.height_under_load) / compression * 100
-				recovery_percentages.append(recovery)
+		# Calculate final heights for each experiment
+		final_heights = []
+		for exp in valid_experiments:
+			final_heights.append(exp.final_height)
 
-		if len(recovery_percentages) >= 2:
+		if len(final_heights) >= 2:
 			import statistics
-			avg_recovery = statistics.mean(recovery_percentages)
-			std_recovery = statistics.stdev(recovery_percentages)
-			min_recovery = min(recovery_percentages)
-			max_recovery = max(recovery_percentages)
+			avg_final_height = statistics.mean(final_heights)
+			std_final_height = statistics.stdev(final_heights)
+			min_final_height = min(final_heights)
+			max_final_height = max(final_heights)
 
 			results.append({
 				"experiment_series_name": series.experiment_series_name,
 				"num_layers": series.num_layers,
 				"num_strands": series.num_strands,
-				"avg_recovery": avg_recovery,
-				"std_recovery": std_recovery,
-				"min_recovery": min_recovery,
-				"max_recovery": max_recovery,
-				"sample_size": len(recovery_percentages)
+				"avg_recovery": avg_final_height,
+				"std_recovery": std_final_height,
+				"min_recovery": min_final_height,
+				"max_recovery": max_final_height,
+				"sample_size": len(final_heights)
 			})
 
 	return results
@@ -1026,12 +1098,12 @@ def get_load_bearing_parameter_importance_data(session):
 	series_map = {s.experiment_series_name: s for s in force_no_force_series}
 
 	# Query all experiments from these series
-	experiments = session.query(Experiment).filter(
+	all_experiments = session.query(Experiment).filter(
 		Experiment.experiment_series_name.in_([s.experiment_series_name for s in force_no_force_series])
 	).all()
 
 	grouped = defaultdict(list)
-	for experiment in experiments:
+	for experiment in all_experiments:
 		grouped[experiment.experiment_series_name].append(experiment)
 
 	results = []
@@ -1041,14 +1113,14 @@ def get_load_bearing_parameter_importance_data(session):
 		if not series or not series.height_m or not series.weight_kg:
 			continue
 
+		# Apply comprehensive filtering including monotonicity check
+		valid_experiments = filter_force_no_force_experiments(experiments, series.height_m)
+
 		# Find the maximum force achieved under load (before release)
 		max_force = None
 
-		for experiment in experiments:
-			if experiment.time_to_bounding_box_explosion is not None:
-				continue
-
-			if experiment.height_under_load is None or experiment.force_in_y_direction is None:
+		for experiment in valid_experiments:
+			if experiment.force_in_y_direction is None:
 				continue
 
 			force_value = abs(experiment.force_in_y_direction)

@@ -1,0 +1,351 @@
+{% extends "layout.html" %}
+{% block title %}Ideal Model{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='recommendations.css') }}">
+{% endblock %}
+{% block body %}
+
+<h1>Ideal Model</h1>
+
+<p class="recommendations-intro">
+    This matrix provides evidence-based recommendations for selecting braided structure parameters
+    based on your primary design objective. Each recommendation is derived from experimental data
+    across multiple parameter variations.
+</p>
+
+<!-- Summary Matrix Table -->
+<div class="recommendations-section">
+    <h2>Quick Reference Matrix</h2>
+    <table class="quick-reference-table">
+        <thead>
+            <tr>
+                <th>If you want...</th>
+                <th>Then use these parameters...</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="objective-label">Flexibility</div>
+                    <small class="objective-description">Maximum compression percentage</small>
+                </td>
+                <td>
+                    {% if recommendations.flexibility.optimal_strands and recommendations.flexibility.optimal_layers %}
+                    <strong>{{ recommendations.flexibility.optimal_strands }} strands</strong>,
+                    <strong>{{ recommendations.flexibility.optimal_layers }} layers</strong>
+                    {% if recommendations.flexibility.top_configs and recommendations.flexibility.top_configs[0].material_thickness_mm %}
+                    , <strong>~{{ "%.1f"|format(recommendations.flexibility.top_configs[0].material_thickness_mm) }}mm material</strong>
+                    {% endif %}
+                    <br>
+                    <small class="recommendation-value">
+                        Best config achieves <strong>{{ "%.1f"|format(recommendations.flexibility.top_configs[0].value) }}%</strong> compression
+                    </small>
+                    {% else %}
+                    <em>No data available</em>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="objective-label">Elastic Recovery</div>
+                    <small class="objective-description">Recovery after load removal</small>
+                </td>
+                <td>
+                    {% if recommendations.recovery.optimal_strands and recommendations.recovery.optimal_layers %}
+                    <strong>{{ recommendations.recovery.optimal_strands }} strands</strong>,
+                    <strong>{{ recommendations.recovery.optimal_layers }} layers</strong>
+                    {% if recommendations.recovery.top_configs and recommendations.recovery.top_configs[0].material_thickness_mm %}
+                    , <strong>~{{ "%.1f"|format(recommendations.recovery.top_configs[0].material_thickness_mm) }}mm material</strong>
+                    {% endif %}
+                    <br>
+                    <small class="recommendation-value">
+                        Best config achieves <strong>{{ "%.2f"|format(recommendations.recovery.top_configs[0].value) }}% per Newton</strong> ({{ "%.1f"|format(recommendations.recovery.top_configs[0].recovery_percent) }}% recovery at {{ "%.1f"|format(recommendations.recovery.top_configs[0].applied_force) }}N)
+                    </small>
+                    {% else %}
+                    <em>No data available</em>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="objective-label">High Load-Bearing Capabilities</div>
+                    <small class="objective-description">Maximum force capacity</small>
+                </td>
+                <td>
+                    {% if recommendations.high_load_bearing.optimal_strands and recommendations.high_load_bearing.optimal_layers %}
+                    <strong>{{ recommendations.high_load_bearing.optimal_strands }} strands</strong>,
+                    <strong>{{ recommendations.high_load_bearing.optimal_layers }} layers</strong>
+                    {% if recommendations.high_load_bearing.top_configs and recommendations.high_load_bearing.top_configs[0].material_thickness_mm %}
+                    , <strong>~{{ "%.1f"|format(recommendations.high_load_bearing.top_configs[0].material_thickness_mm) }}mm material</strong>
+                    {% endif %}
+                    <br>
+                    <small class="recommendation-value">
+                        Best config supports <strong>{{ "%.2f"|format(recommendations.high_load_bearing.top_configs[0].value) }}N</strong> at 10% compression
+                    </small>
+                    {% else %}
+                    <em>No data available</em>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="objective-label">Best Weight-to-Payload Ratio</div>
+                    <small class="objective-description">Structural efficiency</small>
+                </td>
+                <td>
+                    {% if recommendations.best_efficiency.optimal_strands and recommendations.best_efficiency.optimal_layers %}
+                    <strong>{{ recommendations.best_efficiency.optimal_strands }} strands</strong>,
+                    <strong>{{ recommendations.best_efficiency.optimal_layers }} layers</strong>
+                    {% if recommendations.best_efficiency.top_configs and recommendations.best_efficiency.top_configs[0].material_thickness_mm %}
+                    , <strong>~{{ "%.1f"|format(recommendations.best_efficiency.top_configs[0].material_thickness_mm) }}mm material</strong>
+                    {% endif %}
+                    <br>
+                    <small class="recommendation-value">
+                        Best config achieves <strong>{{ "%.2f"|format(recommendations.best_efficiency.top_configs[0].value) }}×</strong> its own weight
+                    </small>
+                    {% else %}
+                    <em>No data available</em>
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Detailed Recommendations -->
+<div class="recommendations-section">
+    <h2>Detailed Recommendations</h2>
+
+    <!-- Flexibility Section -->
+    <div id="flexibility-details" class="detail-section">
+        <h3>
+            <a href="#flexibility-details">
+                Flexibility (Compression)
+            </a>
+        </h3>
+        <p><strong>Metric:</strong> {{ recommendations.flexibility.metric }}</p>
+        <p><strong>Guidance:</strong> {{ recommendations.flexibility.general_guidance }}</p>
+
+        {% if recommendations.flexibility.top_configs %}
+        <h4>Top 5 Configurations</h4>
+        <table class="config-table">
+            <thead>
+                <tr class="flexibility-header">
+                    <th>Rank</th>
+                    <th>Strands</th>
+                    <th>Layers</th>
+                    <th>Material (mm)</th>
+                    <th>Compression (%)</th>
+                    <th>Weight (kg)</th>
+                    <th>Series</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for config in recommendations.flexibility.top_configs %}
+                <tr>
+                    <td class="rank-cell">{{ loop.index }}</td>
+                    <td>{{ config.strands }}</td>
+                    <td>{{ config.layers }}</td>
+                    <td>
+                        {% if config.material_thickness_mm %}{{ "%.1f"|format(config.material_thickness_mm) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td class="value-cell">
+                        {{ "%.2f"|format(config.value) }}
+                    </td>
+                    <td>
+                        {% if config.weight_kg %}{{ "%.4f"|format(config.weight_kg) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td>
+                        <a href="/experiments/{{ config.series_name }}">{{ config.series_name }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p><em>No configuration data available.</em></p>
+        {% endif %}
+    </div>
+
+    <!-- Recovery Section -->
+    <div id="recovery-details" class="detail-section">
+        <h3>
+            <a href="#recovery-details">
+                Elastic Recovery
+            </a>
+        </h3>
+        <p><strong>Metric:</strong> {{ recommendations.recovery.metric }}</p>
+        <p><strong>Guidance:</strong> {{ recommendations.recovery.general_guidance }}</p>
+
+        {% if recommendations.recovery.top_configs %}
+        <h4>Top 5 Configurations (Ranked by Recovery Efficiency)</h4>
+        <p><em>Note: Rankings are normalized by applied force to enable fair comparison across different loading conditions.</em></p>
+        <table class="config-table">
+            <thead>
+                <tr class="recovery-header">
+                    <th>Rank</th>
+                    <th>Strands</th>
+                    <th>Layers</th>
+                    <th>Material (mm)</th>
+                    <th>Efficiency<br>(% per N)</th>
+                    <th>Raw Recovery<br>(%)</th>
+                    <th>Force<br>(N)</th>
+                    <th>Weight (kg)</th>
+                    <th>Series</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for config in recommendations.recovery.top_configs %}
+                <tr>
+                    <td class="rank-cell">{{ loop.index }}</td>
+                    <td>{{ config.strands }}</td>
+                    <td>{{ config.layers }}</td>
+                    <td>
+                        {% if config.material_thickness_mm %}{{ "%.1f"|format(config.material_thickness_mm) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td class="value-cell">
+                        {{ "%.2f"|format(config.value) }}
+                    </td>
+                    <td>
+                        {{ "%.1f"|format(config.recovery_percent) }}
+                    </td>
+                    <td>
+                        {{ "%.1f"|format(config.applied_force) }}
+                    </td>
+                    <td>
+                        {% if config.weight_kg %}{{ "%.4f"|format(config.weight_kg) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td>
+                        <a href="/experiments/{{ config.series_name }}">{{ config.series_name }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p><em>No configuration data available.</em></p>
+        {% endif %}
+    </div>
+
+    <!-- High Load-Bearing Section -->
+    <div id="load-bearing-details" class="detail-section">
+        <h3>
+            <a href="#load-bearing-details">
+                High Load-Bearing Capabilities
+            </a>
+        </h3>
+        <p><strong>Metric:</strong> {{ recommendations.high_load_bearing.metric }}</p>
+        <p><strong>Guidance:</strong> {{ recommendations.high_load_bearing.general_guidance }}</p>
+
+        {% if recommendations.high_load_bearing.top_configs %}
+        <h4>Top 5 Configurations</h4>
+        <table class="config-table">
+            <thead>
+                <tr class="load-bearing-header">
+                    <th>Rank</th>
+                    <th>Strands</th>
+                    <th>Layers</th>
+                    <th>Material (mm)</th>
+                    <th>Force (N)</th>
+                    <th>Weight (kg)</th>
+                    <th>Series</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for config in recommendations.high_load_bearing.top_configs %}
+                <tr>
+                    <td class="rank-cell">{{ loop.index }}</td>
+                    <td>{{ config.strands }}</td>
+                    <td>{{ config.layers }}</td>
+                    <td>
+                        {% if config.material_thickness_mm %}{{ "%.1f"|format(config.material_thickness_mm) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td class="value-cell">
+                        {{ "%.3f"|format(config.value) }}
+                    </td>
+                    <td>
+                        {% if config.weight_kg %}{{ "%.4f"|format(config.weight_kg) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td>
+                        <a href="/experiments/{{ config.series_name }}">{{ config.series_name }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p><em>No configuration data available.</em></p>
+        {% endif %}
+    </div>
+
+    <!-- Best Efficiency Section -->
+    <div id="efficiency-details" class="detail-section">
+        <h3>
+            <a href="#efficiency-details">
+                Best Weight-to-Payload Ratio (Structural Efficiency)
+            </a>
+        </h3>
+        <p><strong>Metric:</strong> {{ recommendations.best_efficiency.metric }}</p>
+        <p><strong>Guidance:</strong> {{ recommendations.best_efficiency.general_guidance }}</p>
+
+        {% if recommendations.best_efficiency.top_configs %}
+        <h4>Top 5 Configurations</h4>
+        <table class="config-table">
+            <thead>
+                <tr class="efficiency-header">
+                    <th>Rank</th>
+                    <th>Strands</th>
+                    <th>Layers</th>
+                    <th>Material (mm)</th>
+                    <th>Efficiency (×)</th>
+                    <th>Weight (kg)</th>
+                    <th>Series</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for config in recommendations.best_efficiency.top_configs %}
+                <tr>
+                    <td class="rank-cell">{{ loop.index }}</td>
+                    <td>{{ config.strands }}</td>
+                    <td>{{ config.layers }}</td>
+                    <td>
+                        {% if config.material_thickness_mm %}{{ "%.1f"|format(config.material_thickness_mm) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td class="value-cell">
+                        {{ "%.2f"|format(config.value) }}
+                    </td>
+                    <td>
+                        {% if config.weight_kg %}{{ "%.4f"|format(config.weight_kg) }}{% else %}N/A{% endif %}
+                    </td>
+                    <td>
+                        <a href="/experiments/{{ config.series_name }}">{{ config.series_name }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p><em>No configuration data available.</em></p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Methodology Note -->
+<div>
+    <h3>Methodology</h3>
+    <p>
+        These recommendations are generated by analyzing experimental data across multiple parameter sweeps:
+    </p>
+    <ul>
+        <li><strong>Flexibility:</strong> Based on maximum compression percentage achieved from force/no-force experiments</li>
+        <li><strong>Elastic Recovery:</strong> Based on recovery percentage normalized by applied force (% per Newton). This normalization accounts for the fact that different configurations were tested under different force levels to achieve comparable compression. Higher values indicate better recovery efficiency per unit of applied force.</li>
+        <li><strong>Load-Bearing:</strong> Based on maximum force sustained at 10% height reduction</li>
+        <li><strong>Efficiency:</strong> Based on specific load capacity (force / weight × g) across all configurations</li>
+    </ul>
+    <p>
+        Rankings are determined by sorting configurations by their respective metrics.
+        "Optimal" parameters represent the most common values among top performers.
+    </p>
+</div>
+
+{% endblock %}
