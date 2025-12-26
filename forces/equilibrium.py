@@ -14,7 +14,7 @@ thresholds = EquilibriumThresholds()
 if thresholds.stability_timesteps < 1:
 	thresholds.stability_timesteps = 1
 	
-def is_in_equilibrium(max_beam_strain, _max_node_velocity):
+def is_in_equilibrium(max_beam_strain):
 	if not hasattr(is_in_equilibrium, "previous_strain"):
 		is_in_equilibrium.previous_strain = max_beam_strain
 		is_in_equilibrium.consecutive_stable_steps = 0
