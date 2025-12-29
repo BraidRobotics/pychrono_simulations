@@ -5,22 +5,24 @@
 {% endblock %}
 {% block body %}
 
-<h1>Ideal Model</h1>
+<h1 id="top"><a href="#top">Ideal Model</a></h1>
 
 <p class="recommendations-intro">
     This matrix provides evidence-based recommendations for selecting braided structure parameters
     based on your primary design objective. Each recommendation is derived from experimental data
-    across multiple parameter variations.
+    across the 4 major experiment series: <strong>force_no_force</strong>, <strong>number_of_strands</strong>,
+    <strong>number_of_layers</strong>, and <strong>strand_thickness</strong>.
 </p>
 
 <!-- Summary Matrix Table -->
-<div class="recommendations-section">
-    <h2>Quick Reference Matrix</h2>
+<div id="quick-reference" class="recommendations-section">
+    <h2><a href="#quick-reference">Quick Reference Matrix</a></h2>
     <table class="quick-reference-table">
         <thead>
             <tr>
                 <th>If you want...</th>
                 <th>Then use these parameters...</th>
+                <th>Trade-offs</th>
             </tr>
         </thead>
         <tbody>
@@ -44,6 +46,19 @@
                     <em>No data available</em>
                     {% endif %}
                 </td>
+                <td>
+                    <small class="trade-off-text">
+                        Lower load-bearing capacity
+                        {% if recommendations.flexibility.trade_offs and recommendations.flexibility.trade_offs.load_bearing.value %}
+                        ({{ "%.2f"|format(recommendations.flexibility.trade_offs.load_bearing.value) }}N vs avg {{ "%.2f"|format(recommendations.flexibility.trade_offs.load_bearing.avg) }}N)
+                        {% endif %}
+                        <br>
+                        Reduced structural efficiency
+                        {% if recommendations.flexibility.trade_offs and recommendations.flexibility.trade_offs.efficiency.value %}
+                        ({{ "%.1f"|format(recommendations.flexibility.trade_offs.efficiency.value) }}× vs avg {{ "%.1f"|format(recommendations.flexibility.trade_offs.efficiency.avg) }}×)
+                        {% endif %}
+                    </small>
+                </td>
             </tr>
             <tr>
                 <td>
@@ -64,6 +79,19 @@
                     {% else %}
                     <em>No data available</em>
                     {% endif %}
+                </td>
+                <td>
+                    <small class="trade-off-text">
+                        Moderate load capacity
+                        {% if recommendations.recovery.trade_offs and recommendations.recovery.trade_offs.load_bearing.value %}
+                        ({{ "%.2f"|format(recommendations.recovery.trade_offs.load_bearing.value) }}N vs avg {{ "%.2f"|format(recommendations.recovery.trade_offs.load_bearing.avg) }}N)
+                        {% endif %}
+                        <br>
+                        Moderate flexibility
+                        {% if recommendations.recovery.trade_offs and recommendations.recovery.trade_offs.flexibility.value %}
+                        ({{ "%.1f"|format(recommendations.recovery.trade_offs.flexibility.value) }}% vs avg {{ "%.1f"|format(recommendations.recovery.trade_offs.flexibility.avg) }}%)
+                        {% endif %}
+                    </small>
                 </td>
             </tr>
             <tr>
@@ -86,6 +114,19 @@
                     <em>No data available</em>
                     {% endif %}
                 </td>
+                <td>
+                    <small class="trade-off-text">
+                        Reduced flexibility
+                        {% if recommendations.high_load_bearing.trade_offs and recommendations.high_load_bearing.trade_offs.flexibility.value %}
+                        ({{ "%.1f"|format(recommendations.high_load_bearing.trade_offs.flexibility.value) }}% vs avg {{ "%.1f"|format(recommendations.high_load_bearing.trade_offs.flexibility.avg) }}%)
+                        {% endif %}
+                        <br>
+                        Lower structural efficiency
+                        {% if recommendations.high_load_bearing.trade_offs and recommendations.high_load_bearing.trade_offs.efficiency.value %}
+                        ({{ "%.1f"|format(recommendations.high_load_bearing.trade_offs.efficiency.value) }}× vs avg {{ "%.1f"|format(recommendations.high_load_bearing.trade_offs.efficiency.avg) }}×)
+                        {% endif %}
+                    </small>
+                </td>
             </tr>
             <tr>
                 <td>
@@ -107,14 +148,27 @@
                     <em>No data available</em>
                     {% endif %}
                 </td>
+                <td>
+                    <small class="trade-off-text">
+                        Lower absolute load capacity
+                        {% if recommendations.best_efficiency.trade_offs and recommendations.best_efficiency.trade_offs.load_bearing.value %}
+                        ({{ "%.2f"|format(recommendations.best_efficiency.trade_offs.load_bearing.value) }}N vs avg {{ "%.2f"|format(recommendations.best_efficiency.trade_offs.load_bearing.avg) }}N)
+                        {% endif %}
+                        <br>
+                        Moderate flexibility
+                        {% if recommendations.best_efficiency.trade_offs and recommendations.best_efficiency.trade_offs.flexibility.value %}
+                        ({{ "%.1f"|format(recommendations.best_efficiency.trade_offs.flexibility.value) }}% vs avg {{ "%.1f"|format(recommendations.best_efficiency.trade_offs.flexibility.avg) }}%)
+                        {% endif %}
+                    </small>
+                </td>
             </tr>
         </tbody>
     </table>
 </div>
 
 <!-- Detailed Recommendations -->
-<div class="recommendations-section">
-    <h2>Detailed Recommendations</h2>
+<div id="detailed-recommendations" class="recommendations-section">
+    <h2><a href="#detailed-recommendations">Detailed Recommendations</a></h2>
 
     <!-- Flexibility Section -->
     <div id="flexibility-details" class="detail-section">
@@ -127,7 +181,7 @@
         <p><strong>Guidance:</strong> {{ recommendations.flexibility.general_guidance }}</p>
 
         {% if recommendations.flexibility.top_configs %}
-        <h4>Top 5 Configurations</h4>
+        <h4 id="flexibility-top-configs"><a href="#flexibility-top-configs">Top 5 Configurations</a></h4>
         <table class="config-table">
             <thead>
                 <tr class="flexibility-header">
@@ -178,7 +232,7 @@
         <p><strong>Guidance:</strong> {{ recommendations.recovery.general_guidance }}</p>
 
         {% if recommendations.recovery.top_configs %}
-        <h4>Top 5 Configurations (Ranked by Recovery Efficiency)</h4>
+        <h4 id="recovery-top-configs"><a href="#recovery-top-configs">Top 5 Configurations (Ranked by Recovery Efficiency)</a></h4>
         <p><em>Note: Rankings are normalized by applied force to enable fair comparison across different loading conditions.</em></p>
         <table class="config-table">
             <thead>
@@ -238,7 +292,7 @@
         <p><strong>Guidance:</strong> {{ recommendations.high_load_bearing.general_guidance }}</p>
 
         {% if recommendations.high_load_bearing.top_configs %}
-        <h4>Top 5 Configurations</h4>
+        <h4 id="load-bearing-top-configs"><a href="#load-bearing-top-configs">Top 5 Configurations</a></h4>
         <table class="config-table">
             <thead>
                 <tr class="load-bearing-header">
@@ -289,7 +343,7 @@
         <p><strong>Guidance:</strong> {{ recommendations.best_efficiency.general_guidance }}</p>
 
         {% if recommendations.best_efficiency.top_configs %}
-        <h4>Top 5 Configurations</h4>
+        <h4 id="efficiency-top-configs"><a href="#efficiency-top-configs">Top 5 Configurations</a></h4>
         <table class="config-table">
             <thead>
                 <tr class="efficiency-header">
@@ -331,18 +385,28 @@
 </div>
 
 <!-- Methodology Note -->
-<div>
-    <h3>Methodology</h3>
+<div id="methodology">
+    <h3><a href="#methodology">Methodology</a></h3>
     <p>
-        These recommendations are generated by analyzing experimental data across multiple parameter sweeps:
+        These recommendations are generated by analyzing experimental data from the 4 major experiment series:
     </p>
     <ul>
-        <li><strong>Flexibility:</strong> Based on maximum compression percentage achieved from force/no-force experiments</li>
-        <li><strong>Elastic Recovery:</strong> Based on recovery percentage normalized by applied force (% per Newton). This normalization accounts for the fact that different configurations were tested under different force levels to achieve comparable compression. Higher values indicate better recovery efficiency per unit of applied force.</li>
-        <li><strong>Load-Bearing:</strong> Based on maximum force sustained at 10% height reduction</li>
-        <li><strong>Efficiency:</strong> Based on specific load capacity (force / weight × g) across all configurations</li>
+        <li><strong>force_no_force</strong> - Compression and recovery behavior under cyclic loading</li>
+        <li><strong>number_of_strands</strong> - Effect of strand count on structural properties</li>
+        <li><strong>number_of_layers</strong> - Effect of layer count on structural properties</li>
+        <li><strong>strand_thickness</strong> - Effect of material thickness on structural properties</li>
     </ul>
     <p>
+        Metrics used for each recommendation:
+    </p>
+    <ul>
+        <li><strong>Flexibility:</strong> Maximum compression percentage achieved from force/no-force experiments</li>
+        <li><strong>Elastic Recovery:</strong> Recovery percentage normalized by applied force (% per Newton)</li>
+        <li><strong>Load-Bearing:</strong> Maximum force sustained at 10% height reduction</li>
+        <li><strong>Efficiency:</strong> Specific load capacity (force / weight × g)</li>
+    </ul>
+    <p>
+        Trade-off averages are calculated using only data from these 4 major experiment series.
         Rankings are determined by sorting configurations by their respective metrics.
         "Optimal" parameters represent the most common values among top performers.
     </p>

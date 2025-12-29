@@ -55,7 +55,231 @@ def get_design_recommendations(session: Session):
                                                            layer_efficiency, strand_efficiency)
     }
 
+    # Compute trade-offs for each category
+    _compute_trade_offs(session, recommendations, compression_data, recovery_data,
+                        thickness_force + layer_force + strand_force,
+                        thickness_efficiency + layer_efficiency + strand_efficiency)
+
     return recommendations
+
+
+MAJOR_EXPERIMENT_GROUPS = ['force_no_force', 'number_of_strands', 'number_of_layers', 'strand_thickness']
+
+
+def _is_major_series(session, series_name):
+    """Check if a series belongs to one of the 4 major experiment groups"""
+    series = session.query(ExperimentSeries).filter_by(
+        experiment_series_name=series_name
+    ).first()
+    if not series or not series.group_name:
+        return False
+    return any(group in series.group_name for group in MAJOR_EXPERIMENT_GROUPS)
+
+
+def _find_similar_compression(compression_data, strands, layers, material_mm):
+    """Find a similar configuration in compression data based on parameters.
+    Returns the max_compression_pct of the closest match, or None if no data."""
+    if not compression_data:
+        return None
+
+    # Try exact match first
+    for c in compression_data:
+        c_material_mm = c.get('strand_radius', 0) * 1000 if c.get('strand_radius') else None
+        if (c['num_strands'] == strands and c['num_layers'] == layers and
+            c_material_mm is not None and material_mm is not None and
+            abs(c_material_mm - material_mm) < 0.1):
+            return c['max_compression_pct']
+
+    # Try matching strands and layers only
+    for c in compression_data:
+        if c['num_strands'] == strands and c['num_layers'] == layers:
+            return c['max_compression_pct']
+
+    # Try matching just strands (most important factor)
+    matches = [c for c in compression_data if c['num_strands'] == strands]
+    if matches:
+        return np.mean([c['max_compression_pct'] for c in matches])
+
+    return None
+
+
+def _compute_trade_offs(session, recommendations, compression_data, recovery_data, force_data, efficiency_data):
+    """Compute how each recommendation fares on other metrics.
+    Only includes data from the 4 major experiment groups:
+    force_no_force, number_of_strands, number_of_layers, strand_thickness
+    """
+
+    # Build lookup maps by series name (filtered to major groups)
+    compression_map = {c['experiment_series_name']: c for c in compression_data
+                       if _is_major_series(session, c['experiment_series_name'])} if compression_data else {}
+
+    # Build recovery map with normalized efficiency (filtered to major groups)
+    recovery_map = {}
+    for config in recovery_data or []:
+        if not _is_major_series(session, config['experiment_series_name']):
+            continue
+        series = session.query(ExperimentSeries).filter_by(
+            experiment_series_name=config['experiment_series_name']
+        ).first()
+        if series and series.final_force_in_y_direction:
+            applied_force = abs(series.final_force_in_y_direction)
+            normalized_efficiency = config['recovery_percent'] / applied_force if applied_force > 0 else 0
+            recovery_map[config['experiment_series_name']] = {
+                'recovery_percent': config['recovery_percent'],
+                'normalized_efficiency': normalized_efficiency,
+                'applied_force': applied_force
+            }
+
+    # Filter force and efficiency data to major groups only
+    force_map = {f['experiment_series_name']: f['force'] for f in force_data
+                 if _is_major_series(session, f['experiment_series_name'])} if force_data else {}
+    efficiency_map = {e['experiment_series_name']: e['specific_load_capacity'] for e in efficiency_data
+                      if _is_major_series(session, e['experiment_series_name'])} if efficiency_data else {}
+
+    # Also add force/efficiency from compression_data (force_no_force experiments)
+    # These have target_force which is the applied force
+    for c in compression_data or []:
+        series_name = c['experiment_series_name']
+        if not _is_major_series(session, series_name):
+            continue
+        if series_name not in force_map and 'target_force' in c:
+            force_map[series_name] = c['target_force']
+        # Calculate efficiency for force_no_force if not already present
+        if series_name not in efficiency_map:
+            series = session.query(ExperimentSeries).filter_by(
+                experiment_series_name=series_name
+            ).first()
+            if series and series.weight_kg and 'target_force' in c:
+                weight_force = series.weight_kg * 9.81
+                if weight_force > 0:
+                    efficiency_map[series_name] = c['target_force'] / weight_force
+
+    # Calculate averages for comparison (using only major groups data)
+    major_compression = [c for c in compression_data if _is_major_series(session, c['experiment_series_name'])] if compression_data else []
+    avg_compression = np.mean([c['max_compression_pct'] for c in major_compression]) if major_compression else 0
+    avg_force = np.mean(list(force_map.values())) if force_map else 0
+    avg_efficiency = np.mean(list(efficiency_map.values())) if efficiency_map else 0
+    avg_recovery_eff = np.mean([r['normalized_efficiency'] for r in recovery_map.values()]) if recovery_map else 0
+
+    # Flexibility trade-offs (how it performs on load-bearing and efficiency)
+    if recommendations['flexibility']['top_configs']:
+        top_flex = recommendations['flexibility']['top_configs'][0]
+        series_name = top_flex['series_name']
+        force_val = force_map.get(series_name)
+        eff_val = efficiency_map.get(series_name)
+        rec_val = recovery_map.get(series_name)
+
+        recommendations['flexibility']['trade_offs'] = {
+            'load_bearing': {
+                'value': force_val,
+                'avg': avg_force,
+                'pct_of_avg': (force_val / avg_force * 100) if force_val and avg_force else None
+            },
+            'efficiency': {
+                'value': eff_val,
+                'avg': avg_efficiency,
+                'pct_of_avg': (eff_val / avg_efficiency * 100) if eff_val and avg_efficiency else None
+            },
+            'recovery': {
+                'value': rec_val['normalized_efficiency'] if rec_val else None,
+                'avg': avg_recovery_eff,
+                'pct_of_avg': (rec_val['normalized_efficiency'] / avg_recovery_eff * 100) if rec_val and avg_recovery_eff else None
+            }
+        }
+
+    # Recovery trade-offs
+    if recommendations['recovery']['top_configs']:
+        top_rec = recommendations['recovery']['top_configs'][0]
+        series_name = top_rec['series_name']
+        force_val = force_map.get(series_name)
+        eff_val = efficiency_map.get(series_name)
+        comp_val = compression_map.get(series_name, {}).get('max_compression_pct')
+
+        recommendations['recovery']['trade_offs'] = {
+            'load_bearing': {
+                'value': force_val,
+                'avg': avg_force,
+                'pct_of_avg': (force_val / avg_force * 100) if force_val and avg_force else None
+            },
+            'efficiency': {
+                'value': eff_val,
+                'avg': avg_efficiency,
+                'pct_of_avg': (eff_val / avg_efficiency * 100) if eff_val and avg_efficiency else None
+            },
+            'flexibility': {
+                'value': comp_val,
+                'avg': avg_compression,
+                'pct_of_avg': (comp_val / avg_compression * 100) if comp_val and avg_compression else None
+            }
+        }
+
+    # Load-bearing trade-offs
+    if recommendations['high_load_bearing']['top_configs']:
+        top_load = recommendations['high_load_bearing']['top_configs'][0]
+        series_name = top_load['series_name']
+        comp_val = compression_map.get(series_name, {}).get('max_compression_pct')
+        # If not found in compression_map, try to find similar config
+        if comp_val is None:
+            comp_val = _find_similar_compression(
+                compression_data,
+                top_load['strands'],
+                top_load['layers'],
+                top_load.get('material_thickness_mm')
+            )
+        eff_val = efficiency_map.get(series_name)
+        rec_val = recovery_map.get(series_name)
+
+        recommendations['high_load_bearing']['trade_offs'] = {
+            'flexibility': {
+                'value': comp_val,
+                'avg': avg_compression,
+                'pct_of_avg': (comp_val / avg_compression * 100) if comp_val and avg_compression else None
+            },
+            'efficiency': {
+                'value': eff_val,
+                'avg': avg_efficiency,
+                'pct_of_avg': (eff_val / avg_efficiency * 100) if eff_val and avg_efficiency else None
+            },
+            'recovery': {
+                'value': rec_val['normalized_efficiency'] if rec_val else None,
+                'avg': avg_recovery_eff,
+                'pct_of_avg': (rec_val['normalized_efficiency'] / avg_recovery_eff * 100) if rec_val and avg_recovery_eff else None
+            }
+        }
+
+    # Efficiency trade-offs
+    if recommendations['best_efficiency']['top_configs']:
+        top_eff = recommendations['best_efficiency']['top_configs'][0]
+        series_name = top_eff['series_name']
+        force_val = force_map.get(series_name)
+        comp_val = compression_map.get(series_name, {}).get('max_compression_pct')
+        # If not found in compression_map, try to find similar config
+        if comp_val is None:
+            comp_val = _find_similar_compression(
+                compression_data,
+                top_eff['strands'],
+                top_eff['layers'],
+                top_eff.get('material_thickness_mm')
+            )
+        rec_val = recovery_map.get(series_name)
+
+        recommendations['best_efficiency']['trade_offs'] = {
+            'load_bearing': {
+                'value': force_val,
+                'avg': avg_force,
+                'pct_of_avg': (force_val / avg_force * 100) if force_val and avg_force else None
+            },
+            'flexibility': {
+                'value': comp_val,
+                'avg': avg_compression,
+                'pct_of_avg': (comp_val / avg_compression * 100) if comp_val and avg_compression else None
+            },
+            'recovery': {
+                'value': rec_val['normalized_efficiency'] if rec_val else None,
+                'avg': avg_recovery_eff,
+                'pct_of_avg': (rec_val['normalized_efficiency'] / avg_recovery_eff * 100) if rec_val and avg_recovery_eff else None
+            }
+        }
 
 
 def _get_compression_recommendations(session: Session, compression_data):

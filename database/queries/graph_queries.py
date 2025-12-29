@@ -801,7 +801,7 @@ def get_force_no_force_stiffness_data(session):
 
 
 def get_force_no_force_recovery_consistency_data(session):
-	"""Get recovery data with variance/consistency metrics"""
+	"""Get recovery data with variance/consistency metrics as compression percentages"""
 	series_list = session.query(ExperimentSeries).filter(
 		ExperimentSeries.group_name.like('%force_no_force%')
 	).all()
@@ -823,27 +823,30 @@ def get_force_no_force_recovery_consistency_data(session):
 		if not valid_experiments:
 			continue
 
-		# Calculate final heights for each experiment
-		final_heights = []
+		# Calculate compression percentages for each experiment
+		# Compression % = (initial_height - final_height) / initial_height * 100
+		compression_pcts = []
 		for exp in valid_experiments:
-			final_heights.append(exp.final_height)
+			compression_pct = ((series.height_m - exp.final_height) / series.height_m) * 100
+			compression_pcts.append(compression_pct)
 
-		if len(final_heights) >= 2:
+		if len(compression_pcts) >= 2:
 			import statistics
-			avg_final_height = statistics.mean(final_heights)
-			std_final_height = statistics.stdev(final_heights)
-			min_final_height = min(final_heights)
-			max_final_height = max(final_heights)
+			avg_compression_pct = statistics.mean(compression_pcts)
+			std_compression_pct = statistics.stdev(compression_pcts)
+			min_compression_pct = min(compression_pcts)
+			max_compression_pct = max(compression_pcts)
 
 			results.append({
 				"experiment_series_name": series.experiment_series_name,
 				"num_layers": series.num_layers,
 				"num_strands": series.num_strands,
-				"avg_recovery": avg_final_height,
-				"std_recovery": std_final_height,
-				"min_recovery": min_final_height,
-				"max_recovery": max_final_height,
-				"sample_size": len(final_heights)
+				"initial_height": series.height_m,
+				"avg_compression_pct": avg_compression_pct,
+				"std_compression_pct": std_compression_pct,
+				"min_compression_pct": min_compression_pct,
+				"max_compression_pct": max_compression_pct,
+				"sample_size": len(compression_pcts)
 			})
 
 	return results

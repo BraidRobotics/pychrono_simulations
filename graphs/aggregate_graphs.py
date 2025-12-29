@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import plotly.express as px
 from pathlib import Path
 import pandas as pd
@@ -89,7 +90,7 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
         hover_data=['experiment_series_name', 'force'],
         labels={
             'weight_kg': 'Structure Weight (kg)',
-            'specific_load_capacity': 'Force / (Weight × g) where g=9.81 m/s²',
+            'specific_load_capacity': 'Force / (Weight x g) where g=9.81 m/s^2',
             'experiment_series_name': 'Experiment Series',
             'force': 'Force (N)'
         },
@@ -101,10 +102,10 @@ def generate_load_capacity_ratio_graph(session, force_direction='y'):
     fig.update_layout(height=500, hovermode='closest')
     apply_latex_font_theme(fig)
 
-    output_path = GRAPHS_DIR / f"load_capacity_ratio_{force_direction}.html"
+    output_path = GRAPHS_DIR / "load_capacity_ratio_{}.html".format(force_direction)
     fig.write_html(str(output_path), include_plotlyjs='cdn', config={'displayModeBar': True, 'displaylogo': False})
 
-    return f"load_capacity_ratio_{force_direction}.html"
+    return "load_capacity_ratio_{}.html".format(force_direction)
 
 
 def generate_strand_thickness_weight_graph(session):
@@ -353,10 +354,10 @@ def generate_thickness_height_reduction_vs_force_graph(session):
                 x=df_thickness_no_exp['force'],
                 y=df_thickness_no_exp['height_reduction_pct'],
                 mode='markers',
-                name=f'{thickness:.1f} mm',
+                name='{:.1f} mm'.format(thickness),
                 marker=dict(size=8, color=color),
-                legendgroup=f'{thickness}',
-                hovertemplate=f'<b>{thickness:.1f} mm</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'
+                legendgroup='{}'.format(thickness),
+                hovertemplate='<b>{:.1f} mm</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'.format(thickness)
             ))
 
         df_thickness_exp = df_exploded[df_exploded['strand_thickness_mm'] == thickness]
@@ -365,11 +366,11 @@ def generate_thickness_height_reduction_vs_force_graph(session):
                 x=df_thickness_exp['force'],
                 y=df_thickness_exp['height_reduction_pct'],
                 mode='markers',
-                name=f'{thickness:.1f} mm (exploded)',
+                name='{:.1f} mm (exploded)'.format(thickness),
                 marker=dict(size=10, color=color, symbol='x', line=dict(width=2)),
-                legendgroup=f'{thickness}',
+                legendgroup='{}'.format(thickness),
                 showlegend=False,
-                hovertemplate=f'<b>{thickness:.1f} mm</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'
+                hovertemplate='<b>{:.1f} mm</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'.format(thickness)
             ))
 
     from graphs.graph_constants import TARGET_HEIGHT_REDUCTION_PERCENT
@@ -378,7 +379,7 @@ def generate_thickness_height_reduction_vs_force_graph(session):
             y=TARGET_HEIGHT_REDUCTION_PERCENT,
             line_dash="dash",
             line_color="orange",
-            annotation_text=f"{TARGET_HEIGHT_REDUCTION_PERCENT:.0f}% Target",
+            annotation_text="{:.0f}% Target".format(TARGET_HEIGHT_REDUCTION_PERCENT),
             annotation_position="right"
         )
 
@@ -519,9 +520,9 @@ def generate_layer_count_height_graph(session):
             x=n_range,
             y=h_linear,
             mode='lines',
-            name=f'Linear Fit (slope={slope:.4f}m/layer)',
+            name='Linear Fit (slope={:.4f}m/layer)'.format(slope),
             line=dict(dash='dash', color='red', width=2),
-            hovertemplate=f'Linear fit through data<extra></extra>'
+            hovertemplate='Linear fit through data<extra></extra>'
         ))
 
     fig.update_layout(
@@ -725,10 +726,10 @@ def generate_layer_height_reduction_vs_force_graph(session):
                 x=df_layer_no_exp['force'],
                 y=df_layer_no_exp['height_reduction_pct'],
                 mode='markers',
-                name=f'{num_layers} layers',
+                name='{} layers'.format(num_layers),
                 marker=dict(size=8, color=color),
-                legendgroup=f'{num_layers}',
-                hovertemplate=f'<b>{num_layers} layers</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'
+                legendgroup='{}'.format(num_layers),
+                hovertemplate='<b>{} layers</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'.format(num_layers)
             ))
 
         df_layer_exp = df_exploded[df_exploded['num_layers'] == num_layers]
@@ -737,11 +738,11 @@ def generate_layer_height_reduction_vs_force_graph(session):
                 x=df_layer_exp['force'],
                 y=df_layer_exp['height_reduction_pct'],
                 mode='markers',
-                name=f'{num_layers} layers (exploded)',
+                name='{} layers (exploded)'.format(num_layers),
                 marker=dict(size=10, color=color, symbol='x', line=dict(width=2)),
-                legendgroup=f'{num_layers}',
+                legendgroup='{}'.format(num_layers),
                 showlegend=False,
-                hovertemplate=f'<b>{num_layers} layers</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'
+                hovertemplate='<b>{} layers</b><br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'.format(num_layers)
             ))
 
     from graphs.graph_constants import TARGET_HEIGHT_REDUCTION_PERCENT
@@ -750,7 +751,7 @@ def generate_layer_height_reduction_vs_force_graph(session):
             y=TARGET_HEIGHT_REDUCTION_PERCENT,
             line_dash="dash",
             line_color="orange",
-            annotation_text=f"{TARGET_HEIGHT_REDUCTION_PERCENT:.0f}% Target",
+            annotation_text="{:.0f}% Target".format(TARGET_HEIGHT_REDUCTION_PERCENT),
             annotation_position="right"
         )
 
@@ -950,11 +951,11 @@ def generate_strand_height_reduction_vs_force_graph(session):
                 x=df_strand_no_exp['force'],
                 y=df_strand_no_exp['height_reduction_pct'],
                 mode='markers',
-                name=f'{num_strands} strands',
+                name='{} strands'.format(num_strands),
                 marker=dict(size=8, color=color),
-                legendgroup=f'{num_strands}',
+                legendgroup='{}'.format(num_strands),
                 customdata=df_strand_no_exp['num_layers'],
-                hovertemplate=f'<b>{num_strands} strands</b><br>Layers: %{{customdata}}<br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'
+                hovertemplate='<b>{} strands</b><br>Layers: %{{customdata}}<br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<extra></extra>'.format(num_strands)
             ))
 
         df_strand_exp = df_exploded[df_exploded['num_strands'] == num_strands]
@@ -963,12 +964,12 @@ def generate_strand_height_reduction_vs_force_graph(session):
                 x=df_strand_exp['force'],
                 y=df_strand_exp['height_reduction_pct'],
                 mode='markers',
-                name=f'{num_strands} strands (exploded)',
+                name='{} strands (exploded)'.format(num_strands),
                 marker=dict(size=10, color=color, symbol='x', line=dict(width=2)),
-                legendgroup=f'{num_strands}',
+                legendgroup='{}'.format(num_strands),
                 showlegend=False,
                 customdata=df_strand_exp['num_layers'],
-                hovertemplate=f'<b>{num_strands} strands</b><br>Layers: %{{customdata}}<br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'
+                hovertemplate='<b>{} strands</b><br>Layers: %{{customdata}}<br>Force: %{{x:.3f}} N<br>Height Reduction: %{{y:.1f}}%<br>(Exploded)<extra></extra>'.format(num_strands)
             ))
 
     from graphs.graph_constants import TARGET_HEIGHT_REDUCTION_PERCENT
@@ -977,7 +978,7 @@ def generate_strand_height_reduction_vs_force_graph(session):
             y=TARGET_HEIGHT_REDUCTION_PERCENT,
             line_dash="dash",
             line_color="orange",
-            annotation_text=f"{TARGET_HEIGHT_REDUCTION_PERCENT:.0f}% Target",
+            annotation_text="{:.0f}% Target".format(TARGET_HEIGHT_REDUCTION_PERCENT),
             annotation_position="right"
         )
 
@@ -1232,7 +1233,7 @@ def generate_recovery_heatmap_thickness_layers(session):
 
 
 def generate_recovery_parameter_importance_graph(session):
-    """Parameter importance analysis based on recovered height"""
+    """Correlation strength analysis based on recovered height"""
 
     data = get_force_no_force_recovery_data(session)
     if not data or len(data) < 3:
@@ -1266,7 +1267,7 @@ def generate_recovery_parameter_importance_graph(session):
     if not correlations:
         return None
 
-    # Sort by importance
+    # Sort by correlation strength
     sorted_params = sorted(correlations.items(), key=lambda x: x[1], reverse=True)
     params, values = zip(*sorted_params)
 
@@ -1275,14 +1276,14 @@ def generate_recovery_parameter_importance_graph(session):
             x=list(params),
             y=list(values),
             marker_color=['#1f77b4', '#ff7f0e', '#2ca02c'][:len(params)],
-            text=[f'{v:.3f}' for v in values],
+            text=['{:.3f}'.format(v) for v in values],
             textposition='auto',
             hovertemplate='%{x}<br>Correlation: %{y:.3f}<extra></extra>'
         )
     ])
 
     fig.update_layout(
-        title='Parameter Importance: Recovered Height (Linear Correlation)',
+        title='Correlation Strength: Recovered Height',
         xaxis_title='Parameter',
         yaxis_title='Absolute Correlation with Recovered Height (m)',
         yaxis=dict(range=[0, 1]),
@@ -1452,7 +1453,7 @@ def generate_equilibrium_time_graph(session):
             x=strand_data['num_layers'],
             y=strand_data['avg_equilibrium_time'],
             mode='lines+markers',
-            name=f'{int(strands)} strands',
+            name='{} strands'.format(int(strands)),
             line=dict(width=2.5, color=colors.get(strands, '#000000')),
             marker=dict(size=10, symbol='circle', line=dict(width=1, color='white')),
             hovertemplate='<b>%{fullData.name}</b><br>Layers: %{x}<br>Equilibrium Time: %{y:.2f}s<extra></extra>'
@@ -1532,7 +1533,7 @@ def generate_equilibrium_time_by_strands_graph(session):
             x=layer_data['num_strands'],
             y=layer_data['avg_equilibrium_time'],
             mode='lines+markers',
-            name=f'{int(layers)} layers',
+            name='{} layers'.format(int(layers)),
             line=dict(width=2.5, color=colors.get(layers, '#000000')),
             marker=dict(size=10, symbol='circle', line=dict(width=1, color='white')),
             hovertemplate='<b>%{fullData.name}</b><br>Strands: %{x}<br>Equilibrium Time: %{y:.2f}s<extra></extra>'
@@ -1596,7 +1597,7 @@ def generate_compression_validation_graph(session):
             showscale=True,
             colorbar=dict(title="Strand Count")
         ),
-        text=[f"{val:.1f}%" for val in df['max_compression_pct']],
+        text=["{:.1f}%".format(val) for val in df['max_compression_pct']],
         textposition='outside',
         hovertemplate='<b>%{x}</b><br>Optimal Compression: %{y:.1f}%<br>Target Force: %{customdata:.1f}N<extra></extra>',
         customdata=df['target_force']
@@ -1661,7 +1662,7 @@ def generate_stiffness_comparison_graph(session):
 
 
 def generate_recovery_consistency_graph(session):
-    """Box plot showing recovery consistency across configurations"""
+    """Bar chart showing compression consistency across configurations as percentage of initial height"""
     data = get_force_no_force_recovery_consistency_data(session)
     if not data:
         return None
@@ -1672,11 +1673,11 @@ def generate_recovery_consistency_graph(session):
 
     fig = go.Figure()
 
-    # Create error bars showing variability
+    # Create error bars showing variability in compression percentage
     fig.add_trace(go.Bar(
         x=df['config'],
-        y=df['avg_recovery'],
-        name='Average Recovered Height',
+        y=df['avg_compression_pct'],
+        name='Average Compression',
         marker_color=df['num_strands'],
         marker=dict(
             colorscale='Plasma',
@@ -1685,22 +1686,22 @@ def generate_recovery_consistency_graph(session):
         ),
         error_y=dict(
             type='data',
-            array=df['std_recovery'],
+            array=df['std_compression_pct'],
             visible=True,
             color='rgba(0,0,0,0.3)',
             thickness=1.5,
             width=4
         ),
-        text=[f"{avg:.4f}±{std:.4f}m" for avg, std in zip(df['avg_recovery'], df['std_recovery'])],
+        text=["{:.2f}±{:.2f}%".format(avg, std) for avg, std in zip(df['avg_compression_pct'], df['std_compression_pct'])],
         textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Recovered Height: %{y:.4f} m<br>Std Dev: %{customdata:.4f} m<br>Range: %{text}<extra></extra>',
-        customdata=df['std_recovery']
+        hovertemplate='<b>%{x}</b><br>Compression: %{y:.2f}%<br>Std Dev: %{customdata[0]:.2f}%<br>Initial Height: %{customdata[1]:.3f} m<extra></extra>',
+        customdata=np.column_stack((df['std_compression_pct'], df['initial_height']))
     ))
 
     fig.update_layout(
-        title='Recovered Height Consistency: Average ± Standard Deviation',
+        title='Compression Consistency: Average ± Standard Deviation (% of Initial Height)',
         xaxis_title='Configuration (Strands, Layers)',
-        yaxis_title='Recovered Height (m)',
+        yaxis_title='Compression (% of Initial Height)',
         height=600,
         showlegend=False,
         xaxis={'tickangle': -45}
@@ -1734,10 +1735,10 @@ def generate_strand_stiffness_vs_compression_graph(session):
             x=df_strand['compression_pct'],
             y=df_strand['stiffness'],
             mode='lines+markers',
-            name=f'{num_strands} strands',
+            name='{} strands'.format(num_strands),
             line=dict(color=color, width=2),
             marker=dict(size=6, color=color),
-            hovertemplate=f'<b>{num_strands} strands</b><br>Compression: %{{x:.1f}}%<br>Stiffness: %{{y:.1f}} N/m<extra></extra>'
+            hovertemplate='<b>{} strands</b><br>Compression: %{{x:.1f}}%<br>Stiffness: %{{y:.1f}} N/m<extra></extra>'.format(num_strands)
         ))
 
     fig.update_layout(
@@ -1779,10 +1780,10 @@ def generate_strand_force_vs_displacement_graph(session):
             x=df_strand['displacement'] * 1000,  # Convert to mm
             y=df_strand['force'],
             mode='lines+markers',
-            name=f'{num_strands} strands',
+            name='{} strands'.format(num_strands),
             line=dict(color=color, width=2),
             marker=dict(size=6, color=color),
-            hovertemplate=f'<b>{num_strands} strands</b><br>Displacement: %{{x:.2f}} mm<br>Force: %{{y:.3f}} N<extra></extra>'
+            hovertemplate='<b>{} strands</b><br>Displacement: %{{x:.2f}} mm<br>Force: %{{y:.3f}} N<extra></extra>'.format(num_strands)
         ))
 
     # Add linear spring reference lines for comparison
@@ -1808,11 +1809,11 @@ def generate_strand_force_vs_displacement_graph(session):
                 x=x_linear * 1000,  # Convert to mm
                 y=y_linear,
                 mode='lines',
-                name=f'{num_strands} strands (linear)',
+                name='{} strands (linear)'.format(num_strands),
                 line=dict(color=color, width=1, dash='dash'),
                 opacity=0.5,
                 showlegend=False,
-                hovertemplate=f'<b>{num_strands} strands (linear spring)</b><br>Displacement: %{{x:.2f}} mm<br>Force: %{{y:.3f}} N<br>k={k_initial:.1f} N/m<extra></extra>'
+                hovertemplate='<b>{} strands (linear spring)</b><br>Displacement: %{{x:.2f}} mm<br>Force: %{{y:.3f}} N<br>k={:.1f} N/m<extra></extra>'.format(num_strands, k_initial)
             ))
 
     fig.update_layout(
@@ -1833,7 +1834,7 @@ def generate_strand_force_vs_displacement_graph(session):
 
 
 def generate_load_bearing_parameter_importance_graph(session):
-    """Parameter importance analysis for load-bearing capability"""
+    """Correlation strength analysis for load-bearing capability"""
     data = get_load_bearing_parameter_importance_data(session)
     if not data or len(data) < 3:
         return None
@@ -1852,7 +1853,7 @@ def generate_load_bearing_parameter_importance_graph(session):
     if not correlations:
         return None
 
-    # Sort by importance
+    # Sort by correlation strength
     sorted_params = sorted(correlations.items(), key=lambda x: x[1], reverse=True)
     params, values = zip(*sorted_params)
 
@@ -1861,14 +1862,14 @@ def generate_load_bearing_parameter_importance_graph(session):
             x=list(params),
             y=list(values),
             marker_color=['#d62728', '#ff7f0e'][:len(params)],
-            text=[f'{v:.3f}' for v in values],
+            text=['{:.3f}'.format(v) for v in values],
             textposition='auto',
             hovertemplate='%{x}<br>Correlation: %{y:.3f}<extra></extra>'
         )
     ])
 
     fig.update_layout(
-        title='Parameter Importance: Load-Bearing Capability (Linear Correlation)',
+        title='Correlation Strength: Load-Bearing Capability',
         xaxis_title='Parameter',
         yaxis_title='Absolute Correlation with Specific Load Capacity',
         yaxis=dict(range=[0, 1]),
@@ -1883,7 +1884,7 @@ def generate_load_bearing_parameter_importance_graph(session):
 
 
 def generate_compression_parameter_importance_graph(session):
-    """Parameter importance analysis for compression performance"""
+    """Correlation strength analysis for compression performance"""
     data = get_force_no_force_compression_data(session)
     if not data or len(data) < 3:
         return None
@@ -1902,7 +1903,7 @@ def generate_compression_parameter_importance_graph(session):
     if not correlations:
         return None
 
-    # Sort by importance
+    # Sort by correlation strength
     sorted_params = sorted(correlations.items(), key=lambda x: x[1], reverse=True)
     params, values = zip(*sorted_params)
 
@@ -1911,14 +1912,14 @@ def generate_compression_parameter_importance_graph(session):
             x=list(params),
             y=list(values),
             marker_color=['#d62728', '#ff7f0e'][:len(params)],
-            text=[f'{v:.3f}' for v in values],
+            text=['{:.3f}'.format(v) for v in values],
             textposition='auto',
             hovertemplate='%{x}<br>Correlation: %{y:.3f}<extra></extra>'
         )
     ])
 
     fig.update_layout(
-        title='Parameter Importance: Compression Performance (Linear Correlation)',
+        title='Correlation Strength: Compression Performance',
         xaxis_title='Parameter',
         yaxis_title='Absolute Correlation with Compression Percentage',
         yaxis=dict(range=[0, 1]),
@@ -1985,19 +1986,19 @@ def generate_aggregate_graphs_for_group(session, group_name):
 
     if not graphs:
         # If no specific group match, generate all-experiments graphs
-        print(f"  No specific aggregate graphs for group '{group_name}', generating all-experiments graphs...")
+        print("  No specific aggregate graphs for group '{}', generating all-experiments graphs...".format(group_name))
         for graph_func in ALL_EXPERIMENTS_GRAPHS:
             try:
-                print(f"    - {graph_func.__name__}...")
+                print("    - {}...".format(graph_func.__name__))
                 graph_func(session)
             except Exception as e:
-                print(f"      Error generating {graph_func.__name__}: {e}")
+                print("      Error generating {}: {}".format(graph_func.__name__, e))
         return
 
-    print(f"  Generating aggregate graphs for group '{group_name}'...")
+    print("  Generating aggregate graphs for group '{}'...".format(group_name))
     for graph_func in graphs:
         try:
-            print(f"    - {graph_func.__name__}...")
+            print("    - {}...".format(graph_func.__name__))
             graph_func(session)
         except Exception as e:
-            print(f"      Error generating {graph_func.__name__}: {e}")
+            print("      Error generating {}: {}".format(graph_func.__name__, e))

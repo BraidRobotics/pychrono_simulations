@@ -152,7 +152,7 @@ def experiment_loop(experiment_series, experiment_config: ExperimentConfig):
             experiment_series
         )
 
-        structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain, max_node_velocity)
+        structure_is_in_equilibrium = is_in_equilibrium(max_beam_strain)
 
         if structure_is_in_equilibrium and equilibrium_after_seconds is None:
             if experiment_series.reset_force_after_seconds is not None:
