@@ -13,10 +13,11 @@ def filter_force_no_force_experiments(experiments, initial_height):
 	Filter force_no_force experiments to exclude those after structural compromise.
 
 	Applies filters in order:
-	1. Explosion indicators (bounding box, beam strain, node velocity)
+	1. Explosion detection - skip experiments where the structure has "exploded"
 	2. Missing required data (height_under_load, final_height)
-	3. Monotonic compression check - stops when height_under_load increases
-	4. Recovery threshold - stops at very low recovery indicating plastic deformation
+	3. Non-monotonic compression - stops when height under load increases (>1% tolerance)
+	4. Non-monotonic recovery - stops when recovery suddenly increases (>10% after 70% plateau)
+	5. Structural integrity - stops when final height exceeds initial height
 
 	Returns only valid experiments up to the point of structural compromise.
 	"""
@@ -28,6 +29,7 @@ def filter_force_no_force_experiments(experiments, initial_height):
 
 	valid_experiments = []
 	min_height_under_load = float('inf')
+	prev_recovery = None
 
 	for exp in sorted_experiments:
 		# Filter 1: Skip explosions
@@ -40,14 +42,26 @@ def filter_force_no_force_experiments(experiments, initial_height):
 		if exp.height_under_load is None or exp.final_height is None:
 			continue
 
-		# Filter 3: Check monotonic decrease in height_under_load
-		# If height starts increasing, structure is compromised - stop here
+		# Filter 3: Non-monotonic compression
+		# If height under load starts increasing, structure is compromised - stop here
 		# Use 1% tolerance to account for measurement noise
 		if exp.height_under_load > min_height_under_load * 1.01:
 			break  # All subsequent experiments are invalid
 
-		# Filter 4: Check height loss indicates structural damage
-		# Height loss = final_height - initial_height
+		# Filter 4: Non-monotonic recovery
+		# Recovery naturally increases during initial compression, then plateaus.
+		# A sudden large increase after plateau indicates anomalous data.
+		# Only check after recovery has stabilized (>70%), then flag if it
+		# increases by more than 10% relative to the previous value.
+		denominator = initial_height - exp.height_under_load
+		if denominator > 0:
+			recovery = (exp.final_height - exp.height_under_load) / denominator
+			if prev_recovery is not None and prev_recovery > 0.7:
+				if recovery > prev_recovery * 1.10:
+					break  # Sudden recovery increase - anomalous data
+			prev_recovery = recovery
+
+		# Filter 5: Structural integrity
 		# Positive height loss (final_height > initial_height) indicates structural damage
 		height_loss = exp.final_height - initial_height
 		if height_loss > 0:
